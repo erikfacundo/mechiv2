@@ -99,7 +99,7 @@ export function GastoForm({ gasto, proveedorId, onSuccess, onCancel }: GastoForm
             <SelectValue placeholder="Seleccionar proveedor (opcional)" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Sin proveedor</SelectItem>
+            <SelectItem value="none">Sin proveedor</SelectItem>
             {proveedores.map((prov) => (
               <SelectItem key={prov.id} value={prov.id}>
                 {prov.nombre}
