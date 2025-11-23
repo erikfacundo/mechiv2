@@ -8,7 +8,7 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 
 let serviceAccount: any = null
-let initialized = false
+let dbInstance: ReturnType<typeof getFirestore> | null = null
 
 // Función para cargar credenciales de forma segura (sin que webpack lo detecte)
 function loadServiceAccount() {
@@ -29,15 +29,18 @@ function loadServiceAccount() {
   }
 
   // Prioridad 2: JSON local (solo en desarrollo, solo en servidor)
-  // Usar construcción dinámica que webpack no puede analizar estáticamente
-  if (typeof window === 'undefined') {
+  // IMPORTANTE: Solo intentar en desarrollo, nunca en producción
+  if (typeof window === 'undefined' && process.env.NODE_ENV !== 'production') {
     try {
+      // Usar require dinámico con variables para evitar análisis estático de webpack
       const fs = require('fs')
       const path = require('path')
-      // Construir el path de forma dinámica para evitar análisis estático
-      const libDir = 'lib'
-      const fileName = 'firebase-admin' + '.json'
-      const jsonPath = path.join(process.cwd(), 'src', libDir, fileName)
+      // Construir el path completamente dinámico usando variables
+      const baseDir = process.cwd()
+      const dir1 = 'src'
+      const dir2 = 'lib'
+      const file = 'firebase-admin' + '.json'
+      const jsonPath = path.join(baseDir, dir1, dir2, file)
       
       if (fs.existsSync(jsonPath)) {
         const fileContent = fs.readFileSync(jsonPath, 'utf8')
@@ -51,24 +54,48 @@ function loadServiceAccount() {
   return null
 }
 
-// Inicializar solo una vez
-if (!initialized && typeof window === 'undefined') {
-  serviceAccount = loadServiceAccount()
-  
-  if (serviceAccount && !getApps().length) {
-    try {
-      initializeApp({
-        credential: cert(serviceAccount),
-      })
-      initialized = true
-    } catch (error) {
-      console.error('Error inicializando Firebase Admin:', error)
+// Función para inicializar Firebase Admin de forma lazy
+function getDbInstance() {
+  if (dbInstance) {
+    return dbInstance
+  }
+
+  // Solo inicializar si no hay apps ya inicializadas
+  if (getApps().length === 0) {
+    serviceAccount = loadServiceAccount()
+    
+    if (serviceAccount) {
+      try {
+        initializeApp({
+          credential: cert(serviceAccount),
+        })
+        dbInstance = getFirestore()
+        return dbInstance
+      } catch (error) {
+        console.error('Error inicializando Firebase Admin:', error)
+      }
+    } else if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+      console.warn('⚠️  No se encontró configuración de Firebase Admin')
+      console.warn('   Configura las variables de entorno en Vercel o el archivo firebase-admin.json localmente')
     }
-  } else if (!serviceAccount && process.env.NODE_ENV !== 'production') {
-    console.warn('⚠️  No se encontró configuración de Firebase Admin')
-    console.warn('   Configura las variables de entorno en Vercel o el archivo firebase-admin.json localmente')
+  }
+  
+  // Intentar obtener la instancia (puede fallar si no hay credenciales)
+  try {
+    dbInstance = getFirestore()
+    return dbInstance
+  } catch (error) {
+    // En build sin credenciales, esto puede fallar
+    // Pero permitirá que el build pase y fallará en runtime
+    throw new Error('Firebase Admin no está inicializado. Configura las variables de entorno en Vercel.')
   }
 }
 
-// Exportar db - siempre disponible, se inicializará cuando sea necesario
-export const db = getFirestore()
+// Exportar db con lazy initialization
+export const db = new Proxy({} as ReturnType<typeof getFirestore>, {
+  get(target, prop) {
+    const instance = getDbInstance()
+    const value = (instance as any)[prop]
+    return typeof value === 'function' ? value.bind(instance) : value
+  }
+})
