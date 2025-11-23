@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
       color: body.color || '#3b82f6',
       activa: body.activa !== undefined ? body.activa : true,
       fechaCreacion: new Date(),
+      subcategorias: body.subcategorias || [], // Incluir subcategorías si vienen en el body
     }
 
     const id = await createCategoria(categoria)

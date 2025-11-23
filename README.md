@@ -29,11 +29,11 @@ Aplicación web moderna para la gestión integral de talleres automotrices. Desa
 - Node.js 18+ 
 - npm, yarn o pnpm
 
-## 🔧 Instalación
+## 🔧 Instalación Rápida
 
 1. Clona el repositorio:
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/erikfacundo/mechiv2.git
 cd mechiv2
 ```
 
@@ -42,12 +42,23 @@ cd mechiv2
 npm install
 ```
 
-3. Ejecuta el servidor de desarrollo:
+3. **Configura Firebase:**
+   - Coloca el archivo `firebase-admin.json` en `src/lib/` O
+   - Crea un archivo `.env.local` con las variables de entorno de Firebase
+
+4. **Pobla la base de datos con categorías:**
+```bash
+npm run firestore:seed-categorias
+```
+
+5. Ejecuta el servidor de desarrollo:
 ```bash
 npm run dev
 ```
 
-4. Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
+6. Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
+
+> 📖 **Para instrucciones detalladas**, consulta [SETUP.md](./SETUP.md)
 
 ## 📁 Estructura del Proyecto
 

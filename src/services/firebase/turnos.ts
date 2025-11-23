@@ -7,14 +7,22 @@ export async function getTurnos(): Promise<Turno[]> {
   try {
     const snapshot = await db.collection(COLLECTION_NAME)
       .orderBy('fecha', 'asc')
-      .orderBy('hora', 'asc')
       .get()
-    return snapshot.docs.map((doc: any) => ({
+    
+    // Ordenar en memoria por fecha y luego por hora
+    const turnos = snapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data(),
       fecha: doc.data().fecha?.toDate() || new Date(),
       fechaCreacion: doc.data().fechaCreacion?.toDate() || new Date(),
     })) as Turno[]
+    
+    // Ordenar por fecha y luego por hora
+    return turnos.sort((a, b) => {
+      const fechaCompare = a.fecha.getTime() - b.fecha.getTime()
+      if (fechaCompare !== 0) return fechaCompare
+      return (a.hora || '').localeCompare(b.hora || '')
+    })
   } catch (error) {
     console.error('Error obteniendo turnos:', error)
     return []
@@ -52,14 +60,22 @@ export async function getTurnosByFecha(fecha: Date): Promise<Turno[]> {
       .where('fecha', '>=', inicioDia)
       .where('fecha', '<=', finDia)
       .orderBy('fecha', 'asc')
-      .orderBy('hora', 'asc')
       .get()
-    return snapshot.docs.map((doc: any) => ({
+    
+    // Ordenar en memoria por fecha y luego por hora
+    const turnos = snapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data(),
       fecha: doc.data().fecha?.toDate() || new Date(),
       fechaCreacion: doc.data().fechaCreacion?.toDate() || new Date(),
     })) as Turno[]
+    
+    // Ordenar por fecha y luego por hora
+    return turnos.sort((a, b) => {
+      const fechaCompare = a.fecha.getTime() - b.fecha.getTime()
+      if (fechaCompare !== 0) return fechaCompare
+      return (a.hora || '').localeCompare(b.hora || '')
+    })
   } catch (error) {
     console.error('Error obteniendo turnos por fecha:', error)
     return []

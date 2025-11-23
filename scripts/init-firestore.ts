@@ -102,22 +102,12 @@ async function initFirestore() {
       return
     }
 
-    // Migrar categorías si está vacía
+    // Categorías: Se deben poblar usando el script seed-categorias.ts
     if (!estados['categorias']) {
-      console.log('📁 Creando categorías...')
-      const categorias = [
-        { nombre: 'Service', descripcion: 'Servicios de mantenimiento', color: '#3b82f6', activa: true },
-        { nombre: 'Reparación', descripcion: 'Reparaciones generales', color: '#ef4444', activa: true },
-        { nombre: 'Limpieza', descripcion: 'Limpieza y detallado', color: '#10b981', activa: true },
-        { nombre: 'Diagnóstico', descripcion: 'Diagnósticos técnicos', color: '#f59e0b', activa: true },
-      ]
-      for (const cat of categorias) {
-        await db.collection('categorias').add({
-          ...cat,
-          fechaCreacion: new Date(),
-        })
-      }
-      console.log(`✅ ${categorias.length} categorías creadas\n`)
+      console.log('📁 Colección categorías está vacía')
+      console.log('   💡 Ejecuta "npm run firestore:seed-categorias" para poblar las categorías completas\n')
+    } else {
+      console.log('📁 Colección categorías ya tiene datos\n')
     }
 
     // Migrar clientes si está vacía
