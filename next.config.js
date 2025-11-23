@@ -18,6 +18,19 @@ const nextConfig = {
   // Optimizaciones adicionales
   swcMinify: true,
   poweredByHeader: false,
+  // Excluir scripts del build de Next.js
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+      }
+    }
+    return config
+  },
+  // Excluir scripts del build
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx'],
 }
 
 module.exports = nextConfig
