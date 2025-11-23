@@ -106,10 +106,19 @@ El proyecto está configurado para usar Firebase Firestore.
 
 ### Desarrollo Local
 
-Para desarrollo local, coloca el archivo de credenciales en:
+Tienes dos opciones para desarrollo local:
+
+**Opción 1: Usar archivo JSON (Recomendado)**
+Coloca el archivo de credenciales en:
 - `src/lib/firebase-admin.json`
 
-**⚠️ IMPORTANTE**: Este archivo está en `.gitignore` y no debe subirse al repositorio.
+**Opción 2: Usar variables de entorno**
+Copia `.env.example` a `.env.local` y completa con tus valores:
+```bash
+cp .env.example .env.local
+```
+
+**⚠️ IMPORTANTE**: Tanto `firebase-admin.json` como `.env.local` están en `.gitignore` y no deben subirse al repositorio.
 
 ### Producción (Vercel)
 

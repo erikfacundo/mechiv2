@@ -30,6 +30,10 @@ yarn-error.log*
 # Firebase credentials
 **/firebase-adminsdk-*.json
 src/lib/firebase-admin.json
+mechifyv2-firebase-adminsdk-*.json
+
+# Firebase CLI config (opcional, puede estar en el repo)
+# firebase.json
 
 # vercel
 .vercel

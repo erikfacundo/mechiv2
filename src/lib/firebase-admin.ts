@@ -44,7 +44,19 @@ function loadServiceAccount() {
       
       if (fs.existsSync(jsonPath)) {
         const fileContent = fs.readFileSync(jsonPath, 'utf8')
-        return JSON.parse(fileContent)
+        const jsonData = JSON.parse(fileContent)
+        return {
+          type: 'service_account',
+          project_id: jsonData.project_id,
+          private_key_id: jsonData.private_key_id,
+          private_key: jsonData.private_key,
+          client_email: jsonData.client_email,
+          client_id: jsonData.client_id,
+          auth_uri: jsonData.auth_uri || 'https://accounts.google.com/o/oauth2/auth',
+          token_uri: jsonData.token_uri || 'https://oauth2.googleapis.com/token',
+          auth_provider_x509_cert_url: jsonData.auth_provider_x509_cert_url || 'https://www.googleapis.com/oauth2/v1/certs',
+          client_x509_cert_url: jsonData.client_x509_cert_url,
+        }
       }
     } catch (error) {
       // Silenciar error - es normal en producción donde el archivo no existe
