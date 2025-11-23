@@ -17,6 +17,15 @@ import { useState, useEffect } from "react"
 import { useClientes } from "@/hooks/use-clientes"
 import { useVehiculos } from "@/hooks/use-vehiculos"
 import { Plus, X } from "lucide-react"
+import { useRouter } from "next/navigation"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { ClienteForm } from "./cliente-form"
+import { VehiculoForm } from "./vehiculo-form"
 
 interface OrdenFormProps {
   orden?: OrdenTrabajo
@@ -27,12 +36,15 @@ interface OrdenFormProps {
 const estados: EstadoOrden[] = ["Pendiente", "En Proceso", "Completado", "Entregado"]
 
 export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
+  const router = useRouter()
   const { toast } = useToast()
-  const { clientes } = useClientes()
-  const { vehiculos } = useVehiculos()
+  const { clientes, refetch: refetchClientes } = useClientes()
+  const { vehiculos, refetch: refetchVehiculos } = useVehiculos()
   const [loading, setLoading] = useState(false)
   const [clienteId, setClienteId] = useState(orden?.clienteId || "")
   const [vehiculosDelCliente, setVehiculosDelCliente] = useState<string[]>([])
+  const [isClienteDialogOpen, setIsClienteDialogOpen] = useState(false)
+  const [isVehiculoDialogOpen, setIsVehiculoDialogOpen] = useState(false)
 
   interface OrdenFormValues {
     clienteId: string
@@ -197,7 +209,18 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="clienteId">Cliente *</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="clienteId">Cliente *</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsClienteDialogOpen(true)}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Nuevo Cliente
+          </Button>
+        </div>
         <Select value={clienteId} onValueChange={setClienteId}>
           <SelectTrigger>
             <SelectValue placeholder="Selecciona un cliente" />
@@ -216,7 +239,20 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="vehiculoId">Vehículo *</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="vehiculoId">Vehículo *</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsVehiculoDialogOpen(true)}
+            disabled={!clienteId}
+            title={!clienteId ? "Primero selecciona un cliente" : ""}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Nuevo Vehículo
+          </Button>
+        </div>
         <Select
           value={watch("vehiculoId") || ""}
           onValueChange={(value) => setValue("vehiculoId", value)}
@@ -227,7 +263,7 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
           <SelectContent>
             {vehiculosDelCliente.length === 0 ? (
               <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                Selecciona un cliente primero
+                {clienteId ? "No hay vehículos para este cliente" : "Selecciona un cliente primero"}
               </div>
             ) : (
               vehiculos
@@ -359,6 +395,72 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
           {loading ? "Guardando..." : orden ? "Actualizar" : "Crear"}
         </Button>
       </div>
+
+      {/* Dialog para crear cliente */}
+      <Dialog open={isClienteDialogOpen} onOpenChange={setIsClienteDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nuevo Cliente</DialogTitle>
+          </DialogHeader>
+          <ClienteForm
+            onSuccess={async () => {
+              await refetchClientes()
+              setIsClienteDialogOpen(false)
+              // Esperar un momento para que se actualice la lista
+              setTimeout(async () => {
+                const response = await fetch("/api/clientes")
+                if (response.ok) {
+                  const clientesData = await response.json()
+                  if (clientesData.length > 0) {
+                    // Seleccionar el último cliente (asumiendo que es el más reciente)
+                    const nuevoCliente = clientesData[clientesData.length - 1]
+                    setClienteId(nuevoCliente.id)
+                  }
+                }
+              }, 500)
+              toast({
+                title: "Cliente creado",
+                description: "El cliente ha sido seleccionado automáticamente.",
+              })
+            }}
+            onCancel={() => setIsClienteDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para crear vehículo */}
+      <Dialog open={isVehiculoDialogOpen} onOpenChange={setIsVehiculoDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nuevo Vehículo</DialogTitle>
+          </DialogHeader>
+          <VehiculoForm
+            clienteId={clienteId}
+            onSuccess={async () => {
+              await refetchVehiculos()
+              setIsVehiculoDialogOpen(false)
+              // Esperar un momento para que se actualice la lista
+              setTimeout(async () => {
+                const response = await fetch("/api/vehiculos")
+                if (response.ok) {
+                  const vehiculosData = await response.json()
+                  const vehiculosDelCliente = vehiculosData.filter((v: any) => v.clienteId === clienteId)
+                  if (vehiculosDelCliente.length > 0) {
+                    // Seleccionar el último vehículo creado para este cliente
+                    const nuevoVehiculo = vehiculosDelCliente[vehiculosDelCliente.length - 1]
+                    setValue("vehiculoId", nuevoVehiculo.id)
+                  }
+                }
+              }, 500)
+              toast({
+                title: "Vehículo creado",
+                description: "El vehículo ha sido seleccionado automáticamente.",
+              })
+            }}
+            onCancel={() => setIsVehiculoDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </form>
   )
 }

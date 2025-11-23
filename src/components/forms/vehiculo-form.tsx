@@ -18,6 +18,7 @@ import { useClientes } from "@/hooks/use-clientes"
 
 interface VehiculoFormProps {
   vehiculo?: Vehiculo
+  clienteId?: string
   onSuccess?: () => void
   onCancel?: () => void
 }
@@ -30,13 +31,13 @@ const marcas = [
 
 const tiposCombustible = ["Nafta", "Diesel", "GNC", "Eléctrico", "Híbrido"]
 
-export function VehiculoForm({ vehiculo, onSuccess, onCancel }: VehiculoFormProps) {
+export function VehiculoForm({ vehiculo, clienteId: propClienteId, onSuccess, onCancel }: VehiculoFormProps) {
   const { toast } = useToast()
   const { clientes } = useClientes()
   const [loading, setLoading] = useState(false)
   const [marca, setMarca] = useState(vehiculo?.marca || "")
   const [tipoCombustible, setTipoCombustible] = useState(vehiculo?.tipoCombustible || "")
-  const [clienteId, setClienteId] = useState(vehiculo?.clienteId || "")
+  const [clienteId, setClienteId] = useState(vehiculo?.clienteId || propClienteId || "")
 
   const {
     register,
@@ -55,6 +56,13 @@ export function VehiculoForm({ vehiculo, onSuccess, onCancel }: VehiculoFormProp
     if (tipoCombustible) setValue("tipoCombustible", tipoCombustible)
     if (clienteId) setValue("clienteId", clienteId)
   }, [marca, tipoCombustible, clienteId, setValue])
+
+  useEffect(() => {
+    if (propClienteId && !vehiculo) {
+      setClienteId(propClienteId)
+      setValue("clienteId", propClienteId)
+    }
+  }, [propClienteId, vehiculo, setValue])
 
   const onSubmit = async (data: Omit<Vehiculo, 'id'>) => {
     setLoading(true)
