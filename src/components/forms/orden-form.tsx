@@ -226,9 +226,9 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
           </SelectTrigger>
           <SelectContent>
             {vehiculosDelCliente.length === 0 ? (
-              <SelectItem value="" disabled>
+              <div className="px-2 py-1.5 text-sm text-muted-foreground">
                 Selecciona un cliente primero
-              </SelectItem>
+              </div>
             ) : (
               vehiculos
                 .filter((v) => vehiculosDelCliente.includes(v.id))
