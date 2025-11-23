@@ -112,6 +112,7 @@ async function checkFirestore() {
       'clientes',
       'cobros',
       'gastos',
+      'mantenimientos', // Nueva colección
       'ordenes',
       'plantillas_tareas',
       'proveedores',

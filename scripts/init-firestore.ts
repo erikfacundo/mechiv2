@@ -69,6 +69,7 @@ async function initFirestore() {
       'clientes',
       'cobros',
       'gastos',
+      'mantenimientos', // Nueva colección
       'ordenes',
       'plantillas_tareas',
       'proveedores',

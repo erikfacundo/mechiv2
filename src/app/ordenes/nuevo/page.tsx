@@ -1,20 +1,14 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { OrdenForm } from "@/components/forms/orden-form"
+import { OrdenMultiStepForm } from "@/components/forms/orden-multistep-form"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
 
 export default function NuevaOrdenPage() {
   const router = useRouter()
-  const { toast } = useToast()
 
   const handleSuccess = () => {
-    toast({
-      title: "Orden creada",
-      description: "La orden se ha creado exitosamente.",
-    })
     router.push("/ordenes")
   }
 
@@ -34,12 +28,10 @@ export default function NuevaOrdenPage() {
           Volver a Órdenes
         </Button>
         <h1 className="text-3xl font-bold">Nueva Orden de Trabajo</h1>
-        <p className="text-muted-foreground">Completa los datos de la nueva orden</p>
+        <p className="text-muted-foreground">Crea una nueva orden paso a paso</p>
       </div>
 
-      <div className="bg-card rounded-lg border p-6">
-        <OrdenForm onSuccess={handleSuccess} onCancel={handleCancel} />
-      </div>
+      <OrdenMultiStepForm onSuccess={handleSuccess} onCancel={handleCancel} />
     </div>
   )
 }

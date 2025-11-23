@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase-admin'
-import { OrdenTrabajo, EstadoOrden } from '@/types'
+import { OrdenTrabajo, EstadoOrden, TareaChecklist } from '@/types'
 
 const COLLECTION_NAME = 'ordenes'
 
@@ -8,12 +8,26 @@ export async function getOrdenes(): Promise<OrdenTrabajo[]> {
     const snapshot = await db.collection(COLLECTION_NAME)
       .orderBy('fechaIngreso', 'desc')
       .get()
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      fechaIngreso: doc.data().fechaIngreso?.toDate() || new Date(),
-      fechaEntrega: doc.data().fechaEntrega?.toDate() || undefined,
-    })) as OrdenTrabajo[]
+    return snapshot.docs.map(doc => {
+      const data = doc.data()
+      const checklist = data?.checklist || []
+      return {
+        id: doc.id,
+        ...data,
+        fechaIngreso: data.fechaIngreso?.toDate() || new Date(),
+        fechaEntrega: data.fechaEntrega?.toDate() || undefined,
+        fechaRecordatorioMantenimiento: data?.fechaRecordatorioMantenimiento?.toDate() || undefined,
+        checklist: checklist.map((item: any) => ({
+          ...item,
+          fechaCompletitud: item.fechaCompletitud?.toDate() || undefined,
+        })),
+        gastos: (data?.gastos || []).map((gasto: any) => ({
+          ...gasto,
+          fecha: gasto.fecha?.toDate() || new Date(),
+        })),
+        porcentajeCompletitud: data?.porcentajeCompletitud || calcularProgreso(checklist),
+      }
+    }) as OrdenTrabajo[]
   } catch (error) {
     console.error('Error obteniendo órdenes:', error)
     return []
@@ -28,16 +42,44 @@ export async function getOrdenById(id: string): Promise<OrdenTrabajo | null> {
       return null
     }
     
+    const data = ordenSnap.data()
+    
+    // Procesar checklist
+    const checklist = data?.checklist?.map((item: any) => ({
+      ...item,
+      fechaCompletitud: item.fechaCompletitud?.toDate() || undefined,
+    })) || []
+    
+    // Procesar gastos
+    const gastos = data?.gastos?.map((gasto: any) => ({
+      ...gasto,
+      fecha: gasto.fecha?.toDate() || new Date(),
+    })) || []
+    
     return {
       id: ordenSnap.id,
-      ...ordenSnap.data(),
-      fechaIngreso: ordenSnap.data()?.fechaIngreso?.toDate() || new Date(),
-      fechaEntrega: ordenSnap.data()?.fechaEntrega?.toDate() || undefined,
+      ...data,
+      fechaIngreso: data?.fechaIngreso?.toDate() || new Date(),
+      fechaEntrega: data?.fechaEntrega?.toDate() || undefined,
+      fechaRecordatorioMantenimiento: data?.fechaRecordatorioMantenimiento?.toDate() || undefined,
+      checklist,
+      gastos,
+      porcentajeCompletitud: data?.porcentajeCompletitud || calcularProgreso(checklist),
     } as OrdenTrabajo
   } catch (error) {
     console.error('Error obteniendo orden:', error)
     return null
   }
+}
+
+// Calcular progreso basado en checklist
+export function calcularProgreso(checklist: TareaChecklist[]): number {
+  if (!checklist || checklist.length === 0) {
+    return 0
+  }
+  
+  const completadas = checklist.filter(t => t.completado).length
+  return Math.round((completadas / checklist.length) * 100)
 }
 
 export async function getOrdenesByEstado(estado: EstadoOrden | 'Todos'): Promise<OrdenTrabajo[]> {
@@ -117,11 +159,44 @@ export async function createOrden(orden: Omit<OrdenTrabajo, 'id'>): Promise<stri
       numeroOrden = await getNextNumeroOrden()
     }
 
-    const docRef = await db.collection(COLLECTION_NAME).add({
+    // Calcular progreso inicial si hay checklist
+    const porcentajeCompletitud = orden.checklist 
+      ? calcularProgreso(orden.checklist)
+      : 0
+
+    // Procesar fechas
+    const ordenData: any = {
       ...orden,
       numeroOrden,
       fechaIngreso: new Date(),
-    })
+      porcentajeCompletitud,
+    }
+    
+    if (orden.fechaEntrega) {
+      ordenData.fechaEntrega = new Date(orden.fechaEntrega)
+    }
+    
+    if (orden.fechaRecordatorioMantenimiento) {
+      ordenData.fechaRecordatorioMantenimiento = new Date(orden.fechaRecordatorioMantenimiento)
+    }
+    
+    // Procesar checklist
+    if (orden.checklist) {
+      ordenData.checklist = orden.checklist.map(item => ({
+        ...item,
+        fechaCompletitud: item.fechaCompletitud ? new Date(item.fechaCompletitud) : undefined,
+      }))
+    }
+    
+    // Procesar gastos
+    if (orden.gastos) {
+      ordenData.gastos = orden.gastos.map(gasto => ({
+        ...gasto,
+        fecha: gasto.fecha ? new Date(gasto.fecha) : new Date(),
+      }))
+    }
+
+    const docRef = await db.collection(COLLECTION_NAME).add(ordenData)
     return docRef.id
   } catch (error) {
     console.error('Error creando orden:', error)
@@ -135,6 +210,29 @@ export async function updateOrden(id: string, orden: Partial<OrdenTrabajo>): Pro
     
     if (orden.fechaEntrega) {
       updateData.fechaEntrega = new Date(orden.fechaEntrega)
+    }
+    
+    if (orden.fechaRecordatorioMantenimiento) {
+      updateData.fechaRecordatorioMantenimiento = new Date(orden.fechaRecordatorioMantenimiento)
+    }
+    
+    // Calcular progreso si hay checklist
+    if (orden.checklist) {
+      updateData.porcentajeCompletitud = calcularProgreso(orden.checklist)
+      
+      // Procesar fechas de completitud en checklist
+      updateData.checklist = orden.checklist.map(item => ({
+        ...item,
+        fechaCompletitud: item.fechaCompletitud ? new Date(item.fechaCompletitud) : undefined,
+      }))
+    }
+    
+    // Procesar fechas en gastos
+    if (orden.gastos) {
+      updateData.gastos = orden.gastos.map(gasto => ({
+        ...gasto,
+        fecha: gasto.fecha ? new Date(gasto.fecha) : new Date(),
+      }))
     }
     
     await db.collection(COLLECTION_NAME).doc(id).update(updateData)
