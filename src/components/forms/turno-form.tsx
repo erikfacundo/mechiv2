@@ -16,9 +16,10 @@ interface TurnoFormProps {
   clienteId?: string
   vehiculoId?: string
   onSuccess?: () => void
+  onCancel?: () => void
 }
 
-export function TurnoForm({ turno, clienteId, vehiculoId, onSuccess }: TurnoFormProps) {
+export function TurnoForm({ turno, clienteId, vehiculoId, onSuccess, onCancel }: TurnoFormProps) {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const { clientes } = useClientes()
@@ -218,9 +219,16 @@ export function TurnoForm({ turno, clienteId, vehiculoId, onSuccess }: TurnoForm
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button type="submit" disabled={loading}>
-          {loading ? "Guardando..." : turno ? "Actualizar" : "Crear"}
-        </Button>
+        <div className="flex gap-2">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancelar
+            </Button>
+          )}
+          <Button type="submit" disabled={loading}>
+            {loading ? "Guardando..." : turno ? "Actualizar" : "Crear"}
+          </Button>
+        </div>
       </div>
     </form>
   )

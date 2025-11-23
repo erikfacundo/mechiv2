@@ -15,9 +15,10 @@ interface CobroFormProps {
   ordenId?: string
   clienteId?: string
   onSuccess?: () => void
+  onCancel?: () => void
 }
 
-export function CobroForm({ cobro, ordenId, clienteId, onSuccess }: CobroFormProps) {
+export function CobroForm({ cobro, ordenId, clienteId, onSuccess, onCancel }: CobroFormProps) {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const { ordenes } = useOrdenes()
@@ -207,9 +208,16 @@ export function CobroForm({ cobro, ordenId, clienteId, onSuccess }: CobroFormPro
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button type="submit" disabled={loading}>
-          {loading ? "Guardando..." : cobro ? "Actualizar" : "Crear"}
-        </Button>
+        <div className="flex gap-2">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancelar
+            </Button>
+          )}
+          <Button type="submit" disabled={loading}>
+            {loading ? "Guardando..." : cobro ? "Actualizar" : "Crear"}
+          </Button>
+        </div>
       </div>
     </form>
   )

@@ -12,9 +12,10 @@ import { Plus, X } from "lucide-react"
 interface PlantillaTareaFormProps {
   plantilla?: PlantillaTarea
   onSuccess?: () => void
+  onCancel?: () => void
 }
 
-export function PlantillaTareaForm({ plantilla, onSuccess }: PlantillaTareaFormProps) {
+export function PlantillaTareaForm({ plantilla, onSuccess, onCancel }: PlantillaTareaFormProps) {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
 
@@ -187,9 +188,16 @@ export function PlantillaTareaForm({ plantilla, onSuccess }: PlantillaTareaFormP
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button type="submit" disabled={loading}>
-          {loading ? "Guardando..." : plantilla ? "Actualizar" : "Crear"}
-        </Button>
+        <div className="flex gap-2">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancelar
+            </Button>
+          )}
+          <Button type="submit" disabled={loading}>
+            {loading ? "Guardando..." : plantilla ? "Actualizar" : "Crear"}
+          </Button>
+        </div>
       </div>
     </form>
   )

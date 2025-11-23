@@ -11,9 +11,10 @@ import { useToast } from "@/hooks/use-toast"
 interface CategoriaFormProps {
   categoria?: Categoria
   onSuccess?: () => void
+  onCancel?: () => void
 }
 
-export function CategoriaForm({ categoria, onSuccess }: CategoriaFormProps) {
+export function CategoriaForm({ categoria, onSuccess, onCancel }: CategoriaFormProps) {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
 
@@ -118,9 +119,16 @@ export function CategoriaForm({ categoria, onSuccess }: CategoriaFormProps) {
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button type="submit" disabled={loading}>
-          {loading ? "Guardando..." : categoria ? "Actualizar" : "Crear"}
-        </Button>
+        <div className="flex gap-2">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancelar
+            </Button>
+          )}
+          <Button type="submit" disabled={loading}>
+            {loading ? "Guardando..." : categoria ? "Actualizar" : "Crear"}
+          </Button>
+        </div>
       </div>
     </form>
   )
