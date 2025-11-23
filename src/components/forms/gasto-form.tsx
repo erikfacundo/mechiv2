@@ -60,6 +60,7 @@ export function GastoForm({ gasto, proveedorId, onSuccess, onCancel }: GastoForm
         },
         body: JSON.stringify({
           ...data,
+          proveedorId: data.proveedorId || undefined,
           fecha: data.fecha instanceof Date ? data.fecha.toISOString() : data.fecha,
         }),
       })
@@ -92,8 +93,8 @@ export function GastoForm({ gasto, proveedorId, onSuccess, onCancel }: GastoForm
       <div className="space-y-2">
         <Label htmlFor="proveedorId">Proveedor</Label>
         <Select
-          value={watch("proveedorId") || ""}
-          onValueChange={(value) => setValue("proveedorId", value)}
+          value={watch("proveedorId") || "none"}
+          onValueChange={(value) => setValue("proveedorId", value === "none" ? "" : value)}
         >
           <SelectTrigger>
             <SelectValue placeholder="Seleccionar proveedor (opcional)" />
