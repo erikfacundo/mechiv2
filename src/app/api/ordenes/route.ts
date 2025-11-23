@@ -29,20 +29,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    // Generar número de orden si no viene
-    let numeroOrden = body.numeroOrden
-    if (!numeroOrden) {
-      numeroOrden = await getNextNumeroOrden()
-    } else {
-      // Validar número de orden único
-      const numeroExists = await checkNumeroOrdenExists(numeroOrden)
-      if (numeroExists) {
-        return NextResponse.json(
-          { error: 'El número de orden ya existe' },
-          { status: 400 }
-        )
-      }
-    }
+    // Siempre generar número de orden automáticamente para nuevas órdenes
+    const numeroOrden = await getNextNumeroOrden()
 
     const orden: Omit<OrdenTrabajo, 'id'> = {
       clienteId: body.clienteId,

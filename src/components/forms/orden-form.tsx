@@ -84,7 +84,7 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
           estado: "Pendiente",
           clienteId: "",
           vehiculoId: "",
-          numeroOrden: "",
+          numeroOrden: "", // Se generará automáticamente en el servidor
           descripcion: "",
         },
   })
@@ -113,35 +113,6 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
 
   const servicios = watch("servicios")
   const costoTotal = watch("costoTotal")
-  const numeroOrdenValue = watch("numeroOrden")
-
-  // Validar número de orden único en tiempo real
-  useEffect(() => {
-    const validateNumeroOrden = async () => {
-      if (!numeroOrdenValue || numeroOrdenValue.length < 5) return
-
-      try {
-        const response = await fetch(
-          `/api/validations/numero-orden?numeroOrden=${numeroOrdenValue}${orden ? `&excludeId=${orden.id}` : ""}`
-        )
-        const { exists } = await response.json()
-
-        if (exists) {
-          setError("numeroOrden", {
-            type: "manual",
-            message: "Este número de orden ya existe",
-          })
-        } else {
-          clearErrors("numeroOrden")
-        }
-      } catch (error) {
-        // Silenciar errores de validación
-      }
-    }
-
-    const timeoutId = setTimeout(validateNumeroOrden, 500)
-    return () => clearTimeout(timeoutId)
-  }, [numeroOrdenValue, orden, setError, clearErrors])
 
   const calcularCosto = () => {
     // Lógica simple: cada servicio suma un costo base
@@ -157,13 +128,6 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
     }
   }, [servicios])
 
-  useEffect(() => {
-    // El número de orden se generará automáticamente en el servidor si no se proporciona
-    if (!orden && !watch("numeroOrden")) {
-      // Dejar vacío para que el servidor lo genere
-      setValue("numeroOrden", "")
-    }
-  }, [orden, setValue, watch])
 
   const onSubmit = async (data: Omit<OrdenTrabajo, 'id' | 'fechaIngreso' | 'fechaEntrega'>) => {
     setLoading(true)
@@ -171,15 +135,21 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
       const url = orden ? `/api/ordenes/${orden.id}` : "/api/ordenes"
       const method = orden ? "PUT" : "POST"
 
+      // Para nuevas órdenes, no enviar numeroOrden (se generará automáticamente)
+      const bodyData = orden 
+        ? { ...data, servicios: data.servicios.filter((s) => s.trim()) }
+        : { 
+            ...data, 
+            numeroOrden: undefined, // No enviar para que se genere automáticamente
+            servicios: data.servicios.filter((s) => s.trim()) 
+          }
+
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...data,
-          servicios: data.servicios.filter((s) => s.trim()),
-        }),
+        body: JSON.stringify(bodyData),
       })
 
       if (!response.ok) {
@@ -283,14 +253,28 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="numeroOrden">N° Orden *</Label>
-          <Input
-            id="numeroOrden"
-            {...register("numeroOrden", { required: "El número de orden es requerido" })}
-            placeholder="OT-2024-001"
-          />
+          <Label htmlFor="numeroOrden">N° Orden {orden ? "*" : ""}</Label>
+          {orden ? (
+            <Input
+              id="numeroOrden"
+              {...register("numeroOrden", { required: "El número de orden es requerido" })}
+              placeholder="OT-2024-001"
+            />
+          ) : (
+            <Input
+              id="numeroOrden"
+              value="Se generará automáticamente"
+              disabled
+              className="bg-muted text-muted-foreground cursor-not-allowed"
+            />
+          )}
           {errors.numeroOrden && (
             <p className="text-sm text-destructive">{errors.numeroOrden.message}</p>
+          )}
+          {!orden && (
+            <p className="text-xs text-muted-foreground">
+              El número de orden se asignará automáticamente al guardar
+            </p>
           )}
         </div>
 
