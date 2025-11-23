@@ -27,6 +27,10 @@ export function PlantillaTareaForm({ plantilla, onSuccess, onCancel }: Plantilla
     costoEstimado?: number
     pasos: string[]
     activa: boolean
+    esTareaPadre: boolean
+    tareaPadre?: string
+    subtareas?: string[]
+    usoCount?: number
   }
 
   const {
@@ -43,6 +47,10 @@ export function PlantillaTareaForm({ plantilla, onSuccess, onCancel }: Plantilla
       costoEstimado: 0,
       pasos: [""],
       activa: true,
+      esTareaPadre: false,
+      tareaPadre: undefined,
+      subtareas: [],
+      usoCount: 0,
     },
   })
 
@@ -52,18 +60,33 @@ export function PlantillaTareaForm({ plantilla, onSuccess, onCancel }: Plantilla
     name: "pasos",
   })
 
-  const onSubmit = async (data: Omit<PlantillaTarea, 'id' | 'fechaCreacion'>) => {
+  const onSubmit = async (data: PlantillaFormValues) => {
     setLoading(true)
     try {
       const url = plantilla ? `/api/plantillas-tareas/${plantilla.id}` : "/api/plantillas-tareas"
       const method = plantilla ? "PUT" : "POST"
+
+      // Preparar datos para enviar
+      const plantillaData: Omit<PlantillaTarea, 'id' | 'fechaCreacion'> = {
+        nombre: data.nombre,
+        descripcion: data.descripcion,
+        categoria: data.categoria || "",
+        tiempoEstimado: data.tiempoEstimado || 0,
+        costoEstimado: data.costoEstimado || 0,
+        pasos: data.pasos.filter(p => p.trim()),
+        activa: data.activa,
+        esTareaPadre: data.esTareaPadre || false,
+        tareaPadre: data.tareaPadre || undefined,
+        subtareas: data.subtareas || [],
+        usoCount: data.usoCount || 0,
+      }
 
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(plantillaData),
       })
 
       if (!response.ok) {
