@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Categoria } from "@/types"
 import { useToast } from "@/hooks/use-toast"
+import { Plus, X } from "lucide-react"
 
 interface CategoriaFormProps {
   categoria?: Categoria
@@ -16,13 +17,16 @@ interface CategoriaFormProps {
 
 export function CategoriaForm({ categoria, onSuccess, onCancel }: CategoriaFormProps) {
   const [loading, setLoading] = useState(false)
+  const [subcategorias, setSubcategorias] = useState<string[]>(
+    categoria?.subcategorias || ['']
+  )
   const { toast } = useToast()
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<Omit<Categoria, 'id' | 'fechaCreacion'>>({
+  } = useForm<Omit<Categoria, 'id' | 'fechaCreacion' | 'subcategorias'>>({
     defaultValues: categoria || {
       nombre: "",
       descripcion: "",
@@ -31,7 +35,36 @@ export function CategoriaForm({ categoria, onSuccess, onCancel }: CategoriaFormP
     },
   })
 
-  const onSubmit = async (data: Omit<Categoria, 'id' | 'fechaCreacion'>) => {
+  const addSubcategoria = () => {
+    setSubcategorias([...subcategorias, ''])
+  }
+
+  const updateSubcategoria = (index: number, value: string) => {
+    const updated = [...subcategorias]
+    updated[index] = value
+    setSubcategorias(updated)
+  }
+
+  const removeSubcategoria = (index: number) => {
+    if (subcategorias.length > 1) {
+      const updated = subcategorias.filter((_, i) => i !== index)
+      setSubcategorias(updated)
+    }
+  }
+
+  const onSubmit = async (data: Omit<Categoria, 'id' | 'fechaCreacion' | 'subcategorias'>) => {
+    // Filtrar subcategorías vacías
+    const subcategoriasFiltradas = subcategorias.filter(sub => sub.trim())
+    
+    if (subcategoriasFiltradas.length === 0) {
+      toast({
+        title: "Error",
+        description: "Debe agregar al menos una subcategoría",
+        variant: "destructive",
+      })
+      return
+    }
+
     setLoading(true)
     try {
       const url = categoria ? `/api/categorias/${categoria.id}` : "/api/categorias"
@@ -42,7 +75,10 @@ export function CategoriaForm({ categoria, onSuccess, onCancel }: CategoriaFormP
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          subcategorias: subcategoriasFiltradas,
+        }),
       })
 
       if (!response.ok) {
@@ -71,11 +107,14 @@ export function CategoriaForm({ categoria, onSuccess, onCancel }: CategoriaFormP
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="nombre">Nombre *</Label>
+        <Label htmlFor="nombre">Nombre de la Tarea Principal *</Label>
+        <p className="text-sm text-muted-foreground">
+          Este será el nombre de la tarea principal (categoría) que aparecerá en el checklist
+        </p>
         <Input
           id="nombre"
           {...register("nombre", { required: "El nombre es requerido" })}
-          placeholder="Ej: Service"
+          placeholder="Ej: Diagnóstico Electrónico y Reparación de Fallas"
         />
         {errors.nombre && (
           <p className="text-sm text-destructive">{errors.nombre.message}</p>
@@ -106,6 +145,45 @@ export function CategoriaForm({ categoria, onSuccess, onCancel }: CategoriaFormP
             className="flex-1"
           />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Subtareas *</Label>
+        <p className="text-sm text-muted-foreground">
+          Esta categoría será la <strong>Tarea Principal</strong>. Las subtareas se convertirán automáticamente en subtareas del checklist cuando se seleccione esta categoría al crear una orden.
+        </p>
+        <div className="space-y-2">
+          {subcategorias.map((sub, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <Input
+                value={sub}
+                onChange={(e) => updateSubcategoria(index, e.target.value)}
+                placeholder="Ej: Cambio de aceite"
+                className="flex-1"
+              />
+              {subcategorias.length > 1 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => removeSubcategoria(index)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={addSubcategoria}
+          className="w-full"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Agregar Subcategoría
+        </Button>
       </div>
 
       <div className="flex items-center space-x-2">

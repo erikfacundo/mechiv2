@@ -7,6 +7,13 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
+import * as fs from 'fs'
+import * as path from 'path'
+import { fileURLToPath } from 'url'
+
+// Obtener __dirname en ESM
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // Función para cargar credenciales
 function loadServiceAccount() {
@@ -28,15 +35,22 @@ function loadServiceAccount() {
 
   // Prioridad 2: JSON local (solo en desarrollo)
   try {
-    const fs = require('fs')
-    const path = require('path')
-    const jsonPath = path.join(__dirname, '..', 'src', 'lib', 'firebase-admin.json')
+    // Intentar múltiples rutas posibles
+    const possiblePaths = [
+      path.join(__dirname, '..', 'src', 'lib', 'firebase-admin.json'),
+      path.join(process.cwd(), 'src', 'lib', 'firebase-admin.json'),
+      path.resolve(__dirname, '..', 'src', 'lib', 'firebase-admin.json'),
+    ]
     
-    if (fs.existsSync(jsonPath)) {
-      return JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
+    for (const jsonPath of possiblePaths) {
+      if (fs.existsSync(jsonPath)) {
+        console.log(`📁 Usando archivo de credenciales: ${jsonPath}`)
+        return JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
+      }
     }
   } catch (error) {
     // Ignorar error
+    console.error('Error al cargar archivo JSON:', error)
   }
 
   return null
@@ -93,7 +107,29 @@ async function migrateNewFields() {
 
     console.log(`✅ ${plantillasUpdated} plantillas actualizadas\n`)
 
-    // 2. Actualizar órdenes existentes
+    // 2. Actualizar categorías existentes
+    console.log('📁 Actualizando categorías...')
+    const categoriasSnapshot = await db.collection('categorias').get()
+    let categoriasUpdated = 0
+
+    for (const doc of categoriasSnapshot.docs) {
+      const data = doc.data()
+      const updates: any = {}
+
+      // Agregar campo subcategorias si no existe
+      if (data.subcategorias === undefined) {
+        updates.subcategorias = []
+      }
+
+      if (Object.keys(updates).length > 0) {
+        await doc.ref.update(updates)
+        categoriasUpdated++
+      }
+    }
+
+    console.log(`✅ ${categoriasUpdated} categorías actualizadas\n`)
+
+    // 3. Actualizar órdenes existentes
     console.log('📋 Actualizando órdenes...')
     const ordenesSnapshot = await db.collection('ordenes').get()
     let ordenesUpdated = 0
@@ -131,7 +167,7 @@ async function migrateNewFields() {
 
     console.log(`✅ ${ordenesUpdated} órdenes actualizadas\n`)
 
-    // 3. Crear colección mantenimientos si no existe
+    // 4. Crear colección mantenimientos si no existe
     console.log('🔧 Verificando colección mantenimientos...')
     const mantenimientosSnapshot = await db.collection('mantenimientos').limit(1).get()
     
@@ -145,6 +181,7 @@ async function migrateNewFields() {
     console.log('✅ Migración completada exitosamente!')
     console.log('\n📋 Resumen:')
     console.log(`   - Plantillas actualizadas: ${plantillasUpdated}`)
+    console.log(`   - Categorías actualizadas: ${categoriasUpdated}`)
     console.log(`   - Órdenes actualizadas: ${ordenesUpdated}`)
     console.log('\n💡 Nota: Los nuevos campos son opcionales y retrocompatibles.')
     console.log('   Los documentos existentes seguirán funcionando sin estos campos.\n')

@@ -80,8 +80,10 @@ export default function EditarCategoriaPage() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver a Categorías
         </Button>
-        <h1 className="text-3xl font-bold">Editar Categoría</h1>
-        <p className="text-muted-foreground">Modifica los datos de la categoría</p>
+        <h1 className="text-3xl font-bold">Editar Tarea Principal</h1>
+        <p className="text-muted-foreground">
+          Modifica la tarea principal y sus subtareas (subcategorías)
+        </p>
       </div>
 
       <div className="bg-card rounded-lg border p-6">

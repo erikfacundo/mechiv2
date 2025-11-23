@@ -66,7 +66,7 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
   const [vehiculoId, setVehiculoId] = useState("")
   const [selectedCliente, setSelectedCliente] = useState<any>(null)
   const [selectedVehiculo, setSelectedVehiculo] = useState<any>(null)
-  const [selectedCategoria, setSelectedCategoria] = useState<any>(null)
+  const [selectedCategoriaId, setSelectedCategoriaId] = useState<string>("")
   const [checklist, setChecklist] = useState<TareaChecklist[]>([])
   const [esMantenimiento, setEsMantenimiento] = useState(false)
   const [fechaRecordatorio, setFechaRecordatorio] = useState("")
@@ -82,8 +82,6 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
   } = useForm({
     defaultValues: {
       estado: "Pendiente" as EstadoOrden,
-      descripcion: "",
-      servicios: [""],
       costoTotal: 0,
       observaciones: "",
       fechaIngreso: new Date().toISOString().split('T')[0],
@@ -91,7 +89,7 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
     },
   })
 
-  const watchedTipoTrabajo = watch("descripcion")
+  // Eliminado watchedTipoTrabajo - ya no se usa selección de categoría
 
   useEffect(() => {
     if (clienteId) {
@@ -107,19 +105,47 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
     }
   }, [vehiculoId, vehiculos])
 
+  // RETROALIMENTACIÓN: Cuando se selecciona una categoría, generar automáticamente
+  // la tarea padre (categoría) y las subtareas (subcategorías)
   useEffect(() => {
-    if (watchedTipoTrabajo && categorias.length > 0) {
-      const categoria = categorias.find(c => c.nombre === watchedTipoTrabajo)
-      setSelectedCategoria(categoria)
+    if (selectedCategoriaId && categorias.length > 0) {
+      const categoria = categorias.find(c => c.id === selectedCategoriaId)
+      
+      if (categoria && categoria.subcategorias && categoria.subcategorias.length > 0) {
+        // Crear la tarea padre (categoría)
+        const tareaPadre: TareaChecklist = {
+          id: `categoria-${categoria.id}`,
+          tarea: categoria.nombre,
+          completado: false,
+          notas: categoria.descripcion || '',
+        }
+        
+        // Crear las subtareas (subcategorías)
+        const subtareas: TareaChecklist[] = categoria.subcategorias.map((subcategoria, index) => ({
+          id: `subcategoria-${categoria.id}-${index}`,
+          tarea: subcategoria,
+          tareaPadre: categoria.nombre, // Referencia al nombre de la categoría
+          completado: false,
+          notas: '',
+        }))
+        
+        // Combinar tarea padre y subtareas
+        const nuevoChecklist = [tareaPadre, ...subtareas]
+        setChecklist(nuevoChecklist)
+        
+        toast({
+          title: "Checklist generado",
+          description: `Se generó la tarea "${categoria.nombre}" con ${subtareas.length} subtarea${subtareas.length !== 1 ? 's' : ''}`,
+        })
+      }
     }
-  }, [watchedTipoTrabajo, categorias])
+  }, [selectedCategoriaId, categorias])
 
   const steps = [
     { id: 1, title: 'Cliente', icon: User },
     { id: 2, title: 'Vehículo', icon: Car },
-    { id: 3, title: 'Trabajo', icon: Wrench },
-    { id: 4, title: 'Checklist', icon: CheckSquare },
-    { id: 5, title: 'Confirmar', icon: FileText },
+    { id: 3, title: 'Trabajo', icon: CheckSquare },
+    { id: 4, title: 'Confirmar', icon: FileText },
   ]
 
   const handleNext = () => {
@@ -157,6 +183,20 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
   const onSubmit = async (data: any) => {
     setLoading(true)
     try {
+      // Validar que haya al menos una tarea en el checklist
+      if (checklist.length === 0) {
+        toast({
+          title: "Error",
+          description: "Debes agregar al menos una tarea al checklist",
+          variant: "destructive",
+        })
+        setLoading(false)
+        return
+      }
+
+      // Generar descripción basada en las tareas del checklist
+      const descripcion = checklist.map(t => t.tarea).join(", ")
+
       const ordenData: Omit<OrdenTrabajo, 'id'> = {
         clienteId,
         vehiculoId,
@@ -164,15 +204,13 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
         fechaIngreso: new Date(data.fechaIngreso),
         fechaEntrega: data.fechaEntrega ? new Date(data.fechaEntrega) : undefined,
         estado: data.estado,
-        descripcion: data.descripcion,
-        servicios: data.servicios.filter((s: string) => s.trim()),
+        descripcion: descripcion,
+        servicios: checklist.map(t => t.tarea), // Los servicios son las tareas del checklist
         costoTotal: data.costoTotal || 0,
         observaciones: data.observaciones || "",
         checklist: checklist,
         gastos: [],
-        porcentajeCompletitud: checklist.length > 0 
-          ? Math.round((checklist.filter(t => t.completado).length / checklist.length) * 100)
-          : 0,
+        porcentajeCompletitud: 0, // Inicialmente 0%
         esMantenimiento: esMantenimiento,
         fechaRecordatorioMantenimiento: esMantenimiento && fechaRecordatorio 
           ? new Date(fechaRecordatorio) 
@@ -350,39 +388,91 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h3 className="text-lg font-medium mb-2">Tipo de Trabajo</h3>
+              <h3 className="text-lg font-medium mb-2">Trabajo y Checklist</h3>
               <p className="text-muted-foreground">
-                Selecciona el tipo de trabajo a realizar
+                Define las tareas del trabajo y completa la información
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Selector de Categoría (Tarea Principal) */}
               <div className="space-y-2">
-                <Label>Tipo de Trabajo *</Label>
+                <Label>Seleccionar Tarea Principal (Opcional)</Label>
+                <p className="text-sm text-muted-foreground">
+                  Selecciona una tarea principal para generar automáticamente el checklist con la tarea principal y sus subtareas
+                </p>
                 <Select
-                  value={watch("descripcion")}
+                  value={selectedCategoriaId}
                   onValueChange={(value) => {
-                    setValue("descripcion", value)
-                    const categoria = categorias.find(c => c.nombre === value)
-                    setSelectedCategoria(categoria)
+                    setSelectedCategoriaId(value)
+                    // El useEffect se encargará de generar el checklist
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar tipo de trabajo..." />
+                    <SelectValue placeholder="Selecciona una tarea principal para generar el checklist automáticamente..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {categorias.map((categoria) => (
-                      <SelectItem key={categoria.id} value={categoria.nombre}>
-                        {categoria.nombre}
-                      </SelectItem>
-                    ))}
+                    {categorias.map((categoria) => {
+                      const hasSubtareas = categoria.subcategorias && categoria.subcategorias.length > 0
+                      return (
+                        <SelectItem key={categoria.id} value={categoria.id}>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{categoria.nombre}</span>
+                            {hasSubtareas && (
+                              <Badge variant="outline" className="text-xs">
+                                {categoria.subcategorias.length} subtarea{categoria.subcategorias.length !== 1 ? 's' : ''}
+                              </Badge>
+                            )}
+                          </div>
+                        </SelectItem>
+                      )
+                    })}
                   </SelectContent>
                 </Select>
-                {errors.descripcion && (
-                  <p className="text-sm text-destructive">{errors.descripcion.message}</p>
+                {selectedCategoriaId && (
+                  <div className="space-y-2">
+                    <div className="p-3 rounded-md bg-muted/50 border border-border">
+                      <p className="text-sm font-medium mb-1">
+                        Tarea Principal seleccionada: {categorias.find(c => c.id === selectedCategoriaId)?.nombre}
+                      </p>
+                      {categorias.find(c => c.id === selectedCategoriaId)?.subcategorias && 
+                       categorias.find(c => c.id === selectedCategoriaId)!.subcategorias!.length > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          Se generarán {categorias.find(c => c.id === selectedCategoriaId)!.subcategorias!.length} subtareas automáticamente
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedCategoriaId("")
+                        setChecklist([])
+                      }}
+                    >
+                      Limpiar selección
+                    </Button>
+                  </div>
                 )}
               </div>
 
+              {/* Checklist de Trabajo */}
+              <div className="space-y-2">
+                <Label>Checklist de Trabajo *</Label>
+                <p className="text-sm text-muted-foreground">
+                  {selectedCategoriaId 
+                    ? "El checklist se generó automáticamente. Puedes editarlo o agregar más tareas."
+                    : "Agrega las tareas que se realizarán en esta orden"}
+                </p>
+                <ChecklistManager
+                  checklist={checklist}
+                  onChecklistChange={setChecklist}
+                  ordenId="new-order"
+                />
+              </div>
+
+              {/* Fechas */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="fechaIngreso">Fecha de Ingreso *</Label>
@@ -406,8 +496,9 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
                 </div>
               </div>
 
+              {/* Observaciones */}
               <div className="space-y-2">
-                <Label htmlFor="observaciones">Observaciones Iniciales</Label>
+                <Label htmlFor="observaciones">Observaciones</Label>
                 <Textarea
                   id="observaciones"
                   placeholder="Describe el trabajo a realizar, problemas detectados, etc."
@@ -416,6 +507,7 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
                 />
               </div>
 
+              {/* Mantenimiento */}
               <div className="space-y-4 p-4 border rounded-lg">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
@@ -457,23 +549,6 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
         )
 
       case 4:
-        return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <h3 className="text-lg font-medium mb-2">Checklist de Trabajo</h3>
-              <p className="text-muted-foreground">
-                Personaliza las tareas según el tipo de trabajo
-              </p>
-            </div>
-
-            <ChecklistManager
-              checklist={checklist}
-              onChecklistChange={setChecklist}
-            />
-          </div>
-        )
-
-      case 5:
         return (
           <div className="space-y-6">
             <div className="text-center">
@@ -531,14 +606,39 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
                 <CardContent className="space-y-3">
                   <div className="flex items-center space-x-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
-                      <Wrench className="h-5 w-5 text-orange-600" />
+                      <CheckSquare className="h-5 w-5 text-orange-600" />
                     </div>
                     <div>
-                      <h4 className="font-medium">{selectedCategoria?.nombre || watch("descripcion")}</h4>
+                      <h4 className="font-medium">Checklist de Trabajo</h4>
                       <p className="text-sm text-muted-foreground">
-                        {watch("fechaIngreso")} - {watch("fechaEntrega") || "Sin fecha estimada"}
+                        {checklist.length} tarea{checklist.length !== 1 ? 's' : ''} definida{checklist.length !== 1 ? 's' : ''}
                       </p>
                     </div>
+                  </div>
+
+                  {checklist.length > 0 && (
+                    <div className="space-y-1">
+                      <h5 className="font-medium text-sm mb-2">Tareas:</h5>
+                      <ul className="list-disc list-inside space-y-1">
+                        {checklist.slice(0, 5).map((task, index) => (
+                          <li key={task.id || index} className="text-sm text-muted-foreground">
+                            {task.tarea}
+                          </li>
+                        ))}
+                        {checklist.length > 5 && (
+                          <li className="text-sm text-muted-foreground italic">
+                            ... y {checklist.length - 5} tarea{checklist.length - 5 !== 1 ? 's' : ''} más
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  <div className="text-sm text-muted-foreground">
+                    <p><strong>Fecha Ingreso:</strong> {watch("fechaIngreso")}</p>
+                    {watch("fechaEntrega") && (
+                      <p><strong>Fecha Entrega:</strong> {watch("fechaEntrega")}</p>
+                    )}
                   </div>
                   
                   {watch("observaciones") && (
@@ -588,11 +688,11 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
       case 2:
         return !!vehiculoId
       case 3:
-        return !!watch("descripcion") && (!esMantenimiento || !!fechaRecordatorio)
+        // Validar que haya al menos una tarea en el checklist
+        // y que si es mantenimiento, tenga fecha de recordatorio
+        return checklist.length > 0 && (!esMantenimiento || !!fechaRecordatorio)
       case 4:
-        return true // El checklist es opcional
-      case 5:
-        return true
+        return true // Confirmación siempre disponible
       default:
         return false
     }

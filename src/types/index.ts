@@ -67,6 +67,7 @@ export interface Categoria {
   color?: string;
   activa: boolean;
   fechaCreacion: Date;
+  subcategorias?: string[]; // Subcategorías que se convertirán automáticamente en tareas del checklist
 }
 
 export interface Cobro {

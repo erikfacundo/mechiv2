@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { TareaChecklist, PlantillaTarea } from "@/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,7 +20,7 @@ import { usePlantillasTareas } from "@/hooks/use-plantillas-tareas"
 import { useToast } from "@/hooks/use-toast"
 
 interface ChecklistManagerProps {
-  checklist: TareaChecklist[]
+  checklist?: TareaChecklist[] // Hacer opcional para evitar errores
   onChecklistChange: (checklist: TareaChecklist[]) => void
   ordenId?: string
 }
@@ -32,17 +32,29 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
   const [selectedTareaPadre, setSelectedTareaPadre] = useState<string>("")
   const [expandedPadres, setExpandedPadres] = useState<Set<string>>(new Set())
 
+  // Asegurar que checklist siempre sea un array usando useMemo para evitar recálculos
+  const safeChecklist = useMemo(() => {
+    if (!checklist || !Array.isArray(checklist)) {
+      return []
+    }
+    return checklist
+  }, [checklist])
+
   // Obtener tareas padre únicas del checklist
-  const tareasPadre = Array.from(new Set(checklist.filter(t => !t.tareaPadre).map(t => t.tarea)))
+  const tareasPadre = useMemo(() => {
+    return Array.from(new Set(safeChecklist.filter(t => !t.tareaPadre).map(t => t.tarea)))
+  }, [safeChecklist])
 
   // Agrupar tareas por padre
-  const tareasAgrupadas = tareasPadre.map(padre => ({
-    padre,
-    tareas: checklist.filter(t => t.tareaPadre === padre || (t.tarea === padre && !t.tareaPadre)),
-  }))
+  const tareasAgrupadas = useMemo(() => {
+    return tareasPadre.map(padre => ({
+      padre,
+      tareas: safeChecklist.filter(t => t.tareaPadre === padre || (t.tarea === padre && !t.tareaPadre)),
+    }))
+  }, [tareasPadre, safeChecklist])
 
   const updateTarea = (index: number, field: keyof TareaChecklist, value: any) => {
-    const updated = [...checklist]
+    const updated = [...safeChecklist]
     updated[index] = {
       ...updated[index],
       [field]: value,
@@ -65,7 +77,7 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
       completado: false,
       notas: "",
     }
-    onChecklistChange([...checklist, nuevaTarea])
+    onChecklistChange([...safeChecklist, nuevaTarea])
   }
 
   const addTareaPadre = async () => {
@@ -108,7 +120,7 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
       notas: "",
     }
 
-    onChecklistChange([...checklist, nuevaTareaPadre])
+    onChecklistChange([...safeChecklist, nuevaTareaPadre])
     setSelectedTareaPadre("")
     setShowTaskSelector(false)
     await refetchPlantillas()
@@ -173,7 +185,7 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
       notas: "",
     }
 
-    onChecklistChange([...checklist, nuevaSubtarea])
+    onChecklistChange([...safeChecklist, nuevaSubtarea])
     await refetchPlantillas()
     
     toast({
@@ -183,7 +195,7 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
   }
 
   const removeTarea = (index: number) => {
-    const updated = checklist.filter((_, i) => i !== index)
+    const updated = safeChecklist.filter((_, i) => i !== index)
     onChecklistChange(updated)
   }
 
@@ -285,7 +297,7 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
             const tareaPadre = grupo.tareas.find(t => t.tarea === grupo.padre && !t.tareaPadre)
             const subtareas = grupo.tareas.filter(t => t.tareaPadre === grupo.padre)
             const isExpanded = expandedPadres.has(grupo.padre)
-            const padreIndex = checklist.findIndex(t => t.id === tareaPadre?.id)
+            const padreIndex = safeChecklist.findIndex(t => t.id === tareaPadre?.id)
 
             return (
               <Card key={grupo.padre}>
@@ -347,7 +359,7 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
                   {isExpanded && (
                     <div className="ml-8 space-y-2 border-l-2 pl-4">
                       {subtareas.map((subtarea, subIndex) => {
-                        const globalIndex = checklist.findIndex(t => t.id === subtarea.id)
+                        const globalIndex = safeChecklist.findIndex(t => t.id === subtarea.id)
                         return (
                           <div key={subtarea.id} className="flex items-start gap-3">
                             <button
@@ -429,10 +441,10 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
         )}
 
         {/* Tareas simples (sin padre) */}
-        {checklist
+        {safeChecklist
           .filter(t => !t.tareaPadre && !tareasPadre.includes(t.tarea))
           .map((tarea, index) => {
-            const globalIndex = checklist.findIndex(t => t.id === tarea.id)
+            const globalIndex = safeChecklist.findIndex(t => t.id === tarea.id)
             return (
               <Card key={tarea.id}>
                 <CardContent className="p-4">

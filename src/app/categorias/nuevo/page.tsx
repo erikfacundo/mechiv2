@@ -33,8 +33,10 @@ export default function NuevaCategoriaPage() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver a Categorías
         </Button>
-        <h1 className="text-3xl font-bold">Nueva Categoría</h1>
-        <p className="text-muted-foreground">Completa los datos de la nueva categoría</p>
+        <h1 className="text-3xl font-bold">Nueva Tarea Principal</h1>
+        <p className="text-muted-foreground">
+          Crea una nueva tarea principal (categoría) y define sus subtareas (subcategorías)
+        </p>
       </div>
 
       <div className="bg-card rounded-lg border p-6">

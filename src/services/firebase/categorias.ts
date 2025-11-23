@@ -8,11 +8,15 @@ export async function getCategorias(): Promise<Categoria[]> {
     const snapshot = await db.collection(COLLECTION_NAME)
       .where('activa', '==', true)
       .get()
-    return snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-      fechaCreacion: doc.data().fechaCreacion?.toDate() || new Date(),
-    })) as Categoria[]
+    return snapshot.docs.map((doc: any) => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        ...data,
+        fechaCreacion: data.fechaCreacion?.toDate() || new Date(),
+        subcategorias: data.subcategorias || [], // Asegurar que siempre sea un array
+      }
+    }) as Categoria[]
   } catch (error) {
     console.error('Error obteniendo categorías:', error)
     return []
@@ -27,10 +31,12 @@ export async function getCategoriaById(id: string): Promise<Categoria | null> {
       return null
     }
     
+    const data = categoriaSnap.data()
     return {
       id: categoriaSnap.id,
-      ...categoriaSnap.data(),
-      fechaCreacion: categoriaSnap.data()?.fechaCreacion?.toDate() || new Date(),
+      ...data,
+      fechaCreacion: data?.fechaCreacion?.toDate() || new Date(),
+      subcategorias: data?.subcategorias || [], // Asegurar que siempre sea un array
     } as Categoria
   } catch (error) {
     console.error('Error obteniendo categoría:', error)
