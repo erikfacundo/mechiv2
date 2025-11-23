@@ -1,21 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useProveedores } from "@/hooks/use-proveedores"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { ProveedorForm } from "@/components/forms/proveedor-form"
 import { Proveedor } from "@/types"
 import { Plus, Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 
 export default function ProveedoresPage() {
+  const router = useRouter()
   const { proveedores, loading, refetch } = useProveedores()
   const { toast } = useToast()
-  const [editingProveedor, setEditingProveedor] = useState<Proveedor | undefined>()
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Estás seguro de eliminar este proveedor?")) return
@@ -79,10 +76,7 @@ export default function ProveedoresPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              setEditingProveedor(row)
-              setIsDialogOpen(true)
-            }}
+            onClick={() => router.push(`/proveedores/${row.id}/editar`)}
           >
             <Edit className="h-4 w-4" />
           </Button>
@@ -105,32 +99,10 @@ export default function ProveedoresPage() {
           <h1 className="text-3xl font-bold">Proveedores</h1>
           <p className="text-muted-foreground">Gestiona los proveedores del taller</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open)
-          if (!open) setEditingProveedor(undefined)
-        }}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Proveedor
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>
-                {editingProveedor ? "Editar Proveedor" : "Nuevo Proveedor"}
-              </DialogTitle>
-            </DialogHeader>
-            <ProveedorForm
-              proveedor={editingProveedor}
-              onSuccess={() => {
-                setIsDialogOpen(false)
-                setEditingProveedor(undefined)
-                refetch()
-              }}
-            />
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => router.push("/proveedores/nuevo")}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nuevo Proveedor
+        </Button>
       </div>
 
       {loading ? (

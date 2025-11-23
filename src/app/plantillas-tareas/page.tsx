@@ -1,21 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { usePlantillasTareas } from "@/hooks/use-plantillas-tareas"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { PlantillaTareaForm } from "@/components/forms/plantilla-tarea-form"
 import { PlantillaTarea } from "@/types"
 import { Plus, Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 
 export default function PlantillasTareasPage() {
+  const router = useRouter()
   const { plantillas, loading, refetch } = usePlantillasTareas()
   const { toast } = useToast()
-  const [editingPlantilla, setEditingPlantilla] = useState<PlantillaTarea | undefined>()
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Estás seguro de eliminar esta plantilla?")) return
@@ -89,10 +86,7 @@ export default function PlantillasTareasPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              setEditingPlantilla(row)
-              setIsDialogOpen(true)
-            }}
+            onClick={() => router.push(`/plantillas-tareas/${row.id}/editar`)}
           >
             <Edit className="h-4 w-4" />
           </Button>
@@ -115,32 +109,10 @@ export default function PlantillasTareasPage() {
           <h1 className="text-3xl font-bold">Plantillas de Tareas</h1>
           <p className="text-muted-foreground">Gestiona las plantillas de tareas reutilizables</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open)
-          if (!open) setEditingPlantilla(undefined)
-        }}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Nueva Plantilla
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingPlantilla ? "Editar Plantilla" : "Nueva Plantilla"}
-              </DialogTitle>
-            </DialogHeader>
-            <PlantillaTareaForm
-              plantilla={editingPlantilla}
-              onSuccess={() => {
-                setIsDialogOpen(false)
-                setEditingPlantilla(undefined)
-                refetch()
-              }}
-            />
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => router.push("/plantillas-tareas/nuevo")}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nueva Plantilla
+        </Button>
       </div>
 
       {loading ? (

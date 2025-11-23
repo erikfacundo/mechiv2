@@ -10,7 +10,8 @@
     "firestore:init": "ts-node --project tsconfig.scripts.json scripts/init-firestore.ts",
     "firestore:check": "ts-node --project tsconfig.scripts.json scripts/check-firestore.ts",
     "firestore:create": "ts-node --project tsconfig.scripts.json scripts/create-collections.ts",
-    "vercel:import-env": "powershell -ExecutionPolicy Bypass -File scripts/import-env-to-vercel.ps1"
+    "vercel:import-env": "powershell -ExecutionPolicy Bypass -File scripts/import-env-to-vercel.ps1",
+    "vercel:deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy-vercel.ps1"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.5",

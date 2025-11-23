@@ -1,42 +1,28 @@
 "use client"
 
-import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useClientes } from "@/hooks/use-clientes"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { ClienteForm } from "@/components/forms/cliente-form"
 import { Cliente } from "@/types"
 import { Eye, Plus, Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 export default function ClientesPage() {
+  const router = useRouter()
   const { clientes, loading, refetch } = useClientes()
   const { toast } = useToast()
-  const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editingCliente, setEditingCliente] = useState<Cliente | null>(null)
 
   const handleViewDetail = (cliente: Cliente) => {
-    setSelectedCliente(cliente)
-    setIsDialogOpen(true)
+    router.push(`/clientes/${cliente.id}`)
   }
 
   const handleCreate = () => {
-    setEditingCliente(null)
-    setIsFormOpen(true)
+    router.push("/clientes/nuevo")
   }
 
   const handleEdit = (cliente: Cliente) => {
-    setEditingCliente(cliente)
-    setIsFormOpen(true)
+    router.push(`/clientes/${cliente.id}/editar`)
   }
 
   const handleDelete = async (cliente: Cliente) => {
@@ -67,11 +53,6 @@ export default function ClientesPage() {
     }
   }
 
-  const handleFormSuccess = () => {
-    setIsFormOpen(false)
-    setEditingCliente(null)
-    refetch()
-  }
 
   const columns = [
     { key: "nombre", header: "Nombre" },
@@ -142,86 +123,6 @@ export default function ClientesPage() {
         )}
       />
 
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              {editingCliente ? "Editar Cliente" : "Nuevo Cliente"}
-            </DialogTitle>
-            <DialogDescription>
-              {editingCliente
-                ? "Modifica la información del cliente."
-                : "Completa los datos para crear un nuevo cliente."}
-            </DialogDescription>
-          </DialogHeader>
-          <ClienteForm
-            cliente={editingCliente || undefined}
-            onSuccess={handleFormSuccess}
-            onCancel={() => setIsFormOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Detalle del Cliente</DialogTitle>
-            <DialogDescription>
-              Información completa del cliente
-            </DialogDescription>
-          </DialogHeader>
-          {selectedCliente && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Nombre Completo
-                  </p>
-                  <p className="text-sm">
-                    {selectedCliente.nombre} {selectedCliente.apellido}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    DNI
-                  </p>
-                  <p className="text-sm">{selectedCliente.dni}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Teléfono
-                  </p>
-                  <p className="text-sm">{selectedCliente.telefono}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Email
-                  </p>
-                  <p className="text-sm">{selectedCliente.email}</p>
-                </div>
-                {selectedCliente.direccion && (
-                  <div className="col-span-2">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Dirección
-                    </p>
-                    <p className="text-sm">{selectedCliente.direccion}</p>
-                  </div>
-                )}
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Fecha de Registro
-                  </p>
-                  <p className="text-sm">
-                    {new Date(selectedCliente.fechaRegistro).toLocaleDateString(
-                      "es-AR"
-                    )}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

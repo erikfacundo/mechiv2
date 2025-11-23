@@ -1,19 +1,12 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { useOrdenes } from "@/hooks/use-ordenes"
 import { useClientes } from "@/hooks/use-clientes"
 import { useVehiculos } from "@/hooks/use-vehiculos"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { OrdenForm } from "@/components/forms/orden-form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { OrdenTrabajo, EstadoOrden } from "@/types"
@@ -36,6 +29,7 @@ const getEstadoBadgeVariant = (estado: string) => {
 }
 
 export default function OrdenesPage() {
+  const router = useRouter()
   const [estadoFiltro, setEstadoFiltro] = useState<EstadoOrden | "Todos">("Todos")
   const { ordenes, loading: loadingOrdenes, refetch } = useOrdenes(estadoFiltro)
   const { clientes } = useClientes()
@@ -44,10 +38,6 @@ export default function OrdenesPage() {
   
   const [clientesMap, setClientesMap] = useState<Record<string, { nombre: string; apellido: string }>>({})
   const [vehiculosMap, setVehiculosMap] = useState<Record<string, { marca: string; modelo: string; patente: string }>>({})
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editingOrden, setEditingOrden] = useState<OrdenTrabajo | null>(null)
-  const [selectedOrden, setSelectedOrden] = useState<OrdenTrabajo | null>(null)
-  const [isDetailOpen, setIsDetailOpen] = useState(false)
 
   useEffect(() => {
     if (clientes.length > 0) {
@@ -70,18 +60,15 @@ export default function OrdenesPage() {
   }, [vehiculos])
 
   const handleCreate = () => {
-    setEditingOrden(null)
-    setIsFormOpen(true)
+    router.push("/ordenes/nuevo")
   }
 
   const handleEdit = (orden: OrdenTrabajo) => {
-    setEditingOrden(orden)
-    setIsFormOpen(true)
+    router.push(`/ordenes/${orden.id}/editar`)
   }
 
   const handleViewDetail = (orden: OrdenTrabajo) => {
-    setSelectedOrden(orden)
-    setIsDetailOpen(true)
+    router.push(`/ordenes/${orden.id}`)
   }
 
   const handleDelete = async (orden: OrdenTrabajo) => {
@@ -112,11 +99,6 @@ export default function OrdenesPage() {
     }
   }
 
-  const handleFormSuccess = () => {
-    setIsFormOpen(false)
-    setEditingOrden(null)
-    refetch()
-  }
 
   const columns = [
     { key: "numeroOrden", header: "N° Orden" },
@@ -221,106 +203,6 @@ export default function OrdenesPage() {
         />
       )}
 
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingOrden ? "Editar Orden" : "Nueva Orden"}
-            </DialogTitle>
-            <DialogDescription>
-              {editingOrden
-                ? "Modifica la información de la orden."
-                : "Completa los datos para crear una nueva orden de trabajo."}
-            </DialogDescription>
-          </DialogHeader>
-          <OrdenForm
-            orden={editingOrden || undefined}
-            onSuccess={handleFormSuccess}
-            onCancel={() => setIsFormOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Detalle de la Orden</DialogTitle>
-            <DialogDescription>
-              Información completa de la orden de trabajo
-            </DialogDescription>
-          </DialogHeader>
-          {selectedOrden && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">N° Orden</p>
-                  <p className="text-sm font-semibold">{selectedOrden.numeroOrden}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Estado</p>
-                  <Badge variant={getEstadoBadgeVariant(selectedOrden.estado)}>
-                    {selectedOrden.estado}
-                  </Badge>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Cliente</p>
-                  <p className="text-sm">
-                    {clientesMap[selectedOrden.clienteId] 
-                      ? `${clientesMap[selectedOrden.clienteId].nombre} ${clientesMap[selectedOrden.clienteId].apellido}`
-                      : "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Vehículo</p>
-                  <p className="text-sm">
-                    {vehiculosMap[selectedOrden.vehiculoId]
-                      ? `${vehiculosMap[selectedOrden.vehiculoId].marca} ${vehiculosMap[selectedOrden.vehiculoId].modelo} - ${vehiculosMap[selectedOrden.vehiculoId].patente}`
-                      : "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Fecha Ingreso</p>
-                  <p className="text-sm">
-                    {new Date(selectedOrden.fechaIngreso).toLocaleDateString("es-AR")}
-                  </p>
-                </div>
-                {selectedOrden.fechaEntrega && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Fecha Entrega</p>
-                    <p className="text-sm">
-                      {new Date(selectedOrden.fechaEntrega).toLocaleDateString("es-AR")}
-                    </p>
-                  </div>
-                )}
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Costo Total</p>
-                  <p className="text-sm font-semibold">
-                    ${selectedOrden.costoTotal.toLocaleString("es-AR")}
-                  </p>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Descripción</p>
-                <p className="text-sm">{selectedOrden.descripcion}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Servicios</p>
-                <ul className="list-disc list-inside text-sm">
-                  {selectedOrden.servicios.map((servicio, index) => (
-                    <li key={index}>{servicio}</li>
-                  ))}
-                </ul>
-              </div>
-              {selectedOrden.observaciones && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Observaciones</p>
-                  <p className="text-sm">{selectedOrden.observaciones}</p>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

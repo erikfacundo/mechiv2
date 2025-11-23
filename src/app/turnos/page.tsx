@@ -1,11 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useTurnos } from "@/hooks/use-turnos"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { TurnoForm } from "@/components/forms/turno-form"
 import { Turno } from "@/types"
 import { Plus, Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -14,12 +12,11 @@ import { useClientes } from "@/hooks/use-clientes"
 import { useVehiculos } from "@/hooks/use-vehiculos"
 
 export default function TurnosPage() {
+  const router = useRouter()
   const { turnos, loading, refetch } = useTurnos()
   const { toast } = useToast()
   const { clientes } = useClientes()
   const { vehiculos } = useVehiculos()
-  const [editingTurno, setEditingTurno] = useState<Turno | undefined>()
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Estás seguro de eliminar este turno?")) return
@@ -100,10 +97,7 @@ export default function TurnosPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              setEditingTurno(row)
-              setIsDialogOpen(true)
-            }}
+            onClick={() => router.push(`/turnos/${row.id}/editar`)}
           >
             <Edit className="h-4 w-4" />
           </Button>
@@ -126,32 +120,10 @@ export default function TurnosPage() {
           <h1 className="text-3xl font-bold">Turnos</h1>
           <p className="text-muted-foreground">Gestiona los turnos de los clientes</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open)
-          if (!open) setEditingTurno(undefined)
-        }}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Turno
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>
-                {editingTurno ? "Editar Turno" : "Nuevo Turno"}
-              </DialogTitle>
-            </DialogHeader>
-            <TurnoForm
-              turno={editingTurno}
-              onSuccess={() => {
-                setIsDialogOpen(false)
-                setEditingTurno(undefined)
-                refetch()
-              }}
-            />
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => router.push("/turnos/nuevo")}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nuevo Turno
+        </Button>
       </div>
 
       {loading ? (

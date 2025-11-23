@@ -1,17 +1,10 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useVehiculos } from "@/hooks/use-vehiculos"
 import { useClientes } from "@/hooks/use-clientes"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { VehiculoForm } from "@/components/forms/vehiculo-form"
 import { Vehiculo } from "@/types"
 import { useState, useEffect } from "react"
 import { Plus, Edit, Trash2 } from "lucide-react"
@@ -22,8 +15,6 @@ export default function VehiculosPage() {
   const { clientes, loading: loadingClientes } = useClientes()
   const { toast } = useToast()
   const [clientesMap, setClientesMap] = useState<Record<string, { nombre: string; apellido: string }>>({})
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editingVehiculo, setEditingVehiculo] = useState<Vehiculo | null>(null)
 
   useEffect(() => {
     if (clientes.length > 0) {
@@ -35,14 +26,14 @@ export default function VehiculosPage() {
     }
   }, [clientes])
 
+  const router = useRouter()
+
   const handleCreate = () => {
-    setEditingVehiculo(null)
-    setIsFormOpen(true)
+    router.push("/vehiculos/nuevo")
   }
 
   const handleEdit = (vehiculo: Vehiculo) => {
-    setEditingVehiculo(vehiculo)
-    setIsFormOpen(true)
+    router.push(`/vehiculos/${vehiculo.id}/editar`)
   }
 
   const handleDelete = async (vehiculo: Vehiculo) => {
@@ -73,11 +64,6 @@ export default function VehiculosPage() {
     }
   }
 
-  const handleFormSuccess = () => {
-    setIsFormOpen(false)
-    setEditingVehiculo(null)
-    refetch()
-  }
 
   const columns = [
     { key: "marca", header: "Marca" },
@@ -153,25 +139,6 @@ export default function VehiculosPage() {
         )}
       />
 
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingVehiculo ? "Editar Vehículo" : "Nuevo Vehículo"}
-            </DialogTitle>
-            <DialogDescription>
-              {editingVehiculo
-                ? "Modifica la información del vehículo."
-                : "Completa los datos para registrar un nuevo vehículo."}
-            </DialogDescription>
-          </DialogHeader>
-          <VehiculoForm
-            vehiculo={editingVehiculo || undefined}
-            onSuccess={handleFormSuccess}
-            onCancel={() => setIsFormOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

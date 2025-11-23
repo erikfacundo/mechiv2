@@ -1,20 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useGastos } from "@/hooks/use-gastos"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { GastoForm } from "@/components/forms/gasto-form"
 import { Gasto } from "@/types"
 import { Plus, Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 export default function GastosPage() {
+  const router = useRouter()
   const { gastos, loading, refetch } = useGastos()
   const { toast } = useToast()
-  const [editingGasto, setEditingGasto] = useState<Gasto | undefined>()
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Estás seguro de eliminar este gasto?")) return
@@ -83,10 +80,7 @@ export default function GastosPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              setEditingGasto(row)
-              setIsDialogOpen(true)
-            }}
+            onClick={() => router.push(`/gastos/${row.id}/editar`)}
           >
             <Edit className="h-4 w-4" />
           </Button>
@@ -109,32 +103,10 @@ export default function GastosPage() {
           <h1 className="text-3xl font-bold">Gastos</h1>
           <p className="text-muted-foreground">Gestiona los gastos del taller</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open)
-          if (!open) setEditingGasto(undefined)
-        }}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Gasto
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>
-                {editingGasto ? "Editar Gasto" : "Nuevo Gasto"}
-              </DialogTitle>
-            </DialogHeader>
-            <GastoForm
-              gasto={editingGasto}
-              onSuccess={() => {
-                setIsDialogOpen(false)
-                setEditingGasto(undefined)
-                refetch()
-              }}
-            />
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => router.push("/gastos/nuevo")}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nuevo Gasto
+        </Button>
       </div>
 
       {loading ? (
