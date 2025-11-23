@@ -17,9 +17,14 @@ interface GastosManagerProps {
 export function GastosManager({ gastos, onGastosChange }: GastosManagerProps) {
   const { toast } = useToast()
   const [showAddForm, setShowAddForm] = useState(false)
-  const [nuevoGasto, setNuevoGasto] = useState({
+  const [nuevoGasto, setNuevoGasto] = useState<{
+    descripcion: string
+    monto: number
+    facturaUrl?: string
+  }>({
     descripcion: "",
     monto: 0,
+    facturaUrl: undefined,
   })
   const [uploadingFactura, setUploadingFactura] = useState(false)
 
