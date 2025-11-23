@@ -41,9 +41,9 @@ export default function DashboardPage() {
 
   const ordenesColumns = [
     { key: "numeroOrden", header: "N° Orden" },
-    { key: "fechaIngreso", header: "Fecha Ingreso", render: (value) => new Date(value).toLocaleDateString("es-AR") },
-    { key: "estado", header: "Estado", render: (value) => <Badge variant={getEstadoBadgeVariant(value)}>{value}</Badge> },
-    { key: "costoTotal", header: "Costo", render: (value) => `$${value.toLocaleString("es-AR")}` },
+    { key: "fechaIngreso", header: "Fecha Ingreso", render: (value: Date | string) => new Date(value).toLocaleDateString("es-AR") },
+    { key: "estado", header: "Estado", render: (value: string) => <Badge variant={getEstadoBadgeVariant(value)}>{value}</Badge> },
+    { key: "costoTotal", header: "Costo", render: (value: number) => `$${value.toLocaleString("es-AR")}` },
   ]
 
   if (loading) {

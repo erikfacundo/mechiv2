@@ -85,8 +85,8 @@ export function DataTable<T extends { id: string }>({
                   {columns.map((column) => (
                     <TableCell key={String(column.key)}>
                       {column.render
-                        ? column.render(row[column.key], row)
-                        : String(row[column.key] ?? "")}
+                        ? column.render((row as any)[column.key], row)
+                        : String((row as any)[column.key] ?? "")}
                     </TableCell>
                   ))}
                   {actions && (

@@ -43,31 +43,32 @@ export default function CategoriasPage() {
 
   const columns = [
     {
+      key: "nombre",
       header: "Nombre",
-      accessorKey: "nombre",
     },
     {
+      key: "descripcion",
       header: "Descripción",
-      accessorKey: "descripcion",
     },
     {
+      key: "activa",
       header: "Estado",
-      accessorKey: "activa",
-      cell: ({ row }: any) => (
-        <Badge variant={row.original.activa ? "default" : "secondary"}>
-          {row.original.activa ? "Activa" : "Inactiva"}
+      render: (value: boolean) => (
+        <Badge variant={value ? "default" : "secondary"}>
+          {value ? "Activa" : "Inactiva"}
         </Badge>
       ),
     },
     {
+      key: "acciones",
       header: "Acciones",
-      cell: ({ row }: any) => (
+      render: (_: any, row: Categoria) => (
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              setEditingCategoria(row.original)
+              setEditingCategoria(row)
               setIsDialogOpen(true)
             }}
           >
@@ -76,7 +77,7 @@ export default function CategoriasPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDelete(row.original.id)}
+            onClick={() => handleDelete(row.id)}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -120,12 +121,15 @@ export default function CategoriasPage() {
         </Dialog>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={categorias}
-        loading={loading}
-        searchKey="nombre"
-      />
+      {loading ? (
+        <div className="text-center py-8">Cargando categorías...</div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={categorias}
+          searchKey="nombre"
+        />
+      )}
     </div>
   )
 }

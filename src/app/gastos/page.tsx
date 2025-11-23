@@ -54,36 +54,37 @@ export default function GastosPage() {
 
   const columns = [
     {
+      key: "fecha",
       header: "Fecha",
-      accessorKey: "fecha",
-      cell: ({ row }: any) => formatDate(row.original.fecha),
+      render: (value: Date | string) => formatDate(value),
     },
     {
+      key: "categoria",
       header: "Categoría",
-      accessorKey: "categoria",
     },
     {
+      key: "descripcion",
       header: "Descripción",
-      accessorKey: "descripcion",
     },
     {
+      key: "monto",
       header: "Monto",
-      accessorKey: "monto",
-      cell: ({ row }: any) => formatCurrency(row.original.monto),
+      render: (value: number) => formatCurrency(value),
     },
     {
+      key: "metodoPago",
       header: "Método de Pago",
-      accessorKey: "metodoPago",
     },
     {
+      key: "acciones",
       header: "Acciones",
-      cell: ({ row }: any) => (
+      render: (_: any, row: Gasto) => (
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              setEditingGasto(row.original)
+              setEditingGasto(row)
               setIsDialogOpen(true)
             }}
           >
@@ -92,7 +93,7 @@ export default function GastosPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDelete(row.original.id)}
+            onClick={() => handleDelete(row.id)}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -136,12 +137,15 @@ export default function GastosPage() {
         </Dialog>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={gastos}
-        loading={loading}
-        searchKey="descripcion"
-      />
+      {loading ? (
+        <div className="text-center py-8">Cargando gastos...</div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={gastos}
+          searchKey="descripcion"
+        />
+      )}
     </div>
   )
 }

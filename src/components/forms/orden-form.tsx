@@ -34,6 +34,17 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
   const [clienteId, setClienteId] = useState(orden?.clienteId || "")
   const [vehiculosDelCliente, setVehiculosDelCliente] = useState<string[]>([])
 
+  interface OrdenFormValues {
+    clienteId: string
+    vehiculoId: string
+    numeroOrden: string
+    estado: EstadoOrden
+    descripcion: string
+    servicios: string[]
+    costoTotal: number
+    observaciones?: string
+  }
+
   const {
     register,
     handleSubmit,
@@ -43,7 +54,7 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
     control,
     setError,
     clearErrors,
-  } = useForm<Omit<OrdenTrabajo, 'id' | 'fechaIngreso' | 'fechaEntrega'>>({
+  } = useForm<OrdenFormValues>({
     defaultValues: orden
       ? {
           clienteId: orden.clienteId,
@@ -59,11 +70,16 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
           servicios: [""],
           costoTotal: 0,
           estado: "Pendiente",
+          clienteId: "",
+          vehiculoId: "",
+          numeroOrden: "",
+          descripcion: "",
         },
   })
 
   const { fields, append, remove } = useFieldArray({
     control,
+    // @ts-ignore - React Hook Form type inference issue
     name: "servicios",
   })
 

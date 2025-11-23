@@ -50,52 +50,47 @@ export default function PlantillasTareasPage() {
 
   const columns = [
     {
+      key: "nombre",
       header: "Nombre",
-      accessorKey: "nombre",
     },
     {
+      key: "descripcion",
       header: "Descripción",
-      accessorKey: "descripcion",
     },
     {
+      key: "tiempoEstimado",
       header: "Tiempo Estimado",
-      accessorKey: "tiempoEstimado",
-      cell: ({ row }: any) => {
-        const minutos = row.original.tiempoEstimado || 0
-        return `${minutos} min`
-      },
+      render: (value: number) => `${value || 0} min`,
     },
     {
+      key: "costoEstimado",
       header: "Costo Estimado",
-      accessorKey: "costoEstimado",
-      cell: ({ row }: any) => formatCurrency(row.original.costoEstimado || 0),
+      render: (value: number) => formatCurrency(value || 0),
     },
     {
+      key: "pasos",
       header: "Pasos",
-      accessorKey: "pasos",
-      cell: ({ row }: any) => {
-        const pasos = row.original.pasos || []
-        return `${pasos.length} paso(s)`
-      },
+      render: (value: string[]) => `${value?.length || 0} paso(s)`,
     },
     {
+      key: "activa",
       header: "Estado",
-      accessorKey: "activa",
-      cell: ({ row }: any) => (
-        <Badge variant={row.original.activa ? "default" : "secondary"}>
-          {row.original.activa ? "Activa" : "Inactiva"}
+      render: (value: boolean) => (
+        <Badge variant={value ? "default" : "secondary"}>
+          {value ? "Activa" : "Inactiva"}
         </Badge>
       ),
     },
     {
+      key: "acciones",
       header: "Acciones",
-      cell: ({ row }: any) => (
+      render: (_: any, row: PlantillaTarea) => (
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              setEditingPlantilla(row.original)
+              setEditingPlantilla(row)
               setIsDialogOpen(true)
             }}
           >
@@ -104,7 +99,7 @@ export default function PlantillasTareasPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDelete(row.original.id)}
+            onClick={() => handleDelete(row.id)}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -148,12 +143,15 @@ export default function PlantillasTareasPage() {
         </Dialog>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={plantillas}
-        loading={loading}
-        searchKey="nombre"
-      />
+      {loading ? (
+        <div className="text-center py-8">Cargando plantillas...</div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={plantillas}
+          searchKey="nombre"
+        />
+      )}
     </div>
   )
 }

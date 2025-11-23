@@ -55,41 +55,41 @@ export default function CobrosPage() {
 
   const columns = [
     {
+      key: "fecha",
       header: "Fecha",
-      accessorKey: "fecha",
-      cell: ({ row }: any) => formatDate(row.original.fecha),
+      render: (value: Date | string) => formatDate(value),
     },
     {
+      key: "monto",
       header: "Monto",
-      accessorKey: "monto",
-      cell: ({ row }: any) => formatCurrency(row.original.monto),
+      render: (value: number) => formatCurrency(value),
     },
     {
+      key: "metodoPago",
       header: "Método de Pago",
-      accessorKey: "metodoPago",
     },
     {
+      key: "estado",
       header: "Estado",
-      accessorKey: "estado",
-      cell: ({ row }: any) => {
-        const estado = row.original.estado
-        const variant = estado === 'Completado' ? 'default' : estado === 'Cancelado' ? 'destructive' : 'outline'
-        return <Badge variant={variant}>{estado}</Badge>
+      render: (value: string) => {
+        const variant = value === 'Completado' ? 'default' : value === 'Cancelado' ? 'destructive' : 'outline'
+        return <Badge variant={variant}>{value}</Badge>
       },
     },
     {
+      key: "numeroComprobante",
       header: "Comprobante",
-      accessorKey: "numeroComprobante",
     },
     {
+      key: "acciones",
       header: "Acciones",
-      cell: ({ row }: any) => (
+      render: (_: any, row: Cobro) => (
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              setEditingCobro(row.original)
+              setEditingCobro(row)
               setIsDialogOpen(true)
             }}
           >
@@ -98,7 +98,7 @@ export default function CobrosPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDelete(row.original.id)}
+            onClick={() => handleDelete(row.id)}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -142,12 +142,15 @@ export default function CobrosPage() {
         </Dialog>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={cobros}
-        loading={loading}
-        searchKey="numeroComprobante"
-      />
+      {loading ? (
+        <div className="text-center py-8">Cargando cobros...</div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={cobros}
+          searchKey="numeroComprobante"
+        />
+      )}
     </div>
   )
 }

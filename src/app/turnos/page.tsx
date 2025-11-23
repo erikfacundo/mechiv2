@@ -62,46 +62,46 @@ export default function TurnosPage() {
 
   const columns = [
     {
+      key: "fecha",
       header: "Fecha",
-      accessorKey: "fecha",
-      cell: ({ row }: any) => formatDate(row.original.fecha),
+      render: (value: Date | string) => formatDate(value),
     },
     {
+      key: "hora",
       header: "Hora",
-      accessorKey: "hora",
     },
     {
+      key: "clienteId",
       header: "Cliente",
-      accessorKey: "clienteId",
-      cell: ({ row }: any) => getClienteNombre(row.original.clienteId),
+      render: (value: string) => getClienteNombre(value),
     },
     {
+      key: "vehiculoId",
       header: "Vehículo",
-      accessorKey: "vehiculoId",
-      cell: ({ row }: any) => getVehiculoInfo(row.original.vehiculoId),
+      render: (value: string) => getVehiculoInfo(value),
     },
     {
+      key: "descripcion",
       header: "Descripción",
-      accessorKey: "descripcion",
     },
     {
+      key: "estado",
       header: "Estado",
-      accessorKey: "estado",
-      cell: ({ row }: any) => {
-        const estado = row.original.estado
-        const variant = estado === 'Completado' ? 'default' : estado === 'Cancelado' ? 'destructive' : estado === 'Confirmado' ? 'secondary' : 'outline'
-        return <Badge variant={variant}>{estado}</Badge>
+      render: (value: string) => {
+        const variant = value === 'Completado' ? 'default' : value === 'Cancelado' ? 'destructive' : value === 'Confirmado' ? 'secondary' : 'outline'
+        return <Badge variant={variant}>{value}</Badge>
       },
     },
     {
+      key: "acciones",
       header: "Acciones",
-      cell: ({ row }: any) => (
+      render: (_: any, row: Turno) => (
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              setEditingTurno(row.original)
+              setEditingTurno(row)
               setIsDialogOpen(true)
             }}
           >
@@ -110,7 +110,7 @@ export default function TurnosPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDelete(row.original.id)}
+            onClick={() => handleDelete(row.id)}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -154,12 +154,15 @@ export default function TurnosPage() {
         </Dialog>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={turnos}
-        loading={loading}
-        searchKey="descripcion"
-      />
+      {loading ? (
+        <div className="text-center py-8">Cargando turnos...</div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={turnos}
+          searchKey="descripcion"
+        />
+      )}
     </div>
   )
 }

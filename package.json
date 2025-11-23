@@ -9,15 +9,14 @@
     "lint": "next lint",
     "firestore:init": "ts-node --project tsconfig.scripts.json scripts/init-firestore.ts",
     "firestore:check": "ts-node --project tsconfig.scripts.json scripts/check-firestore.ts",
-    "firestore:create": "ts-node --project tsconfig.scripts.json scripts/create-collections.ts",
-    "firestore:create-missing": "ts-node --project tsconfig.scripts.json scripts/create-missing-collections.ts",
-    "firestore:populate-empty": "ts-node --project tsconfig.scripts.json scripts/populate-empty-collections.ts"
+    "firestore:create": "ts-node --project tsconfig.scripts.json scripts/create-collections.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.1.5",

@@ -102,29 +102,61 @@ Los componentes incluidos son:
 
 ## 🔥 Configuración de Firebase
 
-El proyecto está configurado para usar Firebase Firestore. El archivo de credenciales debe estar en:
+El proyecto está configurado para usar Firebase Firestore.
+
+### Desarrollo Local
+
+Para desarrollo local, coloca el archivo de credenciales en:
 - `src/lib/firebase-admin.json`
 
 **⚠️ IMPORTANTE**: Este archivo está en `.gitignore` y no debe subirse al repositorio.
 
+### Producción (Vercel)
+
+En Vercel, configura las siguientes variables de entorno:
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_PRIVATE_KEY_ID`
+- `FIREBASE_PRIVATE_KEY` (con `\n` escapados)
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_CLIENT_ID`
+- `FIREBASE_CLIENT_X509_CERT_URL`
+
 ### Estructura de Firestore
 
-El proyecto espera las siguientes colecciones en Firestore:
+El proyecto usa las siguientes colecciones:
+- `categorias` - Categorías del sistema
 - `clientes` - Información de clientes
 - `vehiculos` - Información de vehículos
 - `ordenes` - Órdenes de trabajo
+- `cobros` - Registro de cobros
+- `gastos` - Registro de gastos
+- `proveedores` - Proveedores
+- `turnos` - Turnos de clientes
+- `plantillas_tareas` - Plantillas de tareas
+- `configuracion` - Configuración del sistema
 
-### Datos Mockeados
+### Inicializar Firestore
 
-El proyecto incluye datos de ejemplo en `src/services/data-mock.ts` que puedes usar para poblar Firestore inicialmente. Puedes crear un script de migración para cargar estos datos.
+Para crear las colecciones y poblar datos iniciales:
+
+```bash
+npm run firestore:init
+```
+
+Para verificar el estado de las colecciones:
+
+```bash
+npm run firestore:check
+```
 
 ## 🚢 Despliegue
 
 ### Vercel (Recomendado)
 
-1. Conecta tu repositorio a Vercel
+1. Conecta tu repositorio de GitHub a Vercel
 2. Vercel detectará automáticamente Next.js
-3. El despliegue se realizará automáticamente
+3. Configura las variables de entorno de Firebase (ver sección de Firebase)
+4. El despliegue se realizará automáticamente en cada push
 
 ### Build de Producción
 
@@ -132,16 +164,6 @@ El proyecto incluye datos de ejemplo en `src/services/data-mock.ts` que puedes u
 npm run build
 npm start
 ```
-
-## 📊 Migración de Datos
-
-Para migrar los datos mockeados a Firestore, puedes usar el script incluido:
-
-```bash
-npx ts-node scripts/migrate-data.ts
-```
-
-**Nota**: Asegúrate de tener configurado Firebase correctamente antes de ejecutar el script.
 
 ## ✅ Estado del Proyecto
 
@@ -151,19 +173,21 @@ npx ts-node scripts/migrate-data.ts
 ### Funcionalidades Implementadas
 - ✅ Integración completa con Firebase Firestore
 - ✅ Autenticación de usuarios (usuario: `admteam`, pass: `gandara 3368`)
-- ✅ Formularios CRUD completos (Clientes, Vehículos, Órdenes)
-- ✅ Validaciones únicas en tiempo real
+- ✅ Formularios CRUD completos para todas las entidades:
+  - Clientes, Vehículos, Órdenes
+  - Categorías, Cobros, Gastos
+  - Proveedores, Turnos, Plantillas de Tareas
+- ✅ Validaciones únicas en tiempo real (DNI, patente, número de orden)
 - ✅ Sistema de notificaciones Toast
 - ✅ Dashboard con métricas
-- ✅ Filtros y búsqueda
+- ✅ Filtros y búsqueda en todas las tablas
 - ✅ Vista de detalle completa
+- ✅ Modo oscuro/claro
+- ✅ Diseño responsive
 
-### Documentación Completa
-- 📖 `GUIA_COMPLETA.md` - Guía completa de usuario y desarrollador
-- 📖 `README_FIREBASE.md` - Configuración detallada de Firebase
-- 📖 `ESTADO_PROYECTO.md` - Estado actual del proyecto
+### Documentación
 - 📖 `CHANGELOG.md` - Historial de cambios
-- 📖 `FUNCIONALIDADES_FALTANTES.md` - Lista de funcionalidades (mayormente completadas)
+- 📖 `FUNCIONALIDADES_FALTANTES.md` - Funcionalidades pendientes (opcionales)
 
 ## 🔮 Próximas Mejoras (Opcionales)
 

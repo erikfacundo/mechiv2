@@ -43,43 +43,44 @@ export default function ProveedoresPage() {
 
   const columns = [
     {
+      key: "nombre",
       header: "Nombre",
-      accessorKey: "nombre",
     },
     {
+      key: "razonSocial",
       header: "Razón Social",
-      accessorKey: "razonSocial",
     },
     {
+      key: "telefono",
       header: "Teléfono",
-      accessorKey: "telefono",
     },
     {
+      key: "email",
       header: "Email",
-      accessorKey: "email",
     },
     {
+      key: "tipo",
       header: "Tipo",
-      accessorKey: "tipo",
     },
     {
+      key: "activo",
       header: "Estado",
-      accessorKey: "activo",
-      cell: ({ row }: any) => (
-        <Badge variant={row.original.activo ? "default" : "secondary"}>
-          {row.original.activo ? "Activo" : "Inactivo"}
+      render: (value: boolean) => (
+        <Badge variant={value ? "default" : "secondary"}>
+          {value ? "Activo" : "Inactivo"}
         </Badge>
       ),
     },
     {
+      key: "acciones",
       header: "Acciones",
-      cell: ({ row }: any) => (
+      render: (_: any, row: Proveedor) => (
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              setEditingProveedor(row.original)
+              setEditingProveedor(row)
               setIsDialogOpen(true)
             }}
           >
@@ -88,7 +89,7 @@ export default function ProveedoresPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDelete(row.original.id)}
+            onClick={() => handleDelete(row.id)}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -132,12 +133,15 @@ export default function ProveedoresPage() {
         </Dialog>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={proveedores}
-        loading={loading}
-        searchKey="nombre"
-      />
+      {loading ? (
+        <div className="text-center py-8">Cargando proveedores...</div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={proveedores}
+          searchKey="nombre"
+        />
+      )}
     </div>
   )
 }
