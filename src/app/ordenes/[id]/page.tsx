@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { ChecklistManager } from "@/components/ordenes/checklist-manager"
 import { GastosManager } from "@/components/ordenes/gastos-manager"
-import { TareaChecklist, GastoOrden, FotoOrden } from "@/types"
+import { TareaChecklist, GastoOrden, FotoOrden, FotoVehiculo } from "@/types"
 import { useToast } from "@/hooks/use-toast"
 import { ImageCarousel } from "@/components/ui/image-carousel"
 import { ImageUpload } from "@/components/ui/image-upload"
@@ -123,12 +123,26 @@ export default function OrdenDetailPage() {
     }
   }
 
-  const handleFotosFinalesChange = async (newFotos: FotoOrden[]) => {
+  const handleFotosFinalesChange = async (newFotos: (FotoOrden | FotoVehiculo)[]) => {
     // Convertir a FotoOrden con tipo 'final'
-    const fotosFinales: FotoOrden[] = newFotos.map(foto => ({
-      ...foto,
-      tipo: 'final' as const,
-    }))
+    const fotosFinales: FotoOrden[] = newFotos.map(foto => {
+      // Si ya es FotoOrden, mantener el tipo 'final', si no, crear uno nuevo
+      if ('tipo' in foto) {
+        return {
+          ...foto,
+          tipo: 'final' as const,
+        }
+      } else {
+        // Es FotoVehiculo, convertir a FotoOrden
+        return {
+          id: foto.id,
+          dataUrl: foto.dataUrl,
+          fechaHora: foto.fechaHora,
+          tipo: 'final' as const,
+          descripcion: foto.descripcion,
+        }
+      }
+    })
     
     setFotosFinales(fotosFinales)
     try {
