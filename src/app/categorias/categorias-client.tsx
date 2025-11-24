@@ -67,8 +67,8 @@ export function CategoriasClient({ categorias: initialCategorias }: CategoriasCl
   })
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 sm:space-y-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">Tareas Principales y Subtareas</h1>
           <p className="text-muted-foreground">

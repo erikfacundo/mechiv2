@@ -17,7 +17,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="lg:pl-64">
         <Header />
-        <main className="container mx-auto p-4 lg:p-8">
+        <main className="container mx-auto p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

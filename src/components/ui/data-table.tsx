@@ -59,44 +59,78 @@ export function DataTable<T extends { id: string }>({
           </div>
         </div>
       )}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {columns.map((column) => (
-                <TableHead key={String(column.key)}>{column.header}</TableHead>
-              ))}
-              {actions && <TableHead className="text-right">Acciones</TableHead>}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredData.length === 0 ? (
+      <div className="rounded-md border overflow-hidden">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell
-                  colSpan={columns.length + (actions ? 1 : 0)}
-                  className="h-24 text-center"
-                >
-                  No se encontraron resultados.
-                </TableCell>
+                {columns.map((column) => (
+                  <TableHead key={String(column.key)} className="whitespace-nowrap">{column.header}</TableHead>
+                ))}
+                {actions && <TableHead className="text-right whitespace-nowrap">Acciones</TableHead>}
               </TableRow>
-            ) : (
-              filteredData.map((row) => (
-                <TableRow key={row.id}>
-                  {columns.map((column) => (
-                    <TableCell key={String(column.key)}>
+            </TableHeader>
+            <TableBody>
+              {filteredData.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length + (actions ? 1 : 0)}
+                    className="h-24 text-center"
+                  >
+                    No se encontraron resultados.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredData.map((row) => (
+                  <TableRow key={row.id}>
+                    {columns.map((column) => (
+                      <TableCell key={String(column.key)} className="whitespace-nowrap">
+                        {column.render
+                          ? column.render((row as any)[column.key], row)
+                          : String((row as any)[column.key] ?? "")}
+                      </TableCell>
+                    ))}
+                    {actions && (
+                      <TableCell className="text-right whitespace-nowrap">{actions(row)}</TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-4 p-4">
+          {filteredData.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No se encontraron resultados.
+            </div>
+          ) : (
+            filteredData.map((row) => (
+              <div key={row.id} className="border rounded-lg p-4 space-y-3 bg-card">
+                {columns.map((column) => (
+                  <div key={String(column.key)} className="flex justify-between items-start gap-2">
+                    <span className="text-sm font-medium text-muted-foreground min-w-[100px]">
+                      {column.header}:
+                    </span>
+                    <span className="text-sm text-right flex-1 break-words">
                       {column.render
                         ? column.render((row as any)[column.key], row)
                         : String((row as any)[column.key] ?? "")}
-                    </TableCell>
-                  ))}
-                  {actions && (
-                    <TableCell className="text-right">{actions(row)}</TableCell>
-                  )}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+                    </span>
+                  </div>
+                ))}
+                {actions && (
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t">
+                    {actions(row)}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   )

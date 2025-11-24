@@ -45,6 +45,7 @@ export function Sidebar() {
           variant="outline"
           size="icon"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
+          className="h-9 w-9 sm:h-10 sm:w-10"
         >
           {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>

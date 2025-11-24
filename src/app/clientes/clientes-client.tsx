@@ -67,15 +67,15 @@ export function ClientesClient({ clientes: initialClientes }: ClientesClientProp
   ]
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Clientes</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Gestión de clientes del taller
           </p>
         </div>
-        <Button onClick={handleCreate}>
+        <Button onClick={handleCreate} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Cliente
         </Button>
@@ -87,27 +87,33 @@ export function ClientesClient({ clientes: initialClientes }: ClientesClientProp
         searchKey="nombre"
         searchPlaceholder="Buscar por nombre..."
         actions={(cliente) => (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleViewDetail(cliente as Cliente)}
+              className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3"
             >
               <Eye className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2">Ver</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleEdit(cliente as Cliente)}
+              className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3"
             >
               <Edit className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2">Editar</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleDelete(cliente as Cliente)}
+              className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3"
             >
               <Trash2 className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2">Eliminar</span>
             </Button>
           </div>
         )}

@@ -139,15 +139,15 @@ export function OrdenesClient({ ordenes: initialOrdenes, clientes, vehiculos }: 
   ]
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Órdenes de Trabajo</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Órdenes de Trabajo</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Gestión de órdenes de trabajo
           </p>
         </div>
-        <Button onClick={handleCreate}>
+        <Button onClick={handleCreate} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nueva Orden
         </Button>
@@ -155,7 +155,7 @@ export function OrdenesClient({ ordenes: initialOrdenes, clientes, vehiculos }: 
 
       <div className="flex items-center space-x-2">
         <Select value={estadoFiltro} onValueChange={(value) => setEstadoFiltro(value as EstadoOrden | "Todos")}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filtrar por estado" />
           </SelectTrigger>
           <SelectContent>
@@ -174,27 +174,33 @@ export function OrdenesClient({ ordenes: initialOrdenes, clientes, vehiculos }: 
         searchKey="numeroOrden"
         searchPlaceholder="Buscar por número de orden..."
         actions={(orden) => (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleViewDetail(orden as OrdenTrabajo)}
+              className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3"
             >
               <Eye className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2">Ver</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleEdit(orden as OrdenTrabajo)}
+              className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3"
             >
               <Edit className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2">Editar</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleDelete(orden as OrdenTrabajo)}
+              className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3"
             >
               <Trash2 className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2">Eliminar</span>
             </Button>
           </div>
         )}
