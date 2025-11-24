@@ -75,6 +75,29 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
   const [isVehiculoDialogOpen, setIsVehiculoDialogOpen] = useState(false)
   const [fotosIniciales, setFotosIniciales] = useState<FotoOrden[]>([])
 
+  // Wrapper para convertir fotos a FotoOrden con tipo 'inicial'
+  const handleFotosInicialesChange = (fotos: (FotoOrden | FotoVehiculo)[]) => {
+    const fotosConvertidas: FotoOrden[] = fotos.map(foto => {
+      if ('tipo' in foto) {
+        // Ya es FotoOrden, asegurar tipo 'inicial'
+        return {
+          ...foto,
+          tipo: 'inicial' as const,
+        }
+      } else {
+        // Es FotoVehiculo, convertir a FotoOrden
+        return {
+          id: foto.id,
+          dataUrl: foto.dataUrl,
+          fechaHora: foto.fechaHora,
+          tipo: 'inicial' as const,
+          descripcion: foto.descripcion,
+        }
+      }
+    })
+    setFotosIniciales(fotosConvertidas)
+  }
+
   const {
     register,
     handleSubmit,
@@ -567,7 +590,7 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
                 </p>
                 <ImageUpload
                   fotos={fotosIniciales}
-                  onFotosChange={setFotosIniciales}
+                  onFotosChange={handleFotosInicialesChange}
                   maxFotos={10}
                   label=""
                 />
