@@ -102,11 +102,12 @@ export function TurnosClient({ turnos: initialTurnos, clientes, vehiculos }: Tur
       key: "acciones",
       header: "Acciones",
       render: (_: any, row: Turno) => (
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button
             variant="outline"
             size="sm"
             onClick={() => router.push(`/turnos/${row.id}/editar`)}
+            className="flex-shrink-0"
           >
             <Edit className="h-4 w-4" />
           </Button>
@@ -114,6 +115,7 @@ export function TurnosClient({ turnos: initialTurnos, clientes, vehiculos }: Tur
             variant="outline"
             size="sm"
             onClick={() => handleDelete(row.id)}
+            className="flex-shrink-0"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -123,13 +125,15 @@ export function TurnosClient({ turnos: initialTurnos, clientes, vehiculos }: Tur
   ]
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 sm:space-y-8">
+      <div className="space-y-4">
         <div>
-          <h1 className="text-3xl font-bold">Turnos</h1>
-          <p className="text-muted-foreground">Gestiona los turnos de los clientes</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Turnos</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Gestiona los turnos de los clientes
+          </p>
         </div>
-        <Button onClick={() => router.push("/turnos/nuevo")}>
+        <Button onClick={() => router.push("/turnos/nuevo")} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Turno
         </Button>
