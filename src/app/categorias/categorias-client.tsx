@@ -179,7 +179,7 @@ export function CategoriasClient({ categorias: initialCategorias }: CategoriasCl
                 </CardHeader>
 
                 {/* Subtareas (Subcategorías) */}
-                {hasSubtareas && isExpanded && (
+                {hasSubtareas && isExpanded && categoria.subcategorias && (
                   <CardContent className="pt-0 pb-4">
                     <div className="ml-8 border-l-2 border-muted pl-4 space-y-2">
                       <div className="flex items-center gap-2 mb-2">

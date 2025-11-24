@@ -414,13 +414,14 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
                   <SelectContent>
                     {categorias.map((categoria) => {
                       const hasSubtareas = categoria.subcategorias && categoria.subcategorias.length > 0
+                      const subcategoriasLength = categoria.subcategorias?.length || 0
                       return (
                         <SelectItem key={categoria.id} value={categoria.id}>
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{categoria.nombre}</span>
                             {hasSubtareas && (
                               <Badge variant="outline" className="text-xs">
-                                {categoria.subcategorias.length} subtarea{categoria.subcategorias.length !== 1 ? 's' : ''}
+                                {subcategoriasLength} subtarea{subcategoriasLength !== 1 ? 's' : ''}
                               </Badge>
                             )}
                           </div>
