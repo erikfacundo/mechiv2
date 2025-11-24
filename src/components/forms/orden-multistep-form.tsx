@@ -35,8 +35,9 @@ import { useToast } from "@/hooks/use-toast"
 import { useClientes } from "@/hooks/use-clientes"
 import { useVehiculos } from "@/hooks/use-vehiculos"
 import { useCategorias } from "@/hooks/use-categorias"
-import { OrdenTrabajo, EstadoOrden, TareaChecklist } from "@/types"
+import { OrdenTrabajo, EstadoOrden, TareaChecklist, FotoOrden } from "@/types"
 import { ChecklistManager } from "@/components/ordenes/checklist-manager"
+import { ImageUpload } from "@/components/ui/image-upload"
 import {
   Dialog,
   DialogContent,
@@ -72,6 +73,7 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
   const [fechaRecordatorio, setFechaRecordatorio] = useState("")
   const [isClienteDialogOpen, setIsClienteDialogOpen] = useState(false)
   const [isVehiculoDialogOpen, setIsVehiculoDialogOpen] = useState(false)
+  const [fotosIniciales, setFotosIniciales] = useState<FotoOrden[]>([])
 
   const {
     register,
@@ -206,6 +208,12 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
       // Generar descripción basada en las tareas del checklist
       const descripcion = checklist.map(t => t.tarea).join(", ")
 
+      // Convertir fotos iniciales a FotoOrden
+      const fotosOrden: FotoOrden[] = fotosIniciales.map(foto => ({
+        ...foto,
+        tipo: 'inicial' as const,
+      }))
+
       const ordenData: Omit<OrdenTrabajo, 'id'> = {
         clienteId,
         vehiculoId,
@@ -225,6 +233,7 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
         fechaRecordatorioMantenimiento: esMantenimiento && fechaRecordatorio 
           ? new Date(fechaRecordatorio) 
           : undefined,
+        fotos: fotosOrden.length > 0 ? fotosOrden : undefined,
       }
 
       const response = await fetch("/api/ordenes", {
@@ -548,6 +557,20 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
                     Los gastos internos se agregan después en la orden
                   </p>
                 </div>
+              </div>
+
+              {/* Fotos del estado inicial */}
+              <div className="space-y-2">
+                <Label>Fotos del Estado Inicial (Opcional)</Label>
+                <p className="text-sm text-muted-foreground">
+                  Documenta el estado del vehículo al ingresar
+                </p>
+                <ImageUpload
+                  fotos={fotosIniciales}
+                  onFotosChange={setFotosIniciales}
+                  maxFotos={10}
+                  label=""
+                />
               </div>
 
               {/* Observaciones */}

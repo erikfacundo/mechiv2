@@ -1,7 +1,7 @@
 "use client"
 
 import { useForm } from "react-hook-form"
-import { Vehiculo } from "@/types"
+import { Vehiculo, FotoVehiculo } from "@/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,6 +15,7 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { useState, useEffect } from "react"
 import { useClientes } from "@/hooks/use-clientes"
+import { ImageUpload } from "@/components/ui/image-upload"
 
 interface VehiculoFormProps {
   vehiculo?: Vehiculo
@@ -38,6 +39,7 @@ export function VehiculoForm({ vehiculo, clienteId: propClienteId, onSuccess, on
   const [marca, setMarca] = useState(vehiculo?.marca || "")
   const [tipoCombustible, setTipoCombustible] = useState(vehiculo?.tipoCombustible || "")
   const [clienteId, setClienteId] = useState(vehiculo?.clienteId || propClienteId || "")
+  const [fotos, setFotos] = useState<FotoVehiculo[]>(vehiculo?.fotos || [])
 
   const {
     register,
@@ -64,18 +66,24 @@ export function VehiculoForm({ vehiculo, clienteId: propClienteId, onSuccess, on
     }
   }, [propClienteId, vehiculo, setValue])
 
-  const onSubmit = async (data: Omit<Vehiculo, 'id'>) => {
+  const onSubmit = async (data: Omit<Vehiculo, 'id' | 'fotos'>) => {
     setLoading(true)
     try {
       const url = vehiculo ? `/api/vehiculos/${vehiculo.id}` : "/api/vehiculos"
       const method = vehiculo ? "PUT" : "POST"
+
+      // Incluir fotos en el body
+      const bodyData = {
+        ...data,
+        fotos: fotos.length > 0 ? fotos : undefined,
+      }
 
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(bodyData),
       })
 
       if (!response.ok) {
@@ -236,6 +244,16 @@ export function VehiculoForm({ vehiculo, clienteId: propClienteId, onSuccess, on
           id="color"
           {...register("color")}
           placeholder="Blanco"
+        />
+      </div>
+
+      {/* Subida de fotos */}
+      <div className="space-y-2">
+        <ImageUpload
+          fotos={fotos}
+          onFotosChange={setFotos}
+          maxFotos={20}
+          label="Fotos del vehículo (opcional)"
         />
       </div>
 

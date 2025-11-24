@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
       kilometraje: body.kilometraje,
       color: body.color,
       tipoCombustible: body.tipoCombustible,
+      fotos: body.fotos || undefined, // Fotos opcionales
     }
     
     const id = await createVehiculo(vehiculo)

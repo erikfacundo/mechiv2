@@ -6,10 +6,19 @@ const COLLECTION_NAME = 'vehiculos'
 export async function getVehiculos(): Promise<Vehiculo[]> {
   try {
     const snapshot = await db.collection(COLLECTION_NAME).get()
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Vehiculo[]
+    return snapshot.docs.map(doc => {
+      const data = doc.data()
+      // Procesar fotos si existen
+      const fotos = data.fotos?.map((foto: any) => ({
+        ...foto,
+        fechaHora: foto.fechaHora?.toDate() || new Date(foto.fechaHora) || new Date(),
+      })) || []
+      return {
+        id: doc.id,
+        ...data,
+        fotos,
+      }
+    }) as Vehiculo[]
   } catch (error) {
     console.error('Error obteniendo vehículos:', error)
     return []
@@ -24,9 +33,17 @@ export async function getVehiculoById(id: string): Promise<Vehiculo | null> {
       return null
     }
     
+    const data = vehiculoSnap.data()
+    // Procesar fotos si existen
+    const fotos = data?.fotos?.map((foto: any) => ({
+      ...foto,
+      fechaHora: foto.fechaHora?.toDate() || new Date(foto.fechaHora) || new Date(),
+    })) || []
+    
     return {
       id: vehiculoSnap.id,
-      ...vehiculoSnap.data(),
+      ...data,
+      fotos,
     } as Vehiculo
   } catch (error) {
     console.error('Error obteniendo vehículo:', error)

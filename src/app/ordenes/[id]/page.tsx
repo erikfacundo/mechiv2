@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Edit, CheckSquare, DollarSign, TrendingUp, Calendar } from "lucide-react"
+import { ArrowLeft, Edit, CheckSquare, DollarSign, TrendingUp, Calendar, Image as ImageIcon, Camera } from "lucide-react"
 import { useOrden } from "@/hooks/use-ordenes"
 import { useClientes } from "@/hooks/use-clientes"
 import { useVehiculos } from "@/hooks/use-vehiculos"
@@ -12,8 +12,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { ChecklistManager } from "@/components/ordenes/checklist-manager"
 import { GastosManager } from "@/components/ordenes/gastos-manager"
-import { TareaChecklist, GastoOrden } from "@/types"
+import { TareaChecklist, GastoOrden, FotoOrden } from "@/types"
 import { useToast } from "@/hooks/use-toast"
+import { ImageCarousel } from "@/components/ui/image-carousel"
+import { ImageUpload } from "@/components/ui/image-upload"
+import Image from "next/image"
 
 const getEstadoBadgeVariant = (estado: string) => {
   switch (estado) {
@@ -40,12 +43,20 @@ export default function OrdenDetailPage() {
   const { toast } = useToast()
   const [checklist, setChecklist] = useState<TareaChecklist[]>(orden?.checklist || [])
   const [gastos, setGastos] = useState<GastoOrden[]>(orden?.gastos || [])
+  const [fotosIniciales, setFotosIniciales] = useState<FotoOrden[]>([])
+  const [fotosFinales, setFotosFinales] = useState<FotoOrden[]>([])
+  const [carouselOpen, setCarouselOpen] = useState(false)
+  const [carouselIndex, setCarouselIndex] = useState(0)
+  const [carouselFotos, setCarouselFotos] = useState<FotoOrden[]>([])
 
-  // Actualizar checklist y gastos cuando cambie la orden
+  // Actualizar checklist, gastos y fotos cuando cambie la orden
   useEffect(() => {
     if (orden) {
       setChecklist(orden.checklist || [])
       setGastos(orden.gastos || [])
+      const fotos = orden.fotos || []
+      setFotosIniciales(fotos.filter(f => f.tipo === 'inicial'))
+      setFotosFinales(fotos.filter(f => f.tipo === 'final'))
     }
   }, [orden])
 
@@ -97,6 +108,61 @@ export default function OrdenDetailPage() {
       })
 
       if (!response.ok) throw new Error("Error al actualizar gastos")
+      
+      await refetch()
+      toast({
+        title: "Gastos actualizados",
+        description: "Los gastos se han actualizado correctamente",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar los gastos",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleFotosFinalesChange = async (newFotos: FotoOrden[]) => {
+    // Convertir a FotoOrden con tipo 'final'
+    const fotosFinales: FotoOrden[] = newFotos.map(foto => ({
+      ...foto,
+      tipo: 'final' as const,
+    }))
+    
+    setFotosFinales(fotosFinales)
+    try {
+      const todasLasFotos = [...fotosIniciales, ...fotosFinales]
+      
+      const response = await fetch(`/api/ordenes/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fotos: todasLasFotos,
+        }),
+      })
+
+      if (!response.ok) throw new Error("Error al actualizar fotos")
+      
+      await refetch()
+      toast({
+        title: "Fotos actualizadas",
+        description: "Las fotos del estado final se han guardado correctamente",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar las fotos",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const openCarousel = (fotos: FotoOrden[], index: number) => {
+    setCarouselFotos(fotos)
+    setCarouselIndex(index)
+    setCarouselOpen(true)
+  }
       
       await refetch()
       toast({
@@ -275,6 +341,79 @@ export default function OrdenDetailPage() {
               />
             </CardContent>
           </Card>
+
+          {/* Fotos Estado Inicial */}
+          {fotosIniciales.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Camera className="h-5 w-5" />
+                  Fotos Estado Inicial
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-2">
+                  {fotosIniciales.map((foto, index) => (
+                    <button
+                      key={foto.id}
+                      onClick={() => openCarousel(fotosIniciales, index)}
+                      className="relative aspect-square rounded-lg overflow-hidden border border-border hover:border-primary transition-colors"
+                    >
+                      <Image
+                        src={foto.dataUrl}
+                        alt={`Foto inicial ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 33vw, 150px"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Fotos Estado Final */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Camera className="h-5 w-5" />
+                Fotos Estado Final
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {fotosFinales.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  {fotosFinales.map((foto, index) => (
+                    <button
+                      key={foto.id}
+                      onClick={() => openCarousel(fotosFinales, index)}
+                      className="relative aspect-square rounded-lg overflow-hidden border border-border hover:border-primary transition-colors"
+                    >
+                      <Image
+                        src={foto.dataUrl}
+                        alt={`Foto final ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 33vw, 150px"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  Documenta el estado del vehículo al finalizar el trabajo
+                </p>
+                <ImageUpload
+                  fotos={fotosFinales}
+                  onFotosChange={handleFotosFinalesChange}
+                  maxFotos={10}
+                  label=""
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Sidebar */}
@@ -332,6 +471,17 @@ export default function OrdenDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Modal carrusel de fotos */}
+      {carouselFotos.length > 0 && (
+        <ImageCarousel
+          fotos={carouselFotos}
+          isOpen={carouselOpen}
+          onClose={() => setCarouselOpen(false)}
+          initialIndex={carouselIndex}
+          title={`Fotos de la orden ${orden.numeroOrden}`}
+        />
+      )}
     </div>
   )
 }

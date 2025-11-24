@@ -4,11 +4,13 @@ import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Edit, User, Wrench, Eye, Car, Calendar, Gauge } from "lucide-react"
+import { ArrowLeft, Edit, User, Wrench, Eye, Car, Calendar, Gauge, Image as ImageIcon } from "lucide-react"
 import { useVehiculo } from "@/hooks/use-vehiculos"
 import { useClientes } from "@/hooks/use-clientes"
 import { useState, useEffect } from "react"
 import { OrdenTrabajo } from "@/types"
+import { ImageCarousel } from "@/components/ui/image-carousel"
+import Image from "next/image"
 
 const getEstadoBadgeVariant = (estado: string) => {
   switch (estado) {
@@ -33,6 +35,8 @@ export default function VehiculoDetailPage() {
   const { clientes } = useClientes()
   const [ordenes, setOrdenes] = useState<OrdenTrabajo[]>([])
   const [loadingOrdenes, setLoadingOrdenes] = useState(true)
+  const [carouselOpen, setCarouselOpen] = useState(false)
+  const [carouselIndex, setCarouselIndex] = useState(0)
 
   // Obtener cliente propietario
   const cliente = vehiculo ? clientes.find(c => c.id === vehiculo.clienteId) : null
@@ -212,6 +216,53 @@ export default function VehiculoDetailPage() {
                   </div>
                 </div>
               )}
+
+              {/* Galería de fotos */}
+              {vehiculo.fotos && vehiculo.fotos.length > 0 && (
+                <div className="pt-4 border-t">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">Fotos del Vehículo</span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setCarouselIndex(0)
+                        setCarouselOpen(true)
+                      }}
+                    >
+                      Ver todas ({vehiculo.fotos.length})
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {vehiculo.fotos.slice(0, 6).map((foto, index) => (
+                      <button
+                        key={foto.id}
+                        onClick={() => {
+                          setCarouselIndex(index)
+                          setCarouselOpen(true)
+                        }}
+                        className="relative aspect-square rounded-lg overflow-hidden border border-border hover:border-primary transition-colors"
+                      >
+                        <Image
+                          src={foto.dataUrl}
+                          alt={`Foto ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 33vw, 150px"
+                        />
+                        {index === 5 && vehiculo.fotos && vehiculo.fotos.length > 6 && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-xs font-medium">
+                            +{vehiculo.fotos.length - 6}
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -302,6 +353,17 @@ export default function VehiculoDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Modal carrusel de fotos */}
+      {vehiculo.fotos && vehiculo.fotos.length > 0 && (
+        <ImageCarousel
+          fotos={vehiculo.fotos}
+          isOpen={carouselOpen}
+          onClose={() => setCarouselOpen(false)}
+          initialIndex={carouselIndex}
+          title={`Fotos del vehículo - ${vehiculo.marca} ${vehiculo.modelo}`}
+        />
+      )}
     </div>
   )
 }

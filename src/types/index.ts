@@ -9,6 +9,13 @@ export interface Cliente {
   fechaRegistro: Date;
 }
 
+export interface FotoVehiculo {
+  id: string; // ID único de la foto
+  dataUrl: string; // Imagen en base64
+  fechaHora: Date; // Fecha y hora exacta de cuando se tomó/subió la foto
+  descripcion?: string; // Opcional: descripción de la foto (ej: "Vista frontal", "Daño en paragolpes")
+}
+
 export interface Vehiculo {
   id: string;
   clienteId: string;
@@ -19,6 +26,7 @@ export interface Vehiculo {
   kilometraje: number;
   color?: string;
   tipoCombustible?: string;
+  fotos?: FotoVehiculo[]; // Fotos del vehículo (base64 + metadata)
 }
 
 export type EstadoOrden = 'Pendiente' | 'En Proceso' | 'Completado' | 'Entregado';
@@ -40,6 +48,14 @@ export interface GastoOrden {
   fecha: Date;
 }
 
+export interface FotoOrden {
+  id: string; // ID único de la foto
+  dataUrl: string; // Imagen en base64
+  fechaHora: Date; // Fecha y hora exacta de cuando se tomó/subió la foto
+  tipo: 'inicial' | 'final'; // Estado inicial o final del vehículo
+  descripcion?: string; // Opcional: descripción de la foto
+}
+
 export interface OrdenTrabajo {
   id: string;
   clienteId: string;
@@ -59,6 +75,7 @@ export interface OrdenTrabajo {
   porcentajeCompletitud?: number;
   esMantenimiento?: boolean;
   fechaRecordatorioMantenimiento?: Date;
+  fotos?: FotoOrden[]; // Fotos del estado del vehículo (inicial y final)
 }
 
 export interface Categoria {

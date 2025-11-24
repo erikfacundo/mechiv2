@@ -56,6 +56,12 @@ export async function getOrdenById(id: string): Promise<OrdenTrabajo | null> {
       fecha: gasto.fecha?.toDate() || new Date(),
     })) || []
     
+    // Procesar fotos
+    const fotos = data?.fotos?.map((foto: any) => ({
+      ...foto,
+      fechaHora: foto.fechaHora?.toDate() || new Date(foto.fechaHora) || new Date(),
+    })) || []
+    
     return {
       id: ordenSnap.id,
       ...data,
@@ -64,6 +70,7 @@ export async function getOrdenById(id: string): Promise<OrdenTrabajo | null> {
       fechaRecordatorioMantenimiento: data?.fechaRecordatorioMantenimiento?.toDate() || undefined,
       checklist,
       gastos,
+      fotos,
       porcentajeCompletitud: data?.porcentajeCompletitud || calcularProgreso(checklist),
     } as OrdenTrabajo
   } catch (error) {
