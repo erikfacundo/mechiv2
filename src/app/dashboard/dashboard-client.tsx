@@ -29,6 +29,7 @@ const getEstadoBadgeVariant = (estado: string) => {
 }
 
 export function DashboardClient({ ordenes, clientes, vehiculos }: DashboardClientProps) {
+  const router = useRouter()
   const ordenesRecientes = useMemo(() => ordenes.slice(0, 5), [ordenes])
   const ordenesPendientes = useMemo(() => ordenes.filter(o => o.estado === "Pendiente").length, [ordenes])
   const ordenesEnProceso = useMemo(() => ordenes.filter(o => o.estado === "En Proceso").length, [ordenes])
@@ -155,12 +156,68 @@ export function DashboardClient({ ordenes, clientes, vehiculos }: DashboardClien
         </Card>
       </div>
 
+      {/* Accesos Rápidos */}
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+        <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => router.push("/clientes")}>
+          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
+            <Users className="h-8 w-8 mb-2 text-primary" />
+            <h3 className="font-semibold mb-1">Clientes</h3>
+            <p className="text-xs text-muted-foreground mb-2">{totalClientes} registrados</p>
+            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => router.push("/vehiculos")}>
+          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
+            <Car className="h-8 w-8 mb-2 text-primary" />
+            <h3 className="font-semibold mb-1">Vehículos</h3>
+            <p className="text-xs text-muted-foreground mb-2">{totalVehiculos} registrados</p>
+            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => router.push("/ordenes")}>
+          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
+            <Wrench className="h-8 w-8 mb-2 text-primary" />
+            <h3 className="font-semibold mb-1">Órdenes</h3>
+            <p className="text-xs text-muted-foreground mb-2">{ordenes.length} total</p>
+            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => router.push("/categorias")}>
+          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
+            <FolderTree className="h-8 w-8 mb-2 text-primary" />
+            <h3 className="font-semibold mb-1">Categorías</h3>
+            <p className="text-xs text-muted-foreground mb-2">Tareas</p>
+            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => router.push("/turnos")}>
+          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
+            <Calendar className="h-8 w-8 mb-2 text-primary" />
+            <h3 className="font-semibold mb-1">Turnos</h3>
+            <p className="text-xs text-muted-foreground mb-2">Agenda</p>
+            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Órdenes Recientes</CardTitle>
-          <CardDescription>
-            Últimas 5 órdenes de trabajo registradas
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Órdenes Recientes</CardTitle>
+              <CardDescription>
+                Últimas 5 órdenes de trabajo registradas
+              </CardDescription>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => router.push("/ordenes")}>
+              Ver todas
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <DataTable
@@ -168,6 +225,7 @@ export function DashboardClient({ ordenes, clientes, vehiculos }: DashboardClien
             columns={ordenesColumns}
             searchKey="numeroOrden"
             searchPlaceholder="Buscar por número de orden..."
+            onRowClick={(orden) => router.push(`/ordenes/${orden.id}`)}
           />
         </CardContent>
       </Card>

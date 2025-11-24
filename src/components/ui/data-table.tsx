@@ -25,6 +25,7 @@ interface DataTableProps<T> {
   searchKey?: keyof T
   searchPlaceholder?: string
   actions?: (row: T) => React.ReactNode
+  onRowClick?: (row: T) => void
 }
 
 export function DataTable<T extends { id: string }>({
@@ -33,6 +34,7 @@ export function DataTable<T extends { id: string }>({
   searchKey,
   searchPlaceholder = "Buscar...",
   actions,
+  onRowClick,
 }: DataTableProps<T>) {
   const [search, setSearch] = React.useState("")
 
@@ -83,7 +85,11 @@ export function DataTable<T extends { id: string }>({
                 </TableRow>
               ) : (
                 filteredData.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow 
+                    key={row.id}
+                    onClick={() => onRowClick?.(row)}
+                    className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
+                  >
                     {columns.map((column) => (
                       <TableCell key={String(column.key)} className="whitespace-nowrap">
                         {column.render
@@ -92,7 +98,9 @@ export function DataTable<T extends { id: string }>({
                       </TableCell>
                     ))}
                     {actions && (
-                      <TableCell className="text-right whitespace-nowrap">{actions(row)}</TableCell>
+                      <TableCell className="text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                        {actions(row)}
+                      </TableCell>
                     )}
                   </TableRow>
                 ))
@@ -109,7 +117,11 @@ export function DataTable<T extends { id: string }>({
             </div>
           ) : (
             filteredData.map((row) => (
-              <div key={row.id} className="border rounded-lg p-4 space-y-3 bg-card">
+              <div 
+                key={row.id} 
+                className={`border rounded-lg p-4 space-y-3 bg-card ${onRowClick ? "cursor-pointer hover:bg-accent transition-colors" : ""}`}
+                onClick={() => onRowClick?.(row)}
+              >
                 {columns.map((column) => (
                   <div key={String(column.key)} className="flex justify-between items-start gap-2">
                     <span className="text-sm font-medium text-muted-foreground min-w-[100px]">
@@ -123,7 +135,7 @@ export function DataTable<T extends { id: string }>({
                   </div>
                 ))}
                 {actions && (
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t">
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t" onClick={(e) => e.stopPropagation()}>
                     {actions(row)}
                   </div>
                 )}
