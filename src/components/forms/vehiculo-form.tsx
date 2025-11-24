@@ -131,7 +131,7 @@ export function VehiculoForm({ vehiculo, clienteId: propClienteId, onSuccess, on
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="marca">Marca *</Label>
           <Select value={marca} onValueChange={setMarca}>
@@ -164,7 +164,7 @@ export function VehiculoForm({ vehiculo, clienteId: propClienteId, onSuccess, on
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="año">Año *</Label>
           <Input
@@ -203,7 +203,7 @@ export function VehiculoForm({ vehiculo, clienteId: propClienteId, onSuccess, on
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="kilometraje">Kilometraje *</Label>
           <Input

@@ -156,15 +156,19 @@ export default function ClienteDetailPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Teléfono:</span>
-                  <span className="font-medium">{cliente.telefono}</span>
+                <div className="flex items-start sm:items-center gap-2 text-sm">
+                  <Phone className="h-4 w-4 text-muted-foreground mt-0.5 sm:mt-0" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-muted-foreground">Teléfono:</span>
+                    <span className="font-medium break-words ml-1">{cliente.telefono}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Email:</span>
-                  <span className="font-medium">{cliente.email}</span>
+                <div className="flex items-start sm:items-center gap-2 text-sm">
+                  <Mail className="h-4 w-4 text-muted-foreground mt-0.5 sm:mt-0" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-muted-foreground">Email:</span>
+                    <span className="font-medium break-words ml-1">{cliente.email}</span>
+                  </div>
                 </div>
                 {cliente.direccion && (
                   <div className="flex items-start gap-2 text-sm">

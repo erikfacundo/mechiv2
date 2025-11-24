@@ -237,10 +237,10 @@ export default function OrdenDetailPage() {
               <CardTitle>Información General</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">N° Orden</p>
-                  <p className="text-sm font-semibold">{orden.numeroOrden}</p>
+                  <p className="text-sm font-semibold break-words">{orden.numeroOrden}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Estado</p>
@@ -250,13 +250,13 @@ export default function OrdenDetailPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Cliente</p>
-                  <p className="text-sm">
+                  <p className="text-sm break-words">
                     {cliente ? `${cliente.nombre} ${cliente.apellido}` : "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Vehículo</p>
-                  <p className="text-sm">
+                  <p className="text-sm break-words">
                     {vehiculo ? `${vehiculo.marca} ${vehiculo.modelo} - ${vehiculo.patente}` : "N/A"}
                   </p>
                 </div>
@@ -352,7 +352,7 @@ export default function OrdenDetailPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                   {fotosIniciales.map((foto, index) => (
                     <button
                       key={foto.id}
@@ -383,7 +383,7 @@ export default function OrdenDetailPage() {
             </CardHeader>
             <CardContent>
               {fotosFinales.length > 0 && (
-                <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-4">
                   {fotosFinales.map((foto, index) => (
                     <button
                       key={foto.id}

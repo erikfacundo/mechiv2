@@ -256,7 +256,7 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="numeroOrden">N° Orden {orden ? "*" : ""}</Label>
           {orden ? (

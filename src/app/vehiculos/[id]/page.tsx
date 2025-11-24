@@ -236,7 +236,7 @@ export default function VehiculoDetailPage() {
                       Ver todas ({vehiculo.fotos.length})
                     </Button>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {vehiculo.fotos.slice(0, 6).map((foto, index) => (
                       <button
                         key={foto.id}
