@@ -87,7 +87,7 @@ export function ClientesClient({ clientes: initialClientes }: ClientesClientProp
         searchKey="nombre"
         searchPlaceholder="Buscar por nombre..."
         actions={(cliente) => (
-          <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+          <>
             <Button
               variant="outline"
               size="sm"
@@ -115,7 +115,7 @@ export function ClientesClient({ clientes: initialClientes }: ClientesClientProp
               <Trash2 className="h-4 w-4" />
               <span className="hidden sm:inline ml-2">Eliminar</span>
             </Button>
-          </div>
+          </>
         )}
       />
     </div>

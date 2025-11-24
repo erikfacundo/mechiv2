@@ -98,8 +98,10 @@ export function DataTable<T extends { id: string }>({
                       </TableCell>
                     ))}
                     {actions && (
-                      <TableCell className="text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                        {actions(row)}
+                      <TableCell className="text-right whitespace-nowrap max-w-[200px] sm:max-w-none" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-1 sm:gap-2 flex-wrap">
+                          {actions(row)}
+                        </div>
                       </TableCell>
                     )}
                   </TableRow>
@@ -135,7 +137,7 @@ export function DataTable<T extends { id: string }>({
                   </div>
                 ))}
                 {actions && (
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center justify-end gap-1 sm:gap-2 pt-2 border-t flex-wrap" onClick={(e) => e.stopPropagation()}>
                     {actions(row)}
                   </div>
                 )}
