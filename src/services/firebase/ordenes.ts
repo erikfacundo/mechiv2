@@ -25,6 +25,10 @@ export async function getOrdenes(): Promise<OrdenTrabajo[]> {
           ...gasto,
           fecha: gasto.fecha?.toDate() || new Date(),
         })),
+        fotos: (data?.fotos || []).map((foto: any) => ({
+          ...foto,
+          fechaHora: foto.fechaHora?.toDate() || new Date(foto.fechaHora) || new Date(),
+        })),
         porcentajeCompletitud: data?.porcentajeCompletitud || calcularProgreso(checklist),
       }
     }) as OrdenTrabajo[]
