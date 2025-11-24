@@ -214,26 +214,30 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Label>Checklist de Trabajo</Label>
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <Label className="text-base font-semibold">Checklist de Trabajo</Label>
+        <div className="flex gap-2 flex-wrap">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => setShowTaskSelector(!showTaskSelector)}
+            className="flex-1 sm:flex-initial"
           >
-            <Plus className="h-4 w-4 mr-1" />
-            Tarea Padre
+            <Plus className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Tarea Padre</span>
+            <span className="sm:hidden">Padre</span>
           </Button>
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={addTarea}
+            className="flex-1 sm:flex-initial"
           >
-            <Plus className="h-4 w-4 mr-1" />
-            Tarea Simple
+            <Plus className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Tarea Simple</span>
+            <span className="sm:hidden">Simple</span>
           </Button>
         </div>
       </div>
@@ -256,7 +260,7 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -267,6 +271,7 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
                     setSelectedTareaPadre(input)
                   }
                 }}
+                className="flex-1 sm:flex-initial"
               >
                 Crear Nueva
               </Button>
@@ -275,6 +280,7 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
                 size="sm"
                 onClick={addTareaPadre}
                 disabled={!selectedTareaPadre}
+                className="flex-1 sm:flex-initial"
               >
                 Agregar
               </Button>
@@ -283,6 +289,7 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
                 variant="outline"
                 size="sm"
                 onClick={() => setShowTaskSelector(false)}
+                className="flex-1 sm:flex-initial"
               >
                 Cancelar
               </Button>
@@ -327,23 +334,26 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
                           <Square className="h-5 w-5 text-gray-400" />
                         )}
                       </button>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-2">
                           <Input
                             value={tareaPadre.tarea}
                             onChange={(e) => updateTarea(padreIndex, 'tarea', e.target.value)}
-                            className={tareaPadre.completado ? 'line-through text-gray-500' : ''}
+                            className={`flex-1 ${tareaPadre.completado ? 'line-through text-gray-500' : ''}`}
                             placeholder="Tarea padre"
                           />
-                          <Badge variant="outline">Padre</Badge>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeTarea(padreIndex)}
-                          >
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="whitespace-nowrap">Padre</Badge>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeTarea(padreIndex)}
+                              className="flex-shrink-0"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </div>
                         </div>
                         <Textarea
                           value={tareaPadre.notas || ""}
@@ -373,12 +383,12 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
                                 <Square className="h-5 w-5 text-gray-400" />
                               )}
                             </button>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-2">
                                 <Input
                                   value={subtarea.tarea}
                                   onChange={(e) => updateTarea(globalIndex, 'tarea', e.target.value)}
-                                  className={subtarea.completado ? 'line-through text-gray-500' : ''}
+                                  className={`flex-1 ${subtarea.completado ? 'line-through text-gray-500' : ''}`}
                                   placeholder="Subtarea"
                                 />
                                 <Button
@@ -386,6 +396,7 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => removeTarea(globalIndex)}
+                                  className="flex-shrink-0"
                                 >
                                   <Trash2 className="h-4 w-4 text-red-600" />
                                 </Button>
@@ -460,12 +471,12 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
                         <Square className="h-5 w-5 text-gray-400" />
                       )}
                     </button>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-2">
                         <Input
                           value={tarea.tarea}
                           onChange={(e) => updateTarea(globalIndex, 'tarea', e.target.value)}
-                          className={tarea.completado ? 'line-through text-gray-500' : ''}
+                          className={`flex-1 ${tarea.completado ? 'line-through text-gray-500' : ''}`}
                           placeholder="Descripción de la tarea"
                         />
                         <Button
@@ -473,6 +484,7 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
                           variant="ghost"
                           size="sm"
                           onClick={() => removeTarea(globalIndex)}
+                          className="flex-shrink-0"
                         >
                           <Trash2 className="h-4 w-4 text-red-600" />
                         </Button>
