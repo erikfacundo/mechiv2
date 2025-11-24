@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Cliente } from '@/types'
 
 export function useClientes() {
@@ -8,11 +8,7 @@ export function useClientes() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchClientes()
-  }, [])
-
-  const fetchClientes = async () => {
+  const fetchClientes = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch('/api/clientes')
@@ -25,7 +21,11 @@ export function useClientes() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchClientes()
+  }, [fetchClientes])
 
   return { clientes, loading, error, refetch: fetchClientes }
 }
@@ -35,12 +35,8 @@ export function useCliente(id: string) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const fetchCliente = useCallback(async () => {
     if (!id) return
-    fetchCliente()
-  }, [id])
-
-  const fetchCliente = async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/clientes/${id}`)
@@ -53,7 +49,11 @@ export function useCliente(id: string) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id])
+
+  useEffect(() => {
+    fetchCliente()
+  }, [fetchCliente])
 
   return { cliente, loading, error, refetch: fetchCliente }
 }

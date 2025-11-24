@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { OrdenTrabajo, EstadoOrden } from '@/types'
 
 export function useOrdenes(estado?: EstadoOrden | 'Todos') {
@@ -8,11 +8,7 @@ export function useOrdenes(estado?: EstadoOrden | 'Todos') {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchOrdenes()
-  }, [estado])
-
-  const fetchOrdenes = async () => {
+  const fetchOrdenes = useCallback(async () => {
     try {
       setLoading(true)
       const url = estado && estado !== 'Todos' 
@@ -28,7 +24,11 @@ export function useOrdenes(estado?: EstadoOrden | 'Todos') {
     } finally {
       setLoading(false)
     }
-  }
+  }, [estado])
+
+  useEffect(() => {
+    fetchOrdenes()
+  }, [fetchOrdenes])
 
   return { ordenes, loading, error, refetch: fetchOrdenes }
 }
@@ -38,12 +38,8 @@ export function useOrden(id: string) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const fetchOrden = useCallback(async () => {
     if (!id) return
-    fetchOrden()
-  }, [id])
-
-  const fetchOrden = async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/ordenes/${id}`)
@@ -56,7 +52,11 @@ export function useOrden(id: string) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id])
+
+  useEffect(() => {
+    fetchOrden()
+  }, [fetchOrden])
 
   return { orden, loading, error, refetch: fetchOrden }
 }

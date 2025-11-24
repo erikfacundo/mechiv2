@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Vehiculo } from '@/types'
 
 export function useVehiculos() {
@@ -35,12 +35,8 @@ export function useVehiculo(id: string) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const fetchVehiculo = useCallback(async () => {
     if (!id) return
-    fetchVehiculo()
-  }, [id])
-
-  const fetchVehiculo = async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/vehiculos/${id}`)
@@ -53,7 +49,11 @@ export function useVehiculo(id: string) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id])
+
+  useEffect(() => {
+    fetchVehiculo()
+  }, [fetchVehiculo])
 
   return { vehiculo, loading, error, refetch: fetchVehiculo }
 }

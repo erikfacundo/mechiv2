@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Cobro } from "@/types"
 
 export function useCobros(ordenId?: string) {
@@ -8,7 +8,7 @@ export function useCobros(ordenId?: string) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchCobros = async () => {
+  const fetchCobros = useCallback(async () => {
     try {
       setLoading(true)
       const url = ordenId ? `/api/cobros?ordenId=${ordenId}` : "/api/cobros"
@@ -23,11 +23,11 @@ export function useCobros(ordenId?: string) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [ordenId])
 
   useEffect(() => {
     fetchCobros()
-  }, [ordenId])
+  }, [fetchCobros])
 
   return { cobros, loading, error, refetch: fetchCobros }
 }

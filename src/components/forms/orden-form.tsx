@@ -1,5 +1,6 @@
 "use client"
 
+import { useCallback } from "react"
 import { useForm, useFieldArray } from "react-hook-form"
 import { OrdenTrabajo, EstadoOrden } from "@/types"
 import { Button } from "@/components/ui/button"
@@ -114,19 +115,19 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
   const servicios = watch("servicios")
   const costoTotal = watch("costoTotal")
 
-  const calcularCosto = () => {
+  const calcularCosto = useCallback(() => {
     // Lógica simple: cada servicio suma un costo base
     // En producción, esto podría venir de una base de datos de servicios
     const costoBase = 5000
     const total = servicios.filter(s => s.trim()).length * costoBase
     setValue("costoTotal", total)
-  }
+  }, [servicios, setValue])
 
   useEffect(() => {
     if (servicios && servicios.length > 0) {
       calcularCosto()
     }
-  }, [servicios])
+  }, [servicios, calcularCosto])
 
 
   const onSubmit = async (data: Omit<OrdenTrabajo, 'id' | 'fechaIngreso' | 'fechaEntrega'>) => {

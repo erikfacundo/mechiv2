@@ -139,7 +139,7 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
         })
       }
     }
-  }, [selectedCategoriaId, categorias])
+  }, [selectedCategoriaId, categorias, toast])
 
   const steps = [
     { id: 1, title: 'Cliente', icon: User },

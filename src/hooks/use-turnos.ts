@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Turno } from "@/types"
 
 export function useTurnos(fecha?: Date) {
@@ -8,7 +8,7 @@ export function useTurnos(fecha?: Date) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchTurnos = async () => {
+  const fetchTurnos = useCallback(async () => {
     try {
       setLoading(true)
       const url = fecha ? `/api/turnos?fecha=${fecha.toISOString()}` : "/api/turnos"
@@ -23,11 +23,11 @@ export function useTurnos(fecha?: Date) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [fecha])
 
   useEffect(() => {
     fetchTurnos()
-  }, [fecha])
+  }, [fetchTurnos])
 
   return { turnos, loading, error, refetch: fetchTurnos }
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Mantenimiento } from "@/types"
 
 export function useMantenimientos() {
@@ -36,7 +36,8 @@ export function useMantenimientoById(id: string) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchMantenimiento = async () => {
+  const fetchMantenimiento = useCallback(async () => {
+    if (!id) return
     try {
       setLoading(true)
       const response = await fetch(`/api/mantenimientos/${id}`)
@@ -50,13 +51,11 @@ export function useMantenimientoById(id: string) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id])
 
   useEffect(() => {
-    if (id) {
-      fetchMantenimiento()
-    }
-  }, [id])
+    fetchMantenimiento()
+  }, [fetchMantenimiento])
 
   return { mantenimiento, loading, error, refetch: fetchMantenimiento }
 }
