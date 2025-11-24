@@ -163,20 +163,6 @@ export default function OrdenDetailPage() {
     setCarouselIndex(index)
     setCarouselOpen(true)
   }
-      
-      await refetch()
-      toast({
-        title: "Gastos actualizados",
-        description: "Los gastos se han actualizado correctamente",
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudieron actualizar los gastos",
-        variant: "destructive",
-      })
-    }
-  }
 
   if (loading) {
     return (
