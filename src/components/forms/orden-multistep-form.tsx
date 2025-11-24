@@ -35,7 +35,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useClientes } from "@/hooks/use-clientes"
 import { useVehiculos } from "@/hooks/use-vehiculos"
 import { useCategorias } from "@/hooks/use-categorias"
-import { OrdenTrabajo, EstadoOrden, TareaChecklist, FotoOrden } from "@/types"
+import { OrdenTrabajo, EstadoOrden, TareaChecklist, FotoOrden, FotoVehiculo } from "@/types"
 import { ChecklistManager } from "@/components/ordenes/checklist-manager"
 import { ImageUpload } from "@/components/ui/image-upload"
 import {
