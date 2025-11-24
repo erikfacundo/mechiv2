@@ -107,14 +107,15 @@ export function GastosManager({ gastos, onGastosChange }: GastosManagerProps) {
   const totalGastos = gastos.reduce((sum, g) => sum + g.monto, 0)
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Label>Gastos de la Orden</Label>
+    <div className="space-y-4 w-full max-w-full overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <Label className="text-base font-semibold">Gastos de la Orden</Label>
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={() => setShowAddForm(!showAddForm)}
+          className="w-full sm:w-auto"
         >
           <Plus className="h-4 w-4 mr-1" />
           Agregar Gasto
@@ -122,8 +123,8 @@ export function GastosManager({ gastos, onGastosChange }: GastosManagerProps) {
       </div>
 
       {showAddForm && (
-        <Card>
-          <CardContent className="p-4 space-y-4">
+        <Card className="w-full max-w-full overflow-hidden">
+          <CardContent className="p-4 space-y-4 w-full max-w-full">
             <div className="space-y-2">
               <Label>Descripción del gasto *</Label>
               <Input
@@ -145,7 +146,7 @@ export function GastosManager({ gastos, onGastosChange }: GastosManagerProps) {
             </div>
             <div className="space-y-2">
               <Label>Factura (opcional)</Label>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-wrap">
                 <input
                   type="file"
                   accept="image/*,.pdf"
@@ -155,14 +156,14 @@ export function GastosManager({ gastos, onGastosChange }: GastosManagerProps) {
                 />
                 <label
                   htmlFor="factura-upload"
-                  className="flex items-center gap-2 px-4 py-2 border border-dashed rounded-lg cursor-pointer hover:bg-accent"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border border-dashed rounded-lg cursor-pointer hover:bg-accent whitespace-nowrap"
                 >
                   {uploadingFactura ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                   ) : (
                     <Upload className="h-4 w-4" />
                   )}
-                  {nuevoGasto.facturaUrl ? "Factura subida" : "Subir factura"}
+                  <span className="text-sm">{nuevoGasto.facturaUrl ? "Factura subida" : "Subir factura"}</span>
                 </label>
                 {nuevoGasto.facturaUrl && (
                   <Button
@@ -170,6 +171,7 @@ export function GastosManager({ gastos, onGastosChange }: GastosManagerProps) {
                     variant="outline"
                     size="sm"
                     onClick={() => window.open(nuevoGasto.facturaUrl, '_blank')}
+                    className="whitespace-nowrap"
                   >
                     <FileText className="h-4 w-4 mr-1" />
                     Ver factura
@@ -177,7 +179,7 @@ export function GastosManager({ gastos, onGastosChange }: GastosManagerProps) {
                 )}
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 w-full">
               <Button
                 type="button"
                 variant="outline"
@@ -185,10 +187,15 @@ export function GastosManager({ gastos, onGastosChange }: GastosManagerProps) {
                   setShowAddForm(false)
                   setNuevoGasto({ descripcion: "", monto: 0 })
                 }}
+                className="flex-1 sm:flex-initial"
               >
                 Cancelar
               </Button>
-              <Button type="button" onClick={agregarGasto}>
+              <Button 
+                type="button" 
+                onClick={agregarGasto}
+                className="flex-1 sm:flex-initial"
+              >
                 Agregar Gasto
               </Button>
             </div>
@@ -199,25 +206,27 @@ export function GastosManager({ gastos, onGastosChange }: GastosManagerProps) {
       {gastos.length > 0 ? (
         <div className="space-y-2">
           {gastos.map((gasto) => (
-            <Card key={gasto.id}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
+            <Card key={gasto.id} className="w-full max-w-full overflow-hidden">
+              <CardContent className="p-4 w-full max-w-full">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-2">
                       <Input
                         value={gasto.descripcion}
                         onChange={(e) => actualizarGasto(gasto.id, 'descripcion', e.target.value)}
-                        className="flex-1"
+                        className="flex-1 min-w-0"
                       />
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={gasto.monto}
-                        onChange={(e) => actualizarGasto(gasto.id, 'monto', parseFloat(e.target.value) || 0)}
-                        className="w-32"
-                      />
-                      <span className="text-sm font-medium">${gasto.monto.toLocaleString()}</span>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={gasto.monto}
+                          onChange={(e) => actualizarGasto(gasto.id, 'monto', parseFloat(e.target.value) || 0)}
+                          className="w-24 sm:w-32"
+                        />
+                        <span className="text-sm font-medium whitespace-nowrap">${gasto.monto.toLocaleString()}</span>
+                      </div>
                     </div>
                     {gasto.facturaUrl && (
                       <div className="flex items-center gap-2">
@@ -226,6 +235,7 @@ export function GastosManager({ gastos, onGastosChange }: GastosManagerProps) {
                           variant="outline"
                           size="sm"
                           onClick={() => window.open(gasto.facturaUrl, '_blank')}
+                          className="whitespace-nowrap"
                         >
                           <FileText className="h-4 w-4 mr-1" />
                           Ver factura
@@ -238,6 +248,7 @@ export function GastosManager({ gastos, onGastosChange }: GastosManagerProps) {
                     variant="ghost"
                     size="sm"
                     onClick={() => eliminarGasto(gasto.id)}
+                    className="flex-shrink-0 self-start sm:self-center"
                   >
                     <Trash2 className="h-4 w-4 text-red-600" />
                   </Button>

@@ -203,17 +203,15 @@ export function GastoForm({ gasto, proveedorId, onSuccess, onCancel }: GastoForm
         />
       </div>
 
-      <div className="flex justify-end gap-2">
-        <div className="flex gap-2">
-          {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancelar
-            </Button>
-          )}
-          <Button type="submit" disabled={loading}>
-            {loading ? "Guardando..." : gasto ? "Actualizar" : "Crear"}
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 w-full">
+        {onCancel && (
+          <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
+            Cancelar
           </Button>
-        </div>
+        )}
+        <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+          {loading ? "Guardando..." : gasto ? "Actualizar" : "Crear"}
+        </Button>
       </div>
     </form>
   )

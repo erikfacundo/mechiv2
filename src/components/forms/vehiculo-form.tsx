@@ -257,13 +257,13 @@ export function VehiculoForm({ vehiculo, clienteId: propClienteId, onSuccess, on
         />
       </div>
 
-      <div className="flex justify-end space-x-2 pt-4">
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 w-full">
         {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
             Cancelar
           </Button>
         )}
-        <Button type="submit" disabled={loading || !clienteId || !marca}>
+        <Button type="submit" disabled={loading || !clienteId || !marca} className="w-full sm:w-auto">
           {loading ? "Guardando..." : vehiculo ? "Actualizar" : "Crear"}
         </Button>
       </div>
