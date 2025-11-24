@@ -41,7 +41,8 @@ export async function POST(request: NextRequest) {
       estado: body.estado || 'Pendiente',
       descripcion: body.descripcion,
       servicios: body.servicios || [],
-      costoTotal: body.costoTotal || 0,
+      manoObra: body.manoObra || body.costoTotal || 0, // Mano de obra cobrada
+      costoTotal: body.manoObra || body.costoTotal || 0, // Total = mano de obra (gastos se agregan después)
       observaciones: body.observaciones,
       checklist: body.checklist || [],
       gastos: body.gastos || [],

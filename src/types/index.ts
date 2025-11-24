@@ -51,10 +51,11 @@ export interface OrdenTrabajo {
   descripcion: string;
   servicios: string[];
   costoTotal: number;
+  manoObra?: number; // Mano de obra cobrada (ganancia real del taller)
   observaciones?: string;
   // Nuevos campos
   checklist?: TareaChecklist[];
-  gastos?: GastoOrden[];
+  gastos?: GastoOrden[]; // Gastos internos (repuestos/materiales que compramos pero NO cobramos al cliente)
   porcentajeCompletitud?: number;
   esMantenimiento?: boolean;
   fechaRecordatorioMantenimiento?: Date;

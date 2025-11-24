@@ -82,12 +82,21 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
   } = useForm({
     defaultValues: {
       estado: "Pendiente" as EstadoOrden,
+      manoObra: 0,
       costoTotal: 0,
       observaciones: "",
       fechaIngreso: new Date().toISOString().split('T')[0],
       fechaEntrega: "",
     },
   })
+
+  // Calcular costoTotal automáticamente cuando cambia manoObra
+  const manoObraValue = watch("manoObra")
+  useEffect(() => {
+    if (manoObraValue) {
+      setValue("costoTotal", manoObraValue)
+    }
+  }, [manoObraValue, setValue])
 
   // Eliminado watchedTipoTrabajo - ya no se usa selección de categoría
 
@@ -206,7 +215,8 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
         estado: data.estado,
         descripcion: descripcion,
         servicios: checklist.map(t => t.tarea), // Los servicios son las tareas del checklist
-        costoTotal: data.costoTotal || 0,
+        manoObra: data.manoObra || data.costoTotal || 0, // Mano de obra cobrada
+        costoTotal: data.manoObra || data.costoTotal || 0, // Total = mano de obra (gastos se agregan después)
         observaciones: data.observaciones || "",
         checklist: checklist,
         gastos: [],
@@ -497,6 +507,49 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
                 </div>
               </div>
 
+              {/* Costos */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="manoObra">Mano de Obra (Ganancia) *</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Lo que cobras por el trabajo
+                  </p>
+                  <Input
+                    id="manoObra"
+                    type="number"
+                    {...register("manoObra", {
+                      required: "La mano de obra es requerida",
+                      min: { value: 0, message: "Debe ser un valor positivo" },
+                      valueAsNumber: true,
+                    })}
+                    placeholder="15000"
+                  />
+                  {errors.manoObra && (
+                    <p className="text-sm text-destructive">{errors.manoObra.message}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="costoTotal">Costo Total</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Total a facturar (se calcula automáticamente)
+                  </p>
+                  <Input
+                    id="costoTotal"
+                    type="number"
+                    {...register("costoTotal", {
+                      min: { value: 0, message: "Debe ser un valor positivo" },
+                      valueAsNumber: true,
+                    })}
+                    placeholder="15000"
+                    readOnly
+                    className="bg-muted"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Los gastos internos se agregan después en la orden
+                  </p>
+                </div>
+              </div>
+
               {/* Observaciones */}
               <div className="space-y-2">
                 <Label htmlFor="observaciones">Observaciones</Label>
@@ -642,6 +695,18 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
                     )}
                   </div>
                   
+                  <div className="pt-2 border-t">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Mano de Obra:</span>
+                      <span className="text-lg font-bold text-green-600">
+                        ${(watch("manoObra") || 0).toLocaleString("es-AR")}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Los gastos internos (repuestos) se agregan después en la orden
+                    </p>
+                  </div>
+                  
                   {watch("observaciones") && (
                     <div>
                       <h5 className="font-medium text-sm mb-1">Observaciones:</h5>
@@ -689,9 +754,13 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
       case 2:
         return !!vehiculoId
       case 3:
-        // Validar que haya al menos una tarea en el checklist
+        // Validar que haya al menos una tarea en el checklist,
+        // que tenga mano de obra,
         // y que si es mantenimiento, tenga fecha de recordatorio
-        return checklist.length > 0 && (!esMantenimiento || !!fechaRecordatorio)
+        const manoObra = watch("manoObra")
+        return checklist.length > 0 && 
+               manoObra > 0 && 
+               (!esMantenimiento || !!fechaRecordatorio)
       case 4:
         return true // Confirmación siempre disponible
       default:

@@ -54,6 +54,7 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
     estado: EstadoOrden
     descripcion: string
     servicios: string[]
+    manoObra: number
     costoTotal: number
     observaciones?: string
   }
@@ -76,11 +77,13 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
           estado: orden.estado,
           descripcion: orden.descripcion,
           servicios: orden.servicios,
-          costoTotal: orden.costoTotal,
+          manoObra: orden.manoObra || orden.costoTotal || 0,
+          costoTotal: orden.costoTotal || 0,
           observaciones: orden.observaciones || "",
         }
       : {
           servicios: [""],
+          manoObra: 0,
           costoTotal: 0,
           estado: "Pendiente",
           clienteId: "",
@@ -113,21 +116,14 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
   }, [clienteId, setValue])
 
   const servicios = watch("servicios")
-  const costoTotal = watch("costoTotal")
+  const manoObraValue = watch("manoObra")
 
-  const calcularCosto = useCallback(() => {
-    // Lógica simple: cada servicio suma un costo base
-    // En producción, esto podría venir de una base de datos de servicios
-    const costoBase = 5000
-    const total = servicios.filter(s => s.trim()).length * costoBase
-    setValue("costoTotal", total)
-  }, [servicios, setValue])
-
+  // Calcular costoTotal automáticamente cuando cambia manoObra
   useEffect(() => {
-    if (servicios && servicios.length > 0) {
-      calcularCosto()
+    if (manoObraValue) {
+      setValue("costoTotal", manoObraValue)
     }
-  }, [servicios, calcularCosto])
+  }, [manoObraValue, setValue])
 
 
   const onSubmit = async (data: Omit<OrdenTrabajo, 'id' | 'fechaIngreso' | 'fechaEntrega'>) => {
@@ -137,12 +133,20 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
       const method = orden ? "PUT" : "POST"
 
       // Para nuevas órdenes, no enviar numeroOrden (se generará automáticamente)
+      // Asegurar que costoTotal = manoObra si no hay gastos
       const bodyData = orden 
-        ? { ...data, servicios: data.servicios.filter((s) => s.trim()) }
+        ? { 
+            ...data, 
+            servicios: data.servicios.filter((s) => s.trim()),
+            costoTotal: data.manoObra || data.costoTotal || 0,
+            manoObra: data.manoObra || data.costoTotal || 0,
+          }
         : { 
             ...data, 
             numeroOrden: undefined, // No enviar para que se genere automáticamente
-            servicios: data.servicios.filter((s) => s.trim()) 
+            servicios: data.servicios.filter((s) => s.trim()),
+            costoTotal: data.manoObra || data.costoTotal || 0,
+            manoObra: data.manoObra || data.costoTotal || 0,
           }
 
       const response = await fetch(url, {
@@ -344,21 +348,47 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
         </Button>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="costoTotal">Costo Total *</Label>
-        <Input
-          id="costoTotal"
-          type="number"
-          {...register("costoTotal", {
-            required: "El costo total es requerido",
-            min: { value: 0, message: "El costo debe ser positivo" },
-            valueAsNumber: true,
-          })}
-          placeholder="15000"
-        />
-        {errors.costoTotal && (
-          <p className="text-sm text-destructive">{errors.costoTotal.message}</p>
-        )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="manoObra">Mano de Obra (Ganancia) *</Label>
+          <p className="text-xs text-muted-foreground">
+            Lo que cobras por el trabajo
+          </p>
+          <Input
+            id="manoObra"
+            type="number"
+            {...register("manoObra", {
+              required: "La mano de obra es requerida",
+              min: { value: 0, message: "Debe ser un valor positivo" },
+              valueAsNumber: true,
+            })}
+            placeholder="15000"
+            defaultValue={orden?.manoObra || orden?.costoTotal || 0}
+          />
+          {errors.manoObra && (
+            <p className="text-sm text-destructive">{errors.manoObra.message}</p>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="costoTotal">Costo Total</Label>
+          <p className="text-xs text-muted-foreground">
+            Total a facturar (igual a mano de obra)
+          </p>
+          <Input
+            id="costoTotal"
+            type="number"
+            {...register("costoTotal", {
+              min: { value: 0, message: "El costo debe ser positivo" },
+              valueAsNumber: true,
+            })}
+            placeholder="15000"
+            readOnly
+            className="bg-muted"
+          />
+          <p className="text-xs text-muted-foreground">
+            Los gastos internos se agregan después
+          </p>
+        </div>
       </div>
 
       <div className="space-y-2">

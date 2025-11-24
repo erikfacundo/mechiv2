@@ -34,10 +34,28 @@ export function DashboardClient({ ordenes, clientes, vehiculos }: DashboardClien
   const ordenesEnProceso = useMemo(() => ordenes.filter(o => o.estado === "En Proceso").length, [ordenes])
   const totalClientes = clientes.length
   const totalVehiculos = vehiculos.length
-  const ingresosMensuales = useMemo(() => {
+  // Ganancia real: solo mano de obra (lo que cobramos)
+  const gananciaMensual = useMemo(() => {
     return ordenes
       .filter(o => o.estado === "Entregado" || o.estado === "Completado")
-      .reduce((sum, o) => sum + o.costoTotal, 0)
+      .reduce((sum, o) => sum + (o.manoObra || o.costoTotal || 0), 0)
+  }, [ordenes])
+
+  // Total facturado (mano de obra cobrada)
+  const totalFacturado = useMemo(() => {
+    return ordenes
+      .filter(o => o.estado === "Entregado" || o.estado === "Completado")
+      .reduce((sum, o) => sum + (o.manoObra || o.costoTotal || 0), 0)
+  }, [ordenes])
+
+  // Gastos internos (repuestos/materiales que compramos pero NO cobramos)
+  const gastosInternos = useMemo(() => {
+    return ordenes
+      .filter(o => o.estado === "Entregado" || o.estado === "Completado")
+      .reduce((sum, o) => {
+        const gastosOrden = o.gastos?.reduce((gSum, g) => gSum + g.monto, 0) || 0
+        return sum + gastosOrden
+      }, 0)
   }, [ordenes])
 
   const ordenesColumns = [
@@ -56,7 +74,7 @@ export function DashboardClient({ ordenes, clientes, vehiculos }: DashboardClien
         </p>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -105,16 +123,33 @@ export function DashboardClient({ ordenes, clientes, vehiculos }: DashboardClien
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Ingresos Mensuales
+              Ganancia (Mano de Obra)
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              ${ingresosMensuales.toLocaleString("es-AR")}
+            <div className="text-2xl font-bold text-green-600">
+              ${gananciaMensual.toLocaleString("es-AR")}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total facturado
+              Solo mano de obra cobrada
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Gastos Internos
+            </CardTitle>
+            <DollarSign className="h-4 w-4 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">
+              ${gastosInternos.toLocaleString("es-AR")}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Repuestos/materiales (no cobrados)
             </p>
           </CardContent>
         </Card>

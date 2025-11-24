@@ -4,11 +4,11 @@ import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Edit, Car, Wrench, Eye, Phone, Mail, MapPin, Calendar } from "lucide-react"
-import { useCliente } from "@/hooks/use-clientes"
-import { useVehiculos } from "@/hooks/use-vehiculos"
+import { ArrowLeft, Edit, User, Wrench, Eye, Car, Calendar, Gauge } from "lucide-react"
+import { useVehiculo } from "@/hooks/use-vehiculos"
+import { useClientes } from "@/hooks/use-clientes"
 import { useState, useEffect } from "react"
-import { OrdenTrabajo, Vehiculo } from "@/types"
+import { OrdenTrabajo } from "@/types"
 
 const getEstadoBadgeVariant = (estado: string) => {
   switch (estado) {
@@ -25,27 +25,27 @@ const getEstadoBadgeVariant = (estado: string) => {
   }
 }
 
-export default function ClienteDetailPage() {
+export default function VehiculoDetailPage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
-  const { cliente, loading } = useCliente(id)
-  const { vehiculos } = useVehiculos()
+  const { vehiculo, loading } = useVehiculo(id)
+  const { clientes } = useClientes()
   const [ordenes, setOrdenes] = useState<OrdenTrabajo[]>([])
   const [loadingOrdenes, setLoadingOrdenes] = useState(true)
 
-  // Obtener vehículos del cliente
-  const vehiculosCliente = vehiculos.filter(v => v.clienteId === id)
+  // Obtener cliente propietario
+  const cliente = vehiculo ? clientes.find(c => c.id === vehiculo.clienteId) : null
 
-  // Obtener órdenes del cliente
+  // Obtener órdenes del vehículo
   useEffect(() => {
     const fetchOrdenes = async () => {
       try {
         const response = await fetch(`/api/ordenes`)
         if (response.ok) {
           const allOrdenes = await response.json()
-          const ordenesCliente = allOrdenes.filter((o: OrdenTrabajo) => o.clienteId === id)
-          setOrdenes(ordenesCliente)
+          const ordenesVehiculo = allOrdenes.filter((o: OrdenTrabajo) => o.vehiculoId === id)
+          setOrdenes(ordenesVehiculo)
         }
       } catch (error) {
         console.error('Error obteniendo órdenes:', error)
@@ -71,19 +71,19 @@ export default function ClienteDetailPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 max-w-4xl">
-        <div className="text-center py-8">Cargando cliente...</div>
+      <div className="container mx-auto py-8 max-w-6xl">
+        <div className="text-center py-8">Cargando vehículo...</div>
       </div>
     )
   }
 
-  if (!cliente) {
+  if (!vehiculo) {
     return (
-      <div className="container mx-auto py-8 max-w-4xl">
+      <div className="container mx-auto py-8 max-w-6xl">
         <div className="text-center py-8">
-          <p className="text-muted-foreground mb-4">Cliente no encontrado</p>
-          <Button onClick={() => router.push("/clientes")}>
-            Volver a Clientes
+          <p className="text-muted-foreground mb-4">Vehículo no encontrado</p>
+          <Button onClick={() => router.push("/vehiculos")}>
+            Volver a Vehículos
           </Button>
         </div>
       </div>
@@ -95,22 +95,24 @@ export default function ClienteDetailPage() {
       <div className="mb-6">
         <Button
           variant="ghost"
-          onClick={() => router.push("/clientes")}
+          onClick={() => router.push("/vehiculos")}
           className="mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver a Clientes
+          Volver a Vehículos
         </Button>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">
-              {cliente.nombre} {cliente.apellido}
+              {vehiculo.marca} {vehiculo.modelo}
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">Detalle del cliente</p>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              {vehiculo.patente} • {vehiculo.año}
+            </p>
           </div>
-          <Button onClick={() => router.push(`/clientes/${cliente.id}/editar`)} className="w-full sm:w-auto">
+          <Button onClick={() => router.push(`/vehiculos/${vehiculo.id}/editar`)} className="w-full sm:w-auto">
             <Edit className="h-4 w-4 mr-2" />
-            Editar Cliente
+            Editar Vehículo
           </Button>
         </div>
       </div>
@@ -125,8 +127,8 @@ export default function ClienteDetailPage() {
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold">{vehiculosCliente.length}</div>
-            <p className="text-xs text-muted-foreground">Vehículos</p>
+            <div className="text-2xl font-bold">{vehiculo.kilometraje.toLocaleString("es-AR")}</div>
+            <p className="text-xs text-muted-foreground">Kilometraje</p>
           </CardContent>
         </Card>
         <Card>
@@ -148,130 +150,85 @@ export default function ClienteDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Información del Cliente */}
+        {/* Información del Vehículo */}
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle>Información Personal</CardTitle>
+              <CardTitle>Información del Vehículo</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Teléfono:</span>
-                  <span className="font-medium">{cliente.telefono}</span>
+                  <Car className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Marca/Modelo:</span>
+                  <span className="font-medium">{vehiculo.marca} {vehiculo.modelo}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Email:</span>
-                  <span className="font-medium">{cliente.email}</span>
-                </div>
-                {cliente.direccion && (
-                  <div className="flex items-start gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <div>
-                      <span className="text-muted-foreground">Dirección:</span>
-                      <p className="font-medium">{cliente.direccion}</p>
-                    </div>
-                  </div>
-                )}
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground">DNI:</span>
-                  <span className="font-medium">{cliente.dni}</span>
+                  <span className="text-muted-foreground">Patente:</span>
+                  <Badge variant="outline">{vehiculo.patente}</Badge>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Registrado:</span>
-                  <span className="font-medium">
-                    {new Date(cliente.fechaRegistro).toLocaleDateString("es-AR")}
-                  </span>
+                  <span className="text-muted-foreground">Año:</span>
+                  <span className="font-medium">{vehiculo.año}</span>
                 </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Gauge className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Kilometraje:</span>
+                  <span className="font-medium">{vehiculo.kilometraje.toLocaleString("es-AR")} km</span>
+                </div>
+                {vehiculo.color && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">Color:</span>
+                    <span className="font-medium">{vehiculo.color}</span>
+                  </div>
+                )}
+                {vehiculo.tipoCombustible && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">Combustible:</span>
+                    <span className="font-medium">{vehiculo.tipoCombustible}</span>
+                  </div>
+                )}
               </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Vehículos y Órdenes */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Vehículos del Cliente */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Car className="h-5 w-5" />
-                  Vehículos ({vehiculosCliente.length})
-                </CardTitle>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push(`/vehiculos/nuevo?clienteId=${id}`)}
-                >
-                  Agregar Vehículo
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {vehiculosCliente.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Car className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p>No hay vehículos registrados</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-4"
-                    onClick={() => router.push(`/vehiculos/nuevo?clienteId=${id}`)}
-                  >
-                    Agregar Primer Vehículo
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {vehiculosCliente.map((vehiculo) => (
-                    <div
-                      key={vehiculo.id}
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer"
-                      onClick={() => router.push(`/vehiculos/${vehiculo.id}`)}
+              {/* Cliente Propietario */}
+              {cliente && (
+                <div className="pt-4 border-t">
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Cliente Propietario</span>
+                  </div>
+                  <div className="pl-6">
+                    <p className="font-semibold">{cliente.nombre} {cliente.apellido}</p>
+                    <p className="text-xs text-muted-foreground">{cliente.telefono}</p>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="p-0 h-auto mt-1"
+                      onClick={() => router.push(`/clientes/${cliente.id}`)}
                     >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold">
-                            {vehiculo.marca} {vehiculo.modelo}
-                          </p>
-                          <Badge variant="outline">{vehiculo.patente}</Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {vehiculo.año} • {vehiculo.kilometraje.toLocaleString("es-AR")} km
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          router.push(`/vehiculos/${vehiculo.id}`)
-                        }}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
+                      Ver detalle del cliente →
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
           </Card>
+        </div>
 
-          {/* Órdenes del Cliente */}
+        {/* Historial de Órdenes */}
+        <div className="lg:col-span-2">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <Wrench className="h-5 w-5" />
-                  Historial de Órdenes ({totalOrdenes})
+                  Historial de Servicios ({totalOrdenes})
                 </CardTitle>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => router.push(`/ordenes/nuevo?clienteId=${id}`)}
+                  onClick={() => router.push(`/ordenes/nuevo?vehiculoId=${id}`)}
                 >
                   Nueva Orden
                 </Button>
@@ -285,12 +242,12 @@ export default function ClienteDetailPage() {
               ) : ordenes.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Wrench className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p>No hay órdenes registradas</p>
+                  <p>No hay órdenes registradas para este vehículo</p>
                   <Button
                     variant="outline"
                     size="sm"
                     className="mt-4"
-                    onClick={() => router.push(`/ordenes/nuevo?clienteId=${id}`)}
+                    onClick={() => router.push(`/ordenes/nuevo?vehiculoId=${id}`)}
                   >
                     Crear Primera Orden
                   </Button>
