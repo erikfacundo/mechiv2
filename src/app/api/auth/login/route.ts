@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const VALID_USERNAME = 'admteam'
-const VALID_PASSWORD = 'gandara 3368'
+const VALID_PASSWORD = 'gandara3368'
 
 export async function POST(request: NextRequest) {
   try {
