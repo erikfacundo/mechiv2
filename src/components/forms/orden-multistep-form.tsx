@@ -414,7 +414,7 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
               <div className="space-y-2">
                 <Label>Checklist de Trabajo *</Label>
                 <p className="text-sm text-muted-foreground">
-                  Usa el botón "Categoría" para agregar categorías con sus subcategorías, o agrega tareas manualmente
+                  Usa el botón &quot;Categoría&quot; para agregar categorías con sus subcategorías, o agrega tareas manualmente
                 </p>
                 <ChecklistManager
                   checklist={checklist}
