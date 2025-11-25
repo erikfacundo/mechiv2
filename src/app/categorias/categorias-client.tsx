@@ -82,14 +82,14 @@ export function CategoriasClient({ categorias: initialCategorias }: CategoriasCl
       </div>
 
       {/* Barra de búsqueda */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <Input
           placeholder="Buscar por nombre, descripción o subtarea..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
+          className="flex-1"
         />
-        <Badge variant="outline" className="ml-auto">
+        <Badge variant="outline" className="self-start sm:self-auto">
           {categorias.length} {categorias.length === 1 ? 'tarea principal' : 'tareas principales'}
         </Badge>
       </div>
@@ -115,92 +115,111 @@ export function CategoriasClient({ categorias: initialCategorias }: CategoriasCl
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-2 sm:space-y-4">
           {filteredCategorias.map((categoria) => {
             const isExpanded = expandedCategories.has(categoria.id)
             const hasSubtareas = categoria.subcategorias && categoria.subcategorias.length > 0
             
             return (
               <Card key={categoria.id} className="overflow-hidden">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3">
-                        {hasSubtareas && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => toggleExpand(categoria.id)}
-                          >
-                            {isExpanded ? (
-                              <ChevronDown className="h-4 w-4" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4" />
-                            )}
-                          </Button>
-                        )}
-                        <div className="flex-1">
-                          <CardTitle className="text-lg flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: categoria.color || '#3b82f6' }} />
-                            {categoria.nombre}
-                            <Badge variant="outline" className="ml-2">
-                              Tarea Principal
-                            </Badge>
-                          </CardTitle>
-                          {categoria.descripcion && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {categoria.descripcion}
-                            </p>
+                <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                  <div className="space-y-2 sm:space-y-3">
+                    {/* Primera fila: Flecha + Título + Botones */}
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      {/* Botón expandir */}
+                      {hasSubtareas ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 flex-shrink-0"
+                          onClick={() => toggleExpand(categoria.id)}
+                        >
+                          {isExpanded ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
                           )}
-                        </div>
+                        </Button>
+                      ) : (
+                        <div className="w-8 flex-shrink-0" />
+                      )}
+                      
+                      {/* Título con color */}
+                      <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
+                        <span 
+                          className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" 
+                          style={{ backgroundColor: categoria.color || '#3b82f6' }} 
+                        />
+                        <CardTitle className="text-base sm:text-lg font-semibold leading-tight truncate min-w-0">
+                          {categoria.nombre}
+                        </CardTitle>
+                      </div>
+                      
+                      {/* Botones de acción */}
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => router.push(`/categorias/${categoria.id}/editar`)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                          onClick={() => handleDelete(categoria.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={categoria.activa ? "default" : "secondary"}>
+                    
+                    {/* Segunda fila: Descripción */}
+                    {categoria.descripcion && (
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed pl-0 sm:pl-0">
+                        {hasSubtareas && <span className="inline-block w-8 sm:w-8" />}
+                        {categoria.descripcion}
+                      </p>
+                    )}
+                    
+                    {/* Tercera fila: Badges */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pl-0 sm:pl-0">
+                      {hasSubtareas && <span className="inline-block w-8 sm:w-8" />}
+                      <Badge variant="outline" className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 h-5 sm:h-6">
+                        Principal
+                      </Badge>
+                      <Badge 
+                        variant={categoria.activa ? "default" : "secondary"} 
+                        className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 h-5 sm:h-6"
+                      >
                         {categoria.activa ? "Activa" : "Inactiva"}
                       </Badge>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push(`/categorias/${categoria.id}/editar`)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(categoria.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {hasSubtareas && (
+                        <Badge variant="secondary" className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 h-5 sm:h-6">
+                          {categoria.subcategorias?.length || 0} {categoria.subcategorias?.length === 1 ? 'subtarea' : 'subtareas'}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
 
                 {/* Subtareas (Subcategorías) */}
                 {hasSubtareas && isExpanded && categoria.subcategorias && (
-                  <CardContent className="pt-0 pb-4">
-                    <div className="ml-8 border-l-2 border-muted pl-4 space-y-2">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {categoria.subcategorias.length} {categoria.subcategorias.length === 1 ? 'subtarea' : 'subtareas'}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          Dependen de: <strong>{categoria.nombre}</strong>
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  <CardContent className="pt-2 sm:pt-3 pb-2 sm:pb-4 px-3 sm:px-6">
+                    <div className="space-y-2 sm:space-y-2.5">
+                      <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+                        {categoria.subcategorias.length} {categoria.subcategorias.length === 1 ? 'subtarea' : 'subtareas'}
+                      </p>
+                      <div className="space-y-1.5 sm:space-y-2">
                         {categoria.subcategorias.map((subcategoria, index) => (
                           <div
                             key={index}
-                            className="flex items-center gap-2 p-2 rounded-md bg-muted/50 border border-border"
+                            className="flex items-center gap-2 sm:gap-2.5 p-2 sm:p-2.5 rounded-md bg-muted/50 border border-border hover:bg-muted/70 transition-colors"
                           >
-                            <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                            <span className="text-sm">{subcategoria}</span>
-                            <Badge variant="outline" className="ml-auto text-xs">
-                              Subtarea
-                            </Badge>
+                            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                            <span className="text-xs sm:text-sm flex-1 leading-relaxed">{subcategoria}</span>
                           </div>
                         ))}
                       </div>
@@ -210,13 +229,18 @@ export function CategoriasClient({ categorias: initialCategorias }: CategoriasCl
 
                 {/* Mensaje cuando no hay subtareas */}
                 {!hasSubtareas && isExpanded && (
-                  <CardContent className="pt-0 pb-4">
-                    <div className="ml-8 border-l-2 border-muted pl-4">
-                      <p className="text-sm text-muted-foreground italic">
-                        Esta tarea principal no tiene subtareas definidas.
-                        Edita la categoría para agregar subtareas.
-                      </p>
-                    </div>
+                  <CardContent className="pt-2 sm:pt-3 pb-2 sm:pb-4 px-3 sm:px-6">
+                    <p className="text-xs sm:text-sm text-muted-foreground italic leading-relaxed">
+                      No tiene subtareas.{" "}
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="p-0 h-auto text-xs sm:text-sm underline"
+                        onClick={() => router.push(`/categorias/${categoria.id}/editar`)}
+                      >
+                        Editar para agregar.
+                      </Button>
+                    </p>
                   </CardContent>
                 )}
               </Card>

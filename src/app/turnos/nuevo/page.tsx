@@ -23,7 +23,7 @@ export default function NuevoTurnoPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
+    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
       <div className="mb-6">
         <Button
           variant="ghost"
@@ -33,11 +33,11 @@ export default function NuevoTurnoPage() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver a Turnos
         </Button>
-        <h1 className="text-3xl font-bold">Nuevo Turno</h1>
-        <p className="text-muted-foreground">Completa los datos del nuevo turno</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Nuevo Turno</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Completa los datos del nuevo turno</p>
       </div>
 
-      <div className="bg-card rounded-lg border p-6">
+      <div className="bg-card rounded-lg border p-4 sm:p-6">
         <TurnoForm onSuccess={handleSuccess} onCancel={handleCancel} />
       </div>
     </div>

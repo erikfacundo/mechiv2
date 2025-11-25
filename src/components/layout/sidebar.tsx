@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -36,6 +36,13 @@ const navigation = [
 export function Sidebar() {
   const pathname = usePathname()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [username, setUsername] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setUsername(localStorage.getItem("username"))
+    }
+  }, [])
 
   return (
     <>
@@ -66,10 +73,11 @@ export function Sidebar() {
           "bg-card border-r",
           "w-64",
           "lg:translate-x-0",
+          "flex flex-col",
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="h-full px-3 py-4 overflow-y-auto">
+        <div className="flex-1 px-3 py-4 overflow-y-auto">
           <div className="mb-8 mt-12 lg:mt-4">
             <h1 className="text-2xl font-bold text-primary px-3">
               Mechify
@@ -98,6 +106,14 @@ export function Sidebar() {
             })}
           </nav>
         </div>
+        {/* Usuario en la parte inferior del sidebar */}
+        {username && (
+          <div className="px-3 py-4 border-t">
+            <p className="text-sm text-muted-foreground px-3">
+              <span className="font-medium">Usuario:</span> {username}
+            </p>
+          </div>
+        )}
       </aside>
     </>
   )

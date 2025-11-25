@@ -28,7 +28,7 @@ export default function EditarVehiculoPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 max-w-4xl">
+      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
         <div className="text-center py-8">Cargando vehículo...</div>
       </div>
     )
@@ -36,7 +36,7 @@ export default function EditarVehiculoPage() {
 
   if (!vehiculo) {
     return (
-      <div className="container mx-auto py-8 max-w-4xl">
+      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-4">Vehículo no encontrado</p>
           <Button onClick={() => router.push("/vehiculos")}>
@@ -48,7 +48,7 @@ export default function EditarVehiculoPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
+    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
       <div className="mb-6">
         <Button
           variant="ghost"
@@ -58,11 +58,11 @@ export default function EditarVehiculoPage() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver a Vehículos
         </Button>
-        <h1 className="text-3xl font-bold">Editar Vehículo</h1>
-        <p className="text-muted-foreground">Modifica los datos del vehículo</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Editar Vehículo</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Modifica los datos del vehículo</p>
       </div>
 
-      <div className="bg-card rounded-lg border p-6">
+      <div className="bg-card rounded-lg border p-4 sm:p-6">
         <VehiculoForm vehiculo={vehiculo} onSuccess={handleSuccess} onCancel={handleCancel} />
       </div>
     </div>

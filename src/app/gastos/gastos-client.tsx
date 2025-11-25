@@ -102,13 +102,15 @@ export function GastosClient({ gastos: initialGastos }: GastosClientProps) {
   ]
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 sm:space-y-8">
+      <div className="space-y-4">
         <div>
-          <h1 className="text-3xl font-bold">Gastos</h1>
-          <p className="text-muted-foreground">Gestiona los gastos del taller</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Gastos</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Gestiona los gastos del taller
+          </p>
         </div>
-        <Button onClick={() => router.push("/gastos/nuevo")}>
+        <Button onClick={() => router.push("/gastos/nuevo")} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Gasto
         </Button>

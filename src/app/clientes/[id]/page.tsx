@@ -154,41 +154,39 @@ export default function ClienteDetailPage() {
             <CardHeader>
               <CardTitle>Información Personal</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-start sm:items-center gap-2 text-sm">
-                  <Phone className="h-4 w-4 text-muted-foreground mt-0.5 sm:mt-0" />
-                  <div className="flex-1 min-w-0">
-                    <span className="text-muted-foreground">Teléfono:</span>
-                    <span className="font-medium break-words ml-1">{cliente.telefono}</span>
-                  </div>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+                <div className="text-muted-foreground flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  <span>Teléfono:</span>
                 </div>
-                <div className="flex items-start sm:items-center gap-2 text-sm">
-                  <Mail className="h-4 w-4 text-muted-foreground mt-0.5 sm:mt-0" />
-                  <div className="flex-1 min-w-0">
-                    <span className="text-muted-foreground">Email:</span>
-                    <span className="font-medium break-words ml-1">{cliente.email}</span>
-                  </div>
+                <div className="font-medium break-words text-right">{cliente.telefono}</div>
+                
+                <div className="text-muted-foreground flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  <span>Email:</span>
                 </div>
+                <div className="font-medium break-words text-right">{cliente.email}</div>
+                
                 {cliente.direccion && (
-                  <div className="flex items-start gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <div>
-                      <span className="text-muted-foreground">Dirección:</span>
-                      <p className="font-medium">{cliente.direccion}</p>
+                  <>
+                    <div className="text-muted-foreground flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      <span>Dirección:</span>
                     </div>
-                  </div>
+                    <div className="font-medium break-words text-right">{cliente.direccion}</div>
+                  </>
                 )}
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground">DNI:</span>
-                  <span className="font-medium">{cliente.dni}</span>
+                
+                <div className="text-muted-foreground">DNI:</div>
+                <div className="font-medium text-right">{cliente.dni}</div>
+                
+                <div className="text-muted-foreground flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>Registrado:</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Registrado:</span>
-                  <span className="font-medium">
-                    {new Date(cliente.fechaRegistro).toLocaleDateString("es-AR")}
-                  </span>
+                <div className="font-medium text-right">
+                  {new Date(cliente.fechaRegistro).toLocaleDateString("es-AR")}
                 </div>
               </div>
             </CardContent>
@@ -200,18 +198,21 @@ export default function ClienteDetailPage() {
           {/* Vehículos del Cliente */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="space-y-4">
                 <CardTitle className="flex items-center gap-2">
                   <Car className="h-5 w-5" />
                   Vehículos ({vehiculosCliente.length})
                 </CardTitle>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push(`/vehiculos/nuevo?clienteId=${id}`)}
-                >
-                  Agregar Vehículo
-                </Button>
+                <div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push(`/vehiculos/nuevo?clienteId=${id}`)}
+                    className="w-full sm:w-auto"
+                  >
+                    Agregar Vehículo
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -267,18 +268,21 @@ export default function ClienteDetailPage() {
           {/* Órdenes del Cliente */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="space-y-4">
                 <CardTitle className="flex items-center gap-2">
                   <Wrench className="h-5 w-5" />
                   Historial de Órdenes ({totalOrdenes})
                 </CardTitle>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push(`/ordenes/nuevo?clienteId=${id}`)}
-                >
-                  Nueva Orden
-                </Button>
+                <div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push(`/ordenes/nuevo?clienteId=${id}`)}
+                    className="w-full sm:w-auto"
+                  >
+                    Nueva Orden
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>

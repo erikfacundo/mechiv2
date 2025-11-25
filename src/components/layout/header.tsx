@@ -40,12 +40,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center justify-between px-4">
-        <div className="text-xs sm:text-sm text-muted-foreground truncate max-w-[150px] sm:max-w-none">
-          {typeof window !== "undefined" && localStorage.getItem("username") && (
-            <span className="hidden sm:inline">Usuario: {localStorage.getItem("username")}</span>
-          )}
-        </div>
+      <div className="container flex h-14 items-center justify-end px-4">
         <div className="flex items-center gap-1 sm:gap-2">
           <Button
             variant="ghost"

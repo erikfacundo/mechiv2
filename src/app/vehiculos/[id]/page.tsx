@@ -160,38 +160,43 @@ export default function VehiculoDetailPage() {
             <CardHeader>
               <CardTitle>Información del Vehículo</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <Car className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Marca/Modelo:</span>
-                  <span className="font-medium">{vehiculo.marca} {vehiculo.modelo}</span>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+                <div className="text-muted-foreground flex items-center gap-2">
+                  <Car className="h-4 w-4" />
+                  <span>Marca/Modelo:</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground">Patente:</span>
+                <div className="font-medium text-right">{vehiculo.marca} {vehiculo.modelo}</div>
+                
+                <div className="text-muted-foreground">Patente:</div>
+                <div className="text-right">
                   <Badge variant="outline">{vehiculo.patente}</Badge>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Año:</span>
-                  <span className="font-medium">{vehiculo.año}</span>
+                
+                <div className="text-muted-foreground flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>Año:</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Gauge className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Kilometraje:</span>
-                  <span className="font-medium">{vehiculo.kilometraje.toLocaleString("es-AR")} km</span>
+                <div className="font-medium text-right">{vehiculo.año}</div>
+                
+                <div className="text-muted-foreground flex items-center gap-2">
+                  <Gauge className="h-4 w-4" />
+                  <span>Kilometraje:</span>
                 </div>
+                <div className="font-medium text-right">{vehiculo.kilometraje.toLocaleString("es-AR")} km</div>
+                
                 {vehiculo.color && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-muted-foreground">Color:</span>
-                    <span className="font-medium">{vehiculo.color}</span>
-                  </div>
+                  <>
+                    <div className="text-muted-foreground">Color:</div>
+                    <div className="font-medium text-right">{vehiculo.color}</div>
+                  </>
                 )}
+                
                 {vehiculo.tipoCombustible && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-muted-foreground">Combustible:</span>
-                    <span className="font-medium">{vehiculo.tipoCombustible}</span>
-                  </div>
+                  <>
+                    <div className="text-muted-foreground">Combustible:</div>
+                    <div className="font-medium text-right">{vehiculo.tipoCombustible}</div>
+                  </>
                 )}
               </div>
 

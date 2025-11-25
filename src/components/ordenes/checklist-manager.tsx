@@ -17,7 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { usePlantillasTareas } from "@/hooks/use-plantillas-tareas"
+import { useCategorias } from "@/hooks/use-categorias"
 import { useToast } from "@/hooks/use-toast"
+import { Categoria } from "@/types"
 
 interface ChecklistManagerProps {
   checklist?: TareaChecklist[] // Hacer opcional para evitar errores
@@ -27,9 +29,13 @@ interface ChecklistManagerProps {
 
 export function ChecklistManager({ checklist, onChecklistChange, ordenId }: ChecklistManagerProps) {
   const { plantillas, refetch: refetchPlantillas } = usePlantillasTareas()
+  const { categorias } = useCategorias()
   const { toast } = useToast()
   const [showTaskSelector, setShowTaskSelector] = useState(false)
+  const [showCategoriaSelector, setShowCategoriaSelector] = useState(false)
   const [selectedTareaPadre, setSelectedTareaPadre] = useState<string>("")
+  const [selectedCategoriaId, setSelectedCategoriaId] = useState<string>("")
+  const [selectedSubcategorias, setSelectedSubcategorias] = useState<Set<string>>(new Set())
   const [expandedPadres, setExpandedPadres] = useState<Set<string>>(new Set())
 
   // Asegurar que checklist siempre sea un array usando useMemo para evitar recálculos
@@ -211,6 +217,77 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
 
   // Obtener plantillas padre disponibles
   const plantillasPadre = plantillas.filter(p => p.esTareaPadre)
+  
+  // Obtener categorías activas
+  const categoriasActivas = categorias.filter(c => c.activa)
+
+  // Agregar categoría con subcategorías seleccionadas
+  const addCategoria = () => {
+    if (!selectedCategoriaId) {
+      toast({
+        title: "Error",
+        description: "Debes seleccionar una categoría",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const categoria = categoriasActivas.find(c => c.id === selectedCategoriaId)
+    if (!categoria) return
+
+    // Verificar si la categoría ya está en el checklist
+    const categoriaExiste = safeChecklist.some(t => t.tarea === categoria.nombre && !t.tareaPadre)
+    if (categoriaExiste) {
+      toast({
+        title: "Error",
+        description: "Esta categoría ya está en el checklist",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Crear la tarea padre (categoría)
+    const tareaPadre: TareaChecklist = {
+      id: `categoria-${categoria.id}-${Date.now()}`,
+      tarea: categoria.nombre,
+      completado: false,
+      notas: categoria.descripcion || '',
+    }
+
+    // Crear las subtareas (subcategorías seleccionadas)
+    const subcategoriasSeleccionadas = categoria.subcategorias?.filter(sub => selectedSubcategorias.has(sub)) || []
+    const subtareas: TareaChecklist[] = subcategoriasSeleccionadas.map((subcategoria, index) => ({
+      id: `subcategoria-${categoria.id}-${index}-${Date.now()}`,
+      tarea: subcategoria,
+      tareaPadre: categoria.nombre,
+      completado: false,
+      notas: '',
+    }))
+
+    // Agregar al checklist
+    const nuevoChecklist = [...safeChecklist, tareaPadre, ...subtareas]
+    onChecklistChange(nuevoChecklist)
+
+    // Limpiar selección
+    setSelectedCategoriaId("")
+    setSelectedSubcategorias(new Set())
+    setShowCategoriaSelector(false)
+
+    toast({
+      title: "Categoría agregada",
+      description: `Se agregó "${categoria.nombre}" con ${subcategoriasSeleccionadas.length} subcategoría${subcategoriasSeleccionadas.length !== 1 ? 's' : ''}`,
+    })
+  }
+
+  const toggleSubcategoria = (subcategoria: string) => {
+    const newSet = new Set(selectedSubcategorias)
+    if (newSet.has(subcategoria)) {
+      newSet.delete(subcategoria)
+    } else {
+      newSet.add(subcategoria)
+    }
+    setSelectedSubcategorias(newSet)
+  }
 
   return (
     <div className="space-y-4">
@@ -221,7 +298,24 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => setShowTaskSelector(!showTaskSelector)}
+            onClick={() => {
+              setShowCategoriaSelector(!showCategoriaSelector)
+              setShowTaskSelector(false)
+            }}
+            className="flex-1 sm:flex-initial"
+          >
+            <Plus className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Categoría</span>
+            <span className="sm:hidden">Cat.</span>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setShowTaskSelector(!showTaskSelector)
+              setShowCategoriaSelector(false)
+            }}
             className="flex-1 sm:flex-initial"
           >
             <Plus className="h-4 w-4 sm:mr-1" />
@@ -241,6 +335,116 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
           </Button>
         </div>
       </div>
+
+      {showCategoriaSelector && (
+        <Card>
+          <CardContent className="p-4 space-y-4">
+            <div className="space-y-2">
+              <Label>Seleccionar Categoría</Label>
+              <Select value={selectedCategoriaId} onValueChange={(value) => {
+                setSelectedCategoriaId(value)
+                setSelectedSubcategorias(new Set())
+              }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona una categoría" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  {categoriasActivas.map((categoria) => (
+                    <SelectItem key={categoria.id} value={categoria.id}>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{categoria.nombre}</span>
+                        {categoria.subcategorias && categoria.subcategorias.length > 0 && (
+                          <Badge variant="outline" className="text-xs">
+                            {categoria.subcategorias.length} subcat.
+                          </Badge>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedCategoriaId && (() => {
+              const categoria = categoriasActivas.find(c => c.id === selectedCategoriaId)
+              if (!categoria || !categoria.subcategorias || categoria.subcategorias.length === 0) {
+                return null
+              }
+
+              return (
+                <div className="space-y-2">
+                  <Label>Seleccionar Subcategorías (opcional)</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Selecciona las subcategorías que deseas incluir. Puedes seleccionar todas, algunas o ninguna.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[200px] overflow-y-auto p-2 border rounded-md">
+                    {categoria.subcategorias.map((subcategoria, index) => (
+                      <label
+                        key={index}
+                        className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedSubcategorias.has(subcategoria)}
+                          onChange={() => toggleSubcategoria(subcategoria)}
+                          className="rounded"
+                        />
+                        <span className="text-sm">{subcategoria}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const todas = new Set(categoria.subcategorias || [])
+                        setSelectedSubcategorias(todas)
+                      }}
+                    >
+                      Seleccionar todas
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedSubcategorias(new Set())}
+                    >
+                      Deseleccionar todas
+                    </Button>
+                  </div>
+                </div>
+              )
+            })()}
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                type="button"
+                size="sm"
+                onClick={addCategoria}
+                disabled={!selectedCategoriaId}
+                className="flex-1 sm:flex-initial"
+              >
+                Agregar Categoría
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setShowCategoriaSelector(false)
+                  setSelectedCategoriaId("")
+                  setSelectedSubcategorias(new Set())
+                }}
+                className="flex-1 sm:flex-initial"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {showTaskSelector && (
         <Card>

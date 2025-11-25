@@ -17,7 +17,7 @@ export default function NuevaOrdenPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-5xl">
+    <div className="container mx-auto py-4 sm:py-8 max-w-5xl">
       <div className="mb-6">
         <Button
           variant="ghost"
@@ -27,8 +27,8 @@ export default function NuevaOrdenPage() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver a Órdenes
         </Button>
-        <h1 className="text-3xl font-bold">Nueva Orden de Trabajo</h1>
-        <p className="text-muted-foreground">Crea una nueva orden paso a paso</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Nueva Orden de Trabajo</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Crea una nueva orden paso a paso</p>
       </div>
 
       <OrdenMultiStepForm onSuccess={handleSuccess} onCancel={handleCancel} />

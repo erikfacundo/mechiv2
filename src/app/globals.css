@@ -58,3 +58,12 @@
   }
 }
 
+@layer utilities {
+  /* Ajuste de tamaño de texto para mobile */
+  @media (max-width: 640px) {
+    .text-2xl {
+      font-size: 1.3rem;
+    }
+  }
+}
+

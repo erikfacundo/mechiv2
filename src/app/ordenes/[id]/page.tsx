@@ -236,63 +236,62 @@ export default function OrdenDetailPage() {
             <CardHeader>
               <CardTitle>Información General</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">N° Orden</p>
-                  <p className="text-sm font-semibold break-words">{orden.numeroOrden}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Estado</p>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+                <div className="text-muted-foreground">N° Orden:</div>
+                <div className="font-semibold text-right break-words">{orden.numeroOrden}</div>
+                
+                <div className="text-muted-foreground">Estado:</div>
+                <div className="text-right">
                   <Badge variant={getEstadoBadgeVariant(orden.estado)}>
                     {orden.estado}
                   </Badge>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Cliente</p>
-                  <p className="text-sm break-words">
-                    {cliente ? `${cliente.nombre} ${cliente.apellido}` : "N/A"}
-                  </p>
+                
+                <div className="text-muted-foreground">Cliente:</div>
+                <div className="text-right break-words">
+                  {cliente ? `${cliente.nombre} ${cliente.apellido}` : "N/A"}
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Vehículo</p>
-                  <p className="text-sm break-words">
-                    {vehiculo ? `${vehiculo.marca} ${vehiculo.modelo} - ${vehiculo.patente}` : "N/A"}
-                  </p>
+                
+                <div className="text-muted-foreground">Vehículo:</div>
+                <div className="text-right break-words">
+                  {vehiculo ? `${vehiculo.marca} ${vehiculo.modelo} - ${vehiculo.patente}` : "N/A"}
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Fecha Ingreso</p>
-                  <p className="text-sm">
-                    {new Date(orden.fechaIngreso).toLocaleDateString("es-AR")}
-                  </p>
+                
+                <div className="text-muted-foreground">Fecha Ingreso:</div>
+                <div className="text-right">
+                  {new Date(orden.fechaIngreso).toLocaleDateString("es-AR")}
                 </div>
+                
                 {orden.fechaEntrega && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Fecha Entrega</p>
-                    <p className="text-sm">
+                  <>
+                    <div className="text-muted-foreground">Fecha Entrega:</div>
+                    <div className="text-right">
                       {new Date(orden.fechaEntrega).toLocaleDateString("es-AR")}
-                    </p>
-                  </div>
+                    </div>
+                  </>
                 )}
               </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Descripción</p>
-                <p className="text-sm">{orden.descripcion}</p>
+              <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm pt-2 border-t">
+                <div className="text-muted-foreground">Descripción:</div>
+                <div className="text-right">{orden.descripcion}</div>
               </div>
               {orden.servicios && orden.servicios.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Servicios</p>
-                  <ul className="list-disc list-inside text-sm mt-2">
-                    {orden.servicios.map((servicio, index) => (
-                      <li key={index}>{servicio}</li>
-                    ))}
-                  </ul>
+                <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm pt-2 border-t">
+                  <div className="text-muted-foreground">Servicios:</div>
+                  <div className="text-right">
+                    <ul className="list-disc list-inside text-sm">
+                      {orden.servicios.map((servicio, index) => (
+                        <li key={index}>{servicio}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               )}
               {orden.observaciones && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Observaciones</p>
-                  <p className="text-sm">{orden.observaciones}</p>
+                <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm pt-2 border-t">
+                  <div className="text-muted-foreground">Observaciones:</div>
+                  <div className="text-right">{orden.observaciones}</div>
                 </div>
               )}
               {orden.esMantenimiento && orden.fechaRecordatorioMantenimiento && (

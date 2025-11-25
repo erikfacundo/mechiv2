@@ -108,13 +108,15 @@ export function PlantillasTareasClient({ plantillas: initialPlantillas }: Planti
   ]
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 sm:space-y-8">
+      <div className="space-y-4">
         <div>
-          <h1 className="text-3xl font-bold">Plantillas de Tareas</h1>
-          <p className="text-muted-foreground">Gestiona las plantillas de tareas reutilizables</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Plantillas de Tareas</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Gestiona las plantillas de tareas reutilizables
+          </p>
         </div>
-        <Button onClick={() => router.push("/plantillas-tareas/nuevo")}>
+        <Button onClick={() => router.push("/plantillas-tareas/nuevo")} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nueva Plantilla
         </Button>

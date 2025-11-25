@@ -27,6 +27,12 @@ const nextConfig = {
         path: false,
       }
     }
+    // Ignorar errores de módulos externos como Mermaid
+    config.ignoreWarnings = [
+      { module: /node_modules/ },
+      { message: /mermaid/ },
+      { message: /SlideDER/ },
+    ]
     return config
   },
   // Excluir scripts del build

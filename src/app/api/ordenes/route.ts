@@ -11,11 +11,49 @@ export async function GET(request: NextRequest) {
     if (estado && estado !== 'Todos') {
       const { getOrdenesByEstado } = await import('@/services/firebase/ordenes')
       const ordenes = await getOrdenesByEstado(estado as any)
-      return NextResponse.json(ordenes)
+      // Serializar fechas a ISO strings para JSON
+      const ordenesSerializadas = ordenes.map(orden => ({
+        ...orden,
+        fechaIngreso: orden.fechaIngreso.toISOString(),
+        fechaEntrega: orden.fechaEntrega?.toISOString(),
+        fechaRecordatorioMantenimiento: orden.fechaRecordatorioMantenimiento?.toISOString(),
+        checklist: orden.checklist?.map(item => ({
+          ...item,
+          fechaCompletitud: item.fechaCompletitud?.toISOString(),
+        })),
+        gastos: orden.gastos?.map(gasto => ({
+          ...gasto,
+          fecha: gasto.fecha.toISOString(),
+        })),
+        fotos: orden.fotos?.map(foto => ({
+          ...foto,
+          fechaHora: foto.fechaHora.toISOString(),
+        })),
+      }))
+      return NextResponse.json(ordenesSerializadas)
     }
     
     const ordenes = await getOrdenes()
-    return NextResponse.json(ordenes)
+    // Serializar fechas a ISO strings para JSON
+    const ordenesSerializadas = ordenes.map(orden => ({
+      ...orden,
+      fechaIngreso: orden.fechaIngreso.toISOString(),
+      fechaEntrega: orden.fechaEntrega?.toISOString(),
+      fechaRecordatorioMantenimiento: orden.fechaRecordatorioMantenimiento?.toISOString(),
+      checklist: orden.checklist?.map(item => ({
+        ...item,
+        fechaCompletitud: item.fechaCompletitud?.toISOString(),
+      })),
+      gastos: orden.gastos?.map(gasto => ({
+        ...gasto,
+        fecha: gasto.fecha.toISOString(),
+      })),
+      fotos: orden.fotos?.map(foto => ({
+        ...foto,
+        fechaHora: foto.fechaHora.toISOString(),
+      })),
+    }))
+    return NextResponse.json(ordenesSerializadas)
   } catch (error) {
     console.error('Error en GET /api/ordenes:', error)
     return NextResponse.json(
@@ -29,21 +67,42 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
+    // Validar campos requeridos
+    if (!body.clienteId || !body.vehiculoId) {
+      return NextResponse.json(
+        { error: 'Cliente y vehículo son requeridos' },
+        { status: 400 }
+      )
+    }
+    
     // Siempre generar número de orden automáticamente para nuevas órdenes
     const numeroOrden = await getNextNumeroOrden()
+
+    // Procesar fotos: convertir fechaHora de string a Date si es necesario
+    let fotosProcesadas = undefined
+    if (body.fotos && Array.isArray(body.fotos) && body.fotos.length > 0) {
+      fotosProcesadas = body.fotos.map((foto: any) => ({
+        ...foto,
+        fechaHora: foto.fechaHora instanceof Date 
+          ? foto.fechaHora 
+          : foto.fechaHora 
+            ? new Date(foto.fechaHora) 
+            : new Date(),
+      }))
+    }
 
     const orden: Omit<OrdenTrabajo, 'id'> = {
       clienteId: body.clienteId,
       vehiculoId: body.vehiculoId,
       numeroOrden,
-      fechaIngreso: new Date(),
+      fechaIngreso: body.fechaIngreso ? new Date(body.fechaIngreso) : new Date(),
       fechaEntrega: body.fechaEntrega ? new Date(body.fechaEntrega) : undefined,
       estado: body.estado || 'Pendiente',
-      descripcion: body.descripcion,
+      descripcion: body.descripcion || '',
       servicios: body.servicios || [],
       manoObra: body.manoObra || body.costoTotal || 0, // Mano de obra cobrada
       costoTotal: body.manoObra || body.costoTotal || 0, // Total = mano de obra (gastos se agregan después)
-      observaciones: body.observaciones,
+      observaciones: body.observaciones || '',
       checklist: body.checklist || [],
       gastos: body.gastos || [],
       porcentajeCompletitud: body.porcentajeCompletitud || 0,
@@ -51,6 +110,7 @@ export async function POST(request: NextRequest) {
       fechaRecordatorioMantenimiento: body.fechaRecordatorioMantenimiento 
         ? new Date(body.fechaRecordatorioMantenimiento) 
         : undefined,
+      fotos: fotosProcesadas,
     }
     
     // Si es mantenimiento y tiene fecha de recordatorio, crear el mantenimiento
@@ -91,11 +151,61 @@ export async function POST(request: NextRequest) {
     }
     
     const ordenCreada = await getOrdenById(id)
-    return NextResponse.json(ordenCreada || { id, ...orden }, { status: 201 })
+    
+    // Serializar fechas a ISO strings para JSON
+    if (ordenCreada) {
+      const ordenSerializada = {
+        ...ordenCreada,
+        fechaIngreso: ordenCreada.fechaIngreso.toISOString(),
+        fechaEntrega: ordenCreada.fechaEntrega?.toISOString(),
+        fechaRecordatorioMantenimiento: ordenCreada.fechaRecordatorioMantenimiento?.toISOString(),
+        checklist: ordenCreada.checklist?.map(item => ({
+          ...item,
+          fechaCompletitud: item.fechaCompletitud?.toISOString(),
+        })),
+        gastos: ordenCreada.gastos?.map(gasto => ({
+          ...gasto,
+          fecha: gasto.fecha.toISOString(),
+        })),
+        fotos: ordenCreada.fotos?.map(foto => ({
+          ...foto,
+          fechaHora: foto.fechaHora.toISOString(),
+        })),
+      }
+      return NextResponse.json(ordenSerializada, { status: 201 })
+    }
+    
+    // Fallback si no se puede obtener la orden creada
+    const ordenFallback = {
+      id,
+      ...orden,
+      fechaIngreso: orden.fechaIngreso.toISOString(),
+      fechaEntrega: orden.fechaEntrega?.toISOString(),
+      fechaRecordatorioMantenimiento: orden.fechaRecordatorioMantenimiento?.toISOString(),
+      checklist: orden.checklist?.map(item => ({
+        ...item,
+        fechaCompletitud: item.fechaCompletitud?.toISOString(),
+      })),
+      gastos: orden.gastos?.map(gasto => ({
+        ...gasto,
+        fecha: gasto.fecha.toISOString(),
+      })),
+      fotos: orden.fotos?.map(foto => ({
+        ...foto,
+        fechaHora: foto.fechaHora instanceof Date ? foto.fechaHora.toISOString() : foto.fechaHora,
+      })),
+    }
+    return NextResponse.json(ordenFallback, { status: 201 })
   } catch (error) {
     console.error('Error en POST /api/ordenes:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido al crear orden'
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error('Detalles del error:', { errorMessage, errorStack, error })
     return NextResponse.json(
-      { error: 'Error al crear orden' },
+      { 
+        error: 'Error al crear orden',
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+      },
       { status: 500 }
     )
   }

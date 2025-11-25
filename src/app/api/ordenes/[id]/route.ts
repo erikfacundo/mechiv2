@@ -16,7 +16,27 @@ export async function GET(
       )
     }
     
-    return NextResponse.json(orden)
+    // Serializar fechas a ISO strings para JSON
+    const ordenSerializada = {
+      ...orden,
+      fechaIngreso: orden.fechaIngreso.toISOString(),
+      fechaEntrega: orden.fechaEntrega?.toISOString(),
+      fechaRecordatorioMantenimiento: orden.fechaRecordatorioMantenimiento?.toISOString(),
+      checklist: orden.checklist?.map(item => ({
+        ...item,
+        fechaCompletitud: item.fechaCompletitud?.toISOString(),
+      })),
+      gastos: orden.gastos?.map(gasto => ({
+        ...gasto,
+        fecha: gasto.fecha.toISOString(),
+      })),
+      fotos: orden.fotos?.map(foto => ({
+        ...foto,
+        fechaHora: foto.fechaHora.toISOString(),
+      })),
+    }
+    
+    return NextResponse.json(ordenSerializada)
   } catch (error) {
     console.error('Error en GET /api/ordenes/[id]:', error)
     return NextResponse.json(
@@ -81,7 +101,35 @@ export async function PUT(
     }
     
     const ordenActualizada = await getOrdenById(params.id)
-    return NextResponse.json(ordenActualizada)
+    
+    if (!ordenActualizada) {
+      return NextResponse.json(
+        { error: 'Orden no encontrada' },
+        { status: 404 }
+      )
+    }
+    
+    // Serializar fechas a ISO strings para JSON
+    const ordenSerializada = {
+      ...ordenActualizada,
+      fechaIngreso: ordenActualizada.fechaIngreso.toISOString(),
+      fechaEntrega: ordenActualizada.fechaEntrega?.toISOString(),
+      fechaRecordatorioMantenimiento: ordenActualizada.fechaRecordatorioMantenimiento?.toISOString(),
+      checklist: ordenActualizada.checklist?.map(item => ({
+        ...item,
+        fechaCompletitud: item.fechaCompletitud?.toISOString(),
+      })),
+      gastos: ordenActualizada.gastos?.map(gasto => ({
+        ...gasto,
+        fecha: gasto.fecha.toISOString(),
+      })),
+      fotos: ordenActualizada.fotos?.map(foto => ({
+        ...foto,
+        fechaHora: foto.fechaHora.toISOString(),
+      })),
+    }
+    
+    return NextResponse.json(ordenSerializada)
   } catch (error) {
     console.error('Error en PUT /api/ordenes/[id]:', error)
     return NextResponse.json(

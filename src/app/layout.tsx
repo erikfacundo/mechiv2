@@ -14,10 +14,11 @@ export const metadata: Metadata = {
   description: "Sistema de gestión integral para talleres automotrices",
   icons: {
     icon: [
+      { url: "/logo/black-logo/favicon.ico", sizes: "any" },
       { url: "/logo/black-logo/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/logo/black-logo/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/logo/black-logo/favicon.ico", sizes: "any" },
     ],
+    shortcut: "/logo/black-logo/favicon.ico", // Favicon por defecto para evitar 404
     apple: [
       { url: "/logo/black-logo/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],

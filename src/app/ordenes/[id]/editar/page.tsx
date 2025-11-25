@@ -28,7 +28,7 @@ export default function EditarOrdenPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 max-w-5xl">
+      <div className="container mx-auto py-4 sm:py-8 max-w-5xl">
         <div className="text-center py-8">Cargando orden...</div>
       </div>
     )
@@ -36,7 +36,7 @@ export default function EditarOrdenPage() {
 
   if (!orden) {
     return (
-      <div className="container mx-auto py-8 max-w-5xl">
+      <div className="container mx-auto py-4 sm:py-8 max-w-5xl">
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-4">Orden no encontrada</p>
           <Button onClick={() => router.push("/ordenes")}>
@@ -48,7 +48,7 @@ export default function EditarOrdenPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-5xl">
+    <div className="container mx-auto py-4 sm:py-8 max-w-5xl">
       <div className="mb-6">
         <Button
           variant="ghost"
@@ -58,11 +58,11 @@ export default function EditarOrdenPage() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver a Órdenes
         </Button>
-        <h1 className="text-3xl font-bold">Editar Orden de Trabajo</h1>
-        <p className="text-muted-foreground">Modifica los datos de la orden</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Editar Orden de Trabajo</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Modifica los datos de la orden</p>
       </div>
 
-      <div className="bg-card rounded-lg border p-6">
+      <div className="bg-card rounded-lg border p-4 sm:p-6">
         <OrdenForm orden={orden} onSuccess={handleSuccess} onCancel={handleCancel} />
       </div>
     </div>

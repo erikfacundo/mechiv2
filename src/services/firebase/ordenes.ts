@@ -183,31 +183,113 @@ export async function createOrden(orden: Omit<OrdenTrabajo, 'id'>): Promise<stri
       porcentajeCompletitud,
     }
     
+    // Solo agregar fechaEntrega si existe (Firestore no acepta undefined)
     if (orden.fechaEntrega) {
       ordenData.fechaEntrega = new Date(orden.fechaEntrega)
+    } else {
+      delete ordenData.fechaEntrega
     }
     
+    // Solo agregar fechaRecordatorioMantenimiento si existe
     if (orden.fechaRecordatorioMantenimiento) {
       ordenData.fechaRecordatorioMantenimiento = new Date(orden.fechaRecordatorioMantenimiento)
+    } else {
+      delete ordenData.fechaRecordatorioMantenimiento
     }
     
     // Procesar checklist
-    if (orden.checklist) {
-      ordenData.checklist = orden.checklist.map(item => ({
-        ...item,
-        fechaCompletitud: item.fechaCompletitud ? new Date(item.fechaCompletitud) : undefined,
-      }))
+    if (orden.checklist && orden.checklist.length > 0) {
+      ordenData.checklist = orden.checklist.map(item => {
+        const itemData: any = {
+          ...item,
+        }
+        if (item.fechaCompletitud) {
+          itemData.fechaCompletitud = new Date(item.fechaCompletitud)
+        } else {
+          delete itemData.fechaCompletitud
+        }
+        return itemData
+      })
+    } else {
+      delete ordenData.checklist
     }
     
     // Procesar gastos
-    if (orden.gastos) {
+    if (orden.gastos && orden.gastos.length > 0) {
       ordenData.gastos = orden.gastos.map(gasto => ({
         ...gasto,
         fecha: gasto.fecha ? new Date(gasto.fecha) : new Date(),
       }))
+    } else {
+      delete ordenData.gastos
+    }
+    
+    // Procesar fotos
+    if (orden.fotos && orden.fotos.length > 0) {
+      ordenData.fotos = orden.fotos.map(foto => {
+        // Asegurar que fechaHora sea un Date válido
+        let fechaHora: Date
+        if (foto.fechaHora instanceof Date) {
+          fechaHora = foto.fechaHora
+        } else if (typeof foto.fechaHora === 'string') {
+          fechaHora = new Date(foto.fechaHora)
+        } else {
+          fechaHora = new Date()
+        }
+        
+        // Validar que la fecha sea válida
+        if (isNaN(fechaHora.getTime())) {
+          fechaHora = new Date()
+        }
+        
+        const fotoData: any = {
+          ...foto,
+          fechaHora,
+        }
+        
+        // Eliminar campos undefined
+        if (!fotoData.descripcion) {
+          delete fotoData.descripcion
+        }
+        
+        return fotoData
+      })
+    } else {
+      delete ordenData.fotos
     }
 
-    const docRef = await db.collection(COLLECTION_NAME).add(ordenData)
+    // Eliminar todos los campos undefined antes de guardar
+    const cleanData: any = {}
+    for (const key in ordenData) {
+      if (ordenData[key] !== undefined) {
+        cleanData[key] = ordenData[key]
+      }
+    }
+
+    // Validar tamaño del documento (Firestore tiene un límite de 1MB)
+    // Estimar el tamaño serializando a JSON
+    const estimatedSize = JSON.stringify(cleanData).length
+    const maxSize = 1 * 1024 * 1024 // 1MB en bytes
+    
+    if (estimatedSize > maxSize) {
+      // Si el documento es demasiado grande, probablemente son las fotos
+      const fotosSize = cleanData.fotos 
+        ? JSON.stringify(cleanData.fotos).length 
+        : 0
+      const sizeMB = (estimatedSize / 1024 / 1024).toFixed(2)
+      const fotosMB = (fotosSize / 1024 / 1024).toFixed(2)
+      const numFotos = cleanData.fotos?.length || 0
+      
+      throw new Error(
+        `El documento es demasiado grande (${sizeMB}MB). ` +
+        `Las ${numFotos} foto(s) ocupan ${fotosMB}MB. ` +
+        `Firestore tiene un límite de 1MB por documento. ` +
+        `Por favor, elimina las fotos actuales y vuelve a subirlas (se comprimirán automáticamente), ` +
+        `o reduce el número de fotos.`
+      )
+    }
+
+    const docRef = await db.collection(COLLECTION_NAME).add(cleanData)
     return docRef.id
   } catch (error) {
     console.error('Error creando orden:', error)
@@ -243,6 +325,14 @@ export async function updateOrden(id: string, orden: Partial<OrdenTrabajo>): Pro
       updateData.gastos = orden.gastos.map(gasto => ({
         ...gasto,
         fecha: gasto.fecha ? new Date(gasto.fecha) : new Date(),
+      }))
+    }
+    
+    // Procesar fechas en fotos
+    if (orden.fotos) {
+      updateData.fotos = orden.fotos.map(foto => ({
+        ...foto,
+        fechaHora: foto.fechaHora ? new Date(foto.fechaHora) : new Date(),
       }))
     }
     

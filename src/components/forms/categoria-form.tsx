@@ -105,10 +105,10 @@ export function CategoriaForm({ categoria, onSuccess, onCancel }: CategoriaFormP
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
+      <div className="space-y-1.5 sm:space-y-2">
         <Label htmlFor="nombre">Nombre de la Tarea Principal *</Label>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Este será el nombre de la tarea principal (categoría) que aparecerá en el checklist
         </p>
         <Input
@@ -117,11 +117,11 @@ export function CategoriaForm({ categoria, onSuccess, onCancel }: CategoriaFormP
           placeholder="Ej: Diagnóstico Electrónico y Reparación de Fallas"
         />
         {errors.nombre && (
-          <p className="text-sm text-destructive">{errors.nombre.message}</p>
+          <p className="text-xs sm:text-sm text-destructive">{errors.nombre.message}</p>
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5 sm:space-y-2">
         <Label htmlFor="descripcion">Descripción</Label>
         <Input
           id="descripcion"
@@ -130,14 +130,14 @@ export function CategoriaForm({ categoria, onSuccess, onCancel }: CategoriaFormP
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5 sm:space-y-2">
         <Label htmlFor="color">Color</Label>
         <div className="flex gap-2">
           <Input
             id="color"
             type="color"
             {...register("color")}
-            className="w-20 h-10"
+            className="w-16 sm:w-20 h-9 sm:h-10"
           />
           <Input
             {...register("color")}
@@ -147,11 +147,13 @@ export function CategoriaForm({ categoria, onSuccess, onCancel }: CategoriaFormP
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Subtareas *</Label>
-        <p className="text-sm text-muted-foreground">
-          Esta categoría será la <strong>Tarea Principal</strong>. Las subtareas se convertirán automáticamente en subtareas del checklist cuando se seleccione esta categoría al crear una orden.
-        </p>
+      <div className="space-y-2 sm:space-y-3">
+        <div className="space-y-1.5 sm:space-y-2">
+          <Label>Subtareas *</Label>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Esta categoría será la <strong>Tarea Principal</strong>. Las subtareas se convertirán automáticamente en subtareas del checklist cuando se seleccione esta categoría al crear una orden.
+          </p>
+        </div>
         <div className="space-y-2">
           {subcategorias.map((sub, index) => (
             <div key={index} className="flex items-center gap-2">
@@ -167,7 +169,7 @@ export function CategoriaForm({ categoria, onSuccess, onCancel }: CategoriaFormP
                   variant="outline"
                   size="icon"
                   onClick={() => removeSubcategoria(index)}
-                  className="text-destructive hover:text-destructive"
+                  className="text-destructive hover:text-destructive flex-shrink-0"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -186,17 +188,17 @@ export function CategoriaForm({ categoria, onSuccess, onCancel }: CategoriaFormP
         </Button>
       </div>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 pt-1">
         <input
           type="checkbox"
           id="activa"
           {...register("activa")}
           className="rounded"
         />
-        <Label htmlFor="activa">Categoría activa</Label>
+        <Label htmlFor="activa" className="text-sm">Categoría activa</Label>
       </div>
 
-      <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 w-full">
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 w-full pt-2">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
             Cancelar
