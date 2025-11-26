@@ -71,7 +71,7 @@ export default function ClienteDetailPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 max-w-4xl">
+      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
         <div className="text-center py-8">Cargando cliente...</div>
       </div>
     )
@@ -79,7 +79,7 @@ export default function ClienteDetailPage() {
 
   if (!cliente) {
     return (
-      <div className="container mx-auto py-8 max-w-4xl">
+      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-4">Cliente no encontrado</p>
           <Button onClick={() => router.push("/clientes")}>

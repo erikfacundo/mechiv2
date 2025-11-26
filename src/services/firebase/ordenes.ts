@@ -3,6 +3,14 @@ import { OrdenTrabajo, EstadoOrden, TareaChecklist } from '@/types'
 
 const COLLECTION_NAME = 'ordenes'
 
+function convertToDate(value: any): Date | undefined {
+  if (!value) return undefined
+  if (value instanceof Date) return value
+  if (typeof value === 'string') return new Date(value)
+  if (value.toDate && typeof value.toDate === 'function') return value.toDate()
+  return undefined
+}
+
 export async function getOrdenes(): Promise<OrdenTrabajo[]> {
   try {
     const snapshot = await db.collection(COLLECTION_NAME)
@@ -14,20 +22,20 @@ export async function getOrdenes(): Promise<OrdenTrabajo[]> {
       return {
         id: doc.id,
         ...data,
-        fechaIngreso: data.fechaIngreso?.toDate() || new Date(),
-        fechaEntrega: data.fechaEntrega?.toDate() || undefined,
-        fechaRecordatorioMantenimiento: data?.fechaRecordatorioMantenimiento?.toDate() || undefined,
+        fechaIngreso: convertToDate(data.fechaIngreso) || new Date(),
+        fechaEntrega: convertToDate(data.fechaEntrega),
+        fechaRecordatorioMantenimiento: convertToDate(data?.fechaRecordatorioMantenimiento),
         checklist: checklist.map((item: any) => ({
           ...item,
-          fechaCompletitud: item.fechaCompletitud?.toDate() || undefined,
+          fechaCompletitud: convertToDate(item.fechaCompletitud),
         })),
         gastos: (data?.gastos || []).map((gasto: any) => ({
           ...gasto,
-          fecha: gasto.fecha?.toDate() || new Date(),
+          fecha: convertToDate(gasto.fecha) || new Date(),
         })),
         fotos: (data?.fotos || []).map((foto: any) => ({
           ...foto,
-          fechaHora: foto.fechaHora?.toDate() || new Date(foto.fechaHora) || new Date(),
+          fechaHora: convertToDate(foto.fechaHora) || new Date(),
         })),
         porcentajeCompletitud: data?.porcentajeCompletitud || calcularProgreso(checklist),
       }
@@ -51,27 +59,27 @@ export async function getOrdenById(id: string): Promise<OrdenTrabajo | null> {
     // Procesar checklist
     const checklist = data?.checklist?.map((item: any) => ({
       ...item,
-      fechaCompletitud: item.fechaCompletitud?.toDate() || undefined,
+      fechaCompletitud: convertToDate(item.fechaCompletitud),
     })) || []
     
     // Procesar gastos
     const gastos = data?.gastos?.map((gasto: any) => ({
       ...gasto,
-      fecha: gasto.fecha?.toDate() || new Date(),
+      fecha: convertToDate(gasto.fecha) || new Date(),
     })) || []
     
     // Procesar fotos
     const fotos = data?.fotos?.map((foto: any) => ({
       ...foto,
-      fechaHora: foto.fechaHora?.toDate() || new Date(foto.fechaHora) || new Date(),
+      fechaHora: convertToDate(foto.fechaHora) || new Date(),
     })) || []
     
     return {
       id: ordenSnap.id,
       ...data,
-      fechaIngreso: data?.fechaIngreso?.toDate() || new Date(),
-      fechaEntrega: data?.fechaEntrega?.toDate() || undefined,
-      fechaRecordatorioMantenimiento: data?.fechaRecordatorioMantenimiento?.toDate() || undefined,
+      fechaIngreso: convertToDate(data?.fechaIngreso) || new Date(),
+      fechaEntrega: convertToDate(data?.fechaEntrega),
+      fechaRecordatorioMantenimiento: convertToDate(data?.fechaRecordatorioMantenimiento),
       checklist,
       gastos,
       fotos,
@@ -103,12 +111,15 @@ export async function getOrdenesByEstado(estado: EstadoOrden | 'Todos'): Promise
       .where('estado', '==', estado)
       .orderBy('fechaIngreso', 'desc')
       .get()
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      fechaIngreso: doc.data().fechaIngreso?.toDate() || new Date(),
-      fechaEntrega: doc.data().fechaEntrega?.toDate() || undefined,
-    })) as OrdenTrabajo[]
+    return snapshot.docs.map(doc => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        ...data,
+        fechaIngreso: convertToDate(data.fechaIngreso) || new Date(),
+        fechaEntrega: convertToDate(data.fechaEntrega),
+      }
+    }) as OrdenTrabajo[]
   } catch (error) {
     console.error('Error obteniendo órdenes por estado:', error)
     return []
@@ -121,12 +132,15 @@ export async function getOrdenesByCliente(clienteId: string): Promise<OrdenTraba
       .where('clienteId', '==', clienteId)
       .orderBy('fechaIngreso', 'desc')
       .get()
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      fechaIngreso: doc.data().fechaIngreso?.toDate() || new Date(),
-      fechaEntrega: doc.data().fechaEntrega?.toDate() || undefined,
-    })) as OrdenTrabajo[]
+    return snapshot.docs.map(doc => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        ...data,
+        fechaIngreso: convertToDate(data.fechaIngreso) || new Date(),
+        fechaEntrega: convertToDate(data.fechaEntrega),
+      }
+    }) as OrdenTrabajo[]
   } catch (error) {
     console.error('Error obteniendo órdenes por cliente:', error)
     return []
@@ -309,34 +323,89 @@ export async function updateOrden(id: string, orden: Partial<OrdenTrabajo>): Pro
       updateData.fechaRecordatorioMantenimiento = new Date(orden.fechaRecordatorioMantenimiento)
     }
     
-    // Calcular progreso si hay checklist
     if (orden.checklist) {
       updateData.porcentajeCompletitud = calcularProgreso(orden.checklist)
       
-      // Procesar fechas de completitud en checklist
-      updateData.checklist = orden.checklist.map(item => ({
-        ...item,
-        fechaCompletitud: item.fechaCompletitud ? new Date(item.fechaCompletitud) : undefined,
-      }))
+      updateData.checklist = orden.checklist.map(item => {
+        const itemData: any = {
+          ...item,
+        }
+        if (item.fechaCompletitud) {
+          itemData.fechaCompletitud = new Date(item.fechaCompletitud)
+        } else {
+          delete itemData.fechaCompletitud
+        }
+        if (!itemData.notas) {
+          delete itemData.notas
+        }
+        if (!itemData.tareaPadre) {
+          delete itemData.tareaPadre
+        }
+        return itemData
+      })
+    } else {
+      delete updateData.checklist
     }
     
-    // Procesar fechas en gastos
     if (orden.gastos) {
       updateData.gastos = orden.gastos.map(gasto => ({
         ...gasto,
         fecha: gasto.fecha ? new Date(gasto.fecha) : new Date(),
       }))
+    } else {
+      delete updateData.gastos
     }
     
-    // Procesar fechas en fotos
     if (orden.fotos) {
-      updateData.fotos = orden.fotos.map(foto => ({
-        ...foto,
-        fechaHora: foto.fechaHora ? new Date(foto.fechaHora) : new Date(),
-      }))
+      updateData.fotos = orden.fotos.map(foto => {
+        let fechaHora: Date
+        if (foto.fechaHora instanceof Date) {
+          fechaHora = foto.fechaHora
+        } else if (typeof foto.fechaHora === 'string') {
+          fechaHora = new Date(foto.fechaHora)
+        } else {
+          fechaHora = new Date()
+        }
+        
+        if (isNaN(fechaHora.getTime())) {
+          fechaHora = new Date()
+        }
+        
+        const fotoData: any = {
+          ...foto,
+          fechaHora,
+        }
+        
+        if (!fotoData.descripcion) {
+          delete fotoData.descripcion
+        }
+        
+        return fotoData
+      })
+    } else {
+      delete updateData.fotos
+    }
+
+    if (orden.fechaEntrega) {
+      updateData.fechaEntrega = new Date(orden.fechaEntrega)
+    } else {
+      delete updateData.fechaEntrega
     }
     
-    await db.collection(COLLECTION_NAME).doc(id).update(updateData)
+    if (orden.fechaRecordatorioMantenimiento) {
+      updateData.fechaRecordatorioMantenimiento = new Date(orden.fechaRecordatorioMantenimiento)
+    } else {
+      delete updateData.fechaRecordatorioMantenimiento
+    }
+
+    const cleanData: any = {}
+    for (const key in updateData) {
+      if (updateData[key] !== undefined) {
+        cleanData[key] = updateData[key]
+      }
+    }
+    
+    await db.collection(COLLECTION_NAME).doc(id).update(cleanData)
     return true
   } catch (error) {
     console.error('Error actualizando orden:', error)

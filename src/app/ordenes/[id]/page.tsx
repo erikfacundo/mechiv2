@@ -48,12 +48,14 @@ export default function OrdenDetailPage() {
   const [carouselOpen, setCarouselOpen] = useState(false)
   const [carouselIndex, setCarouselIndex] = useState(0)
   const [carouselFotos, setCarouselFotos] = useState<FotoOrden[]>([])
+  const [porcentajeCompletitud, setPorcentajeCompletitud] = useState(orden?.porcentajeCompletitud || 0)
 
   // Actualizar checklist, gastos y fotos cuando cambie la orden
   useEffect(() => {
     if (orden) {
       setChecklist(orden.checklist || [])
       setGastos(orden.gastos || [])
+      setPorcentajeCompletitud(orden.porcentajeCompletitud || 0)
       const fotos = orden.fotos || []
       setFotosIniciales(fotos.filter(f => f.tipo === 'inicial'))
       setFotosFinales(fotos.filter(f => f.tipo === 'final'))
@@ -61,29 +63,34 @@ export default function OrdenDetailPage() {
   }, [orden])
 
   const handleChecklistChange = async (newChecklist: TareaChecklist[]) => {
-    setChecklist(newChecklist)
-    try {
-      const porcentajeCompletitud = newChecklist.length > 0
-        ? Math.round((newChecklist.filter(t => t.completado).length / newChecklist.length) * 100)
-        : 0
+    const nuevoPorcentaje = newChecklist.length > 0
+      ? Math.round((newChecklist.filter(t => t.completado).length / newChecklist.length) * 100)
+      : 0
 
+    setChecklist(newChecklist)
+    setPorcentajeCompletitud(nuevoPorcentaje)
+    
+    try {
       const response = await fetch(`/api/ordenes/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           checklist: newChecklist,
-          porcentajeCompletitud,
+          porcentajeCompletitud: nuevoPorcentaje,
         }),
       })
 
-      if (!response.ok) throw new Error("Error al actualizar checklist")
-      
-      await refetch()
+      if (!response.ok) {
+        throw new Error("Error al actualizar checklist")
+      }
+
       toast({
         title: "Checklist actualizado",
-        description: "El progreso se ha actualizado correctamente",
+        description: "Los cambios se han guardado correctamente",
       })
     } catch (error) {
+      setChecklist(orden?.checklist || [])
+      setPorcentajeCompletitud(orden?.porcentajeCompletitud || 0)
       toast({
         title: "Error",
         description: "No se pudo actualizar el checklist",
@@ -94,9 +101,10 @@ export default function OrdenDetailPage() {
 
   const handleGastosChange = async (newGastos: GastoOrden[]) => {
     setGastos(newGastos)
+    
     try {
       const totalGastos = newGastos.reduce((sum, g) => sum + g.monto, 0)
-      const costoTotal = (orden?.costoTotal || 0) + totalGastos
+      const costoTotal = (orden?.manoObra || 0) + totalGastos
 
       const response = await fetch(`/api/ordenes/${id}`, {
         method: "PUT",
@@ -107,14 +115,16 @@ export default function OrdenDetailPage() {
         }),
       })
 
-      if (!response.ok) throw new Error("Error al actualizar gastos")
-      
-      await refetch()
+      if (!response.ok) {
+        throw new Error("Error al actualizar gastos")
+      }
+
       toast({
         title: "Gastos actualizados",
-        description: "Los gastos se han actualizado correctamente",
+        description: "Los gastos se han guardado correctamente",
       })
     } catch (error) {
+      setGastos(orden?.gastos || [])
       toast({
         title: "Error",
         description: "No se pudo actualizar los gastos",
@@ -124,16 +134,13 @@ export default function OrdenDetailPage() {
   }
 
   const handleFotosFinalesChange = async (newFotos: (FotoOrden | FotoVehiculo)[]) => {
-    // Convertir a FotoOrden con tipo 'final'
     const fotosFinales: FotoOrden[] = newFotos.map(foto => {
-      // Si ya es FotoOrden, mantener el tipo 'final', si no, crear uno nuevo
       if ('tipo' in foto) {
         return {
           ...foto,
           tipo: 'final' as const,
         }
       } else {
-        // Es FotoVehiculo, convertir a FotoOrden
         return {
           id: foto.id,
           dataUrl: foto.dataUrl,
@@ -145,6 +152,7 @@ export default function OrdenDetailPage() {
     })
     
     setFotosFinales(fotosFinales)
+    
     try {
       const todasLasFotos = [...fotosIniciales, ...fotosFinales]
       
@@ -156,14 +164,16 @@ export default function OrdenDetailPage() {
         }),
       })
 
-      if (!response.ok) throw new Error("Error al actualizar fotos")
-      
-      await refetch()
+      if (!response.ok) {
+        throw new Error("Error al actualizar fotos")
+      }
+
       toast({
         title: "Fotos actualizadas",
         description: "Las fotos del estado final se han guardado correctamente",
       })
     } catch (error) {
+      setFotosFinales(orden?.fotos?.filter(f => f.tipo === 'final') || [])
       toast({
         title: "Error",
         description: "No se pudo actualizar las fotos",
@@ -180,7 +190,7 @@ export default function OrdenDetailPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 max-w-6xl">
+      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
         <div className="text-center py-8">Cargando orden...</div>
       </div>
     )
@@ -188,7 +198,7 @@ export default function OrdenDetailPage() {
 
   if (!orden) {
     return (
-      <div className="container mx-auto py-8 max-w-6xl">
+      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-4">Orden no encontrada</p>
           <Button onClick={() => router.push("/ordenes")}>
@@ -201,12 +211,11 @@ export default function OrdenDetailPage() {
 
   const cliente = clientes.find((c) => c.id === orden.clienteId)
   const vehiculo = vehiculos.find((v) => v.id === orden.vehiculoId)
-  const porcentajeCompletitud = orden.porcentajeCompletitud || 0
   const totalGastos = gastos.reduce((sum, g) => sum + g.monto, 0)
-  const costoTotalConGastos = (orden.costoTotal || 0) + totalGastos
+  const costoTotalConGastos = (orden.manoObra || orden.costoTotal || 0) + totalGastos
 
   return (
-    <div className="container mx-auto py-8 max-w-6xl">
+    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
       <div className="mb-6">
         <Button
           variant="ghost"
@@ -218,8 +227,8 @@ export default function OrdenDetailPage() {
         </Button>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Orden #{orden.numeroOrden}</h1>
-            <p className="text-muted-foreground">Detalle de la orden de trabajo</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">Orden #{orden.numeroOrden}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Detalle de la orden de trabajo</p>
           </div>
           <Button onClick={() => router.push(`/ordenes/${orden.id}/editar`)}>
             <Edit className="h-4 w-4 mr-2" />
@@ -236,7 +245,7 @@ export default function OrdenDetailPage() {
             <CardHeader>
               <CardTitle>Información General</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="p-4 sm:p-6 space-y-3">
               <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
                 <div className="text-muted-foreground">N° Orden:</div>
                 <div className="font-semibold text-right break-words">{orden.numeroOrden}</div>
@@ -316,7 +325,7 @@ export default function OrdenDetailPage() {
                 Checklist de Trabajo
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
               <ChecklistManager
                 checklist={checklist}
                 onChecklistChange={handleChecklistChange}
@@ -333,7 +342,7 @@ export default function OrdenDetailPage() {
                 Gastos de la Orden
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
               <GastosManager
                 gastos={gastos}
                 onGastosChange={handleGastosChange}
@@ -350,7 +359,7 @@ export default function OrdenDetailPage() {
                   Fotos Estado Inicial
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                   {fotosIniciales.map((foto, index) => (
                     <button
@@ -380,7 +389,7 @@ export default function OrdenDetailPage() {
                 Fotos Estado Final
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
               {fotosFinales.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-4">
                   {fotosFinales.map((foto, index) => (
@@ -425,7 +434,7 @@ export default function OrdenDetailPage() {
                 Progreso
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-4 sm:p-6 space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">Completitud</span>
@@ -447,22 +456,22 @@ export default function OrdenDetailPage() {
             <CardHeader>
               <CardTitle>Resumen de Costos</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="p-4 sm:p-6 space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Costo Base</span>
-                <span className="font-medium">${(orden.costoTotal || 0).toLocaleString("es-AR")}</span>
+                <span className="text-muted-foreground">Mano de Obra</span>
+                <span className="font-medium">${(orden.manoObra || orden.costoTotal || 0).toLocaleString("es-AR")}</span>
               </div>
               {totalGastos > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Gastos Adicionales</span>
+                  <span className="text-muted-foreground">Gastos Internos</span>
                   <span className="font-medium">${totalGastos.toLocaleString("es-AR")}</span>
                 </div>
               )}
               <div className="pt-3 border-t">
                 <div className="flex justify-between">
-                  <span className="font-semibold">Total</span>
+                  <span className="font-semibold">Total a Facturar</span>
                   <span className="text-lg font-bold text-green-600">
-                    ${costoTotalConGastos.toLocaleString("es-AR")}
+                    ${(orden.manoObra || orden.costoTotal || 0).toLocaleString("es-AR")}
                   </span>
                 </div>
               </div>

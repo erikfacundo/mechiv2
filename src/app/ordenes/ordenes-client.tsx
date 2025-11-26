@@ -147,10 +147,12 @@ export function OrdenesClient({ ordenes: initialOrdenes, clientes, vehiculos }: 
             Gestión de órdenes de trabajo
           </p>
         </div>
-        <Button onClick={handleCreate} className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          Nueva Orden
-        </Button>
+        <div>
+          <Button onClick={handleCreate} className="w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Orden
+          </Button>
+        </div>
       </div>
 
       <div className="flex items-center space-x-2">

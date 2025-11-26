@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
@@ -65,8 +65,6 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
   const [loading, setLoading] = useState(false)
   const [clienteId, setClienteId] = useState("")
   const [vehiculoId, setVehiculoId] = useState("")
-  const [selectedCliente, setSelectedCliente] = useState<any>(null)
-  const [selectedVehiculo, setSelectedVehiculo] = useState<any>(null)
   const [checklist, setChecklist] = useState<TareaChecklist[]>([])
   const [esMantenimiento, setEsMantenimiento] = useState(false)
   const [fechaRecordatorio, setFechaRecordatorio] = useState("")
@@ -74,17 +72,14 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
   const [isVehiculoDialogOpen, setIsVehiculoDialogOpen] = useState(false)
   const [fotosIniciales, setFotosIniciales] = useState<FotoOrden[]>([])
 
-  // Wrapper para convertir fotos a FotoOrden con tipo 'inicial'
-  const handleFotosInicialesChange = (fotos: (FotoOrden | FotoVehiculo)[]) => {
+  const handleFotosInicialesChange = useCallback((fotos: (FotoOrden | FotoVehiculo)[]) => {
     const fotosConvertidas: FotoOrden[] = fotos.map(foto => {
       if ('tipo' in foto) {
-        // Ya es FotoOrden, asegurar tipo 'inicial'
         return {
           ...foto,
           tipo: 'inicial' as const,
         }
       } else {
-        // Es FotoVehiculo, convertir a FotoOrden
         return {
           id: foto.id,
           dataUrl: foto.dataUrl,
@@ -95,7 +90,7 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
       }
     })
     setFotosIniciales(fotosConvertidas)
-  }
+  }, [])
 
   const {
     register,
@@ -114,7 +109,6 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
     },
   })
 
-  // Calcular costoTotal automáticamente cuando cambia manoObra
   const manoObraValue = watch("manoObra")
   useEffect(() => {
     if (manoObraValue) {
@@ -122,24 +116,13 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
     }
   }, [manoObraValue, setValue])
 
-  // Eliminado watchedTipoTrabajo - ya no se usa selección de categoría
+  const selectedCliente = useMemo(() => {
+    return clienteId ? clientes.find(c => c.id === clienteId) : null
+  }, [clienteId, clientes])
 
-  useEffect(() => {
-    if (clienteId) {
-      const cliente = clientes.find(c => c.id === clienteId)
-      setSelectedCliente(cliente)
-    }
-  }, [clienteId, clientes, vehiculos])
-
-  useEffect(() => {
-    if (vehiculoId) {
-      const vehiculo = vehiculos.find(v => v.id === vehiculoId)
-      setSelectedVehiculo(vehiculo)
-    }
+  const selectedVehiculo = useMemo(() => {
+    return vehiculoId ? vehiculos.find(v => v.id === vehiculoId) : null
   }, [vehiculoId, vehiculos])
-
-  // Ya no generamos automáticamente el checklist desde aquí
-  // El ChecklistManager ahora maneja la selección de categorías
 
   const steps = [
     { id: 1, title: 'Cliente', icon: User },
@@ -148,42 +131,62 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
     { id: 4, title: 'Confirmar', icon: FileText },
   ]
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1)
     }
-  }
+  }, [currentStep, steps.length])
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
     }
-  }
+  }, [currentStep])
 
-  const handleClienteCreated = async () => {
-    await refetchClientes()
-    // El cliente se seleccionará automáticamente cuando se actualice la lista
+  const handleClienteCreated = useCallback(async () => {
     setIsClienteDialogOpen(false)
+    try {
+      const response = await fetch("/api/clientes")
+      if (response.ok) {
+        const clientesData = await response.json()
+        if (clientesData.length > 0) {
+          const nuevoCliente = clientesData[clientesData.length - 1]
+          setClienteId(nuevoCliente.id)
+        }
+      }
+    } catch (error) {
+      await refetchClientes()
+    }
     toast({
       title: "Cliente creado",
-      description: "Ahora puedes seleccionarlo en el formulario.",
+      description: "El cliente ha sido seleccionado automáticamente.",
     })
-  }
+  }, [refetchClientes, toast])
 
-  const handleVehiculoCreated = async () => {
-    await refetchVehiculos()
-    // El vehículo se seleccionará automáticamente cuando se actualice la lista
+  const handleVehiculoCreated = useCallback(async () => {
     setIsVehiculoDialogOpen(false)
+    try {
+      const response = await fetch("/api/vehiculos")
+      if (response.ok) {
+        const vehiculosData = await response.json()
+        const vehiculosDelCliente = vehiculosData.filter((v: any) => v.clienteId === clienteId)
+        if (vehiculosDelCliente.length > 0) {
+          const nuevoVehiculo = vehiculosDelCliente[vehiculosDelCliente.length - 1]
+          setVehiculoId(nuevoVehiculo.id)
+        }
+      }
+    } catch (error) {
+      await refetchVehiculos()
+    }
     toast({
       title: "Vehículo creado",
-      description: "Ahora puedes seleccionarlo en el formulario.",
+      description: "El vehículo ha sido seleccionado automáticamente.",
     })
-  }
+  }, [refetchVehiculos, toast, clienteId])
 
   const onSubmit = async (data: any) => {
     setLoading(true)
     try {
-      // Validar que haya al menos una tarea en el checklist
       if (checklist.length === 0) {
         toast({
           title: "Error",
@@ -194,10 +197,8 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
         return
       }
 
-      // Generar descripción basada en las tareas del checklist
       const descripcion = checklist.map(t => t.tarea).join(", ")
 
-      // Convertir fotos iniciales a FotoOrden
       const fotosOrden: FotoOrden[] = fotosIniciales.map(foto => ({
         ...foto,
         tipo: 'inicial' as const,
@@ -206,18 +207,18 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
       const ordenData: Omit<OrdenTrabajo, 'id'> = {
         clienteId,
         vehiculoId,
-        numeroOrden: "", // Se generará automáticamente
+        numeroOrden: "",
         fechaIngreso: new Date(data.fechaIngreso),
         fechaEntrega: data.fechaEntrega ? new Date(data.fechaEntrega) : undefined,
         estado: data.estado,
         descripcion: descripcion,
-        servicios: checklist.map(t => t.tarea), // Los servicios son las tareas del checklist
-        manoObra: data.manoObra || data.costoTotal || 0, // Mano de obra cobrada
-        costoTotal: data.manoObra || data.costoTotal || 0, // Total = mano de obra (gastos se agregan después)
+        servicios: checklist.map(t => t.tarea),
+        manoObra: data.manoObra || data.costoTotal || 0,
+        costoTotal: data.manoObra || data.costoTotal || 0,
         observaciones: data.observaciones || "",
         checklist: checklist,
         gastos: [],
-        porcentajeCompletitud: 0, // Inicialmente 0%
+        porcentajeCompletitud: 0,
         esMantenimiento: esMantenimiento,
         fechaRecordatorioMantenimiento: esMantenimiento && fechaRecordatorio 
           ? new Date(fechaRecordatorio) 
@@ -321,7 +322,6 @@ export function OrdenMultiStepForm({ onSuccess, onCancel }: OrdenMultiStepFormPr
         )
 
       case 2:
-        // Filtrar vehículos del cliente seleccionado
         const vehiculosDelCliente = vehiculos.filter(v => v.clienteId === clienteId)
         
         return (

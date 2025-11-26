@@ -61,16 +61,45 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
 
   const updateTarea = (index: number, field: keyof TareaChecklist, value: any) => {
     const updated = [...safeChecklist]
+    const tareaActual = updated[index]
+    
     updated[index] = {
       ...updated[index],
       [field]: value,
     }
     
-    // Si se marca como completado, agregar fecha
-    if (field === 'completado' && value === true) {
-      updated[index].fechaCompletitud = new Date()
-    } else if (field === 'completado' && value === false) {
-      updated[index].fechaCompletitud = undefined
+    if (field === 'completado') {
+      if (value === true) {
+        updated[index].fechaCompletitud = new Date()
+        
+        if (!tareaActual.tareaPadre) {
+          const nombreTareaPadre = tareaActual.tarea
+          updated.forEach((tarea, idx) => {
+            if (tarea.tareaPadre === nombreTareaPadre && !tarea.completado) {
+              updated[idx] = {
+                ...tarea,
+                completado: true,
+                fechaCompletitud: new Date(),
+              }
+            }
+          })
+        }
+      } else {
+        updated[index].fechaCompletitud = undefined
+        
+        if (!tareaActual.tareaPadre) {
+          const nombreTareaPadre = tareaActual.tarea
+          updated.forEach((tarea, idx) => {
+            if (tarea.tareaPadre === nombreTareaPadre && tarea.completado) {
+              updated[idx] = {
+                ...tarea,
+                completado: false,
+                fechaCompletitud: undefined,
+              }
+            }
+          })
+        }
+      }
     }
     
     onChecklistChange(updated)
@@ -129,7 +158,8 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
     onChecklistChange([...safeChecklist, nuevaTareaPadre])
     setSelectedTareaPadre("")
     setShowTaskSelector(false)
-    await refetchPlantillas()
+    
+    refetchPlantillas().catch(() => {})
     
     toast({
       title: "Tarea padre agregada",
@@ -192,7 +222,8 @@ export function ChecklistManager({ checklist, onChecklistChange, ordenId }: Chec
     }
 
     onChecklistChange([...safeChecklist, nuevaSubtarea])
-    await refetchPlantillas()
+    
+    refetchPlantillas().catch(() => {})
     
     toast({
       title: "Subtarea creada",

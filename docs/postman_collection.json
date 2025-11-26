@@ -1,0 +1,998 @@
+{
+	"info": {
+		"name": "MechiV2 API",
+		"description": "Colección completa de APIs para el sistema de gestión de taller mecánico",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admteam\",\n  \"password\": \"gandara3368\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Categorías",
+			"item": [
+				{
+					"name": "Get All Categorías",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/categorias",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categorias"]
+						}
+					}
+				},
+				{
+					"name": "Create Categoría",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Motor\",\n  \"descripcion\": \"Tareas relacionadas con el motor\",\n  \"activa\": true,\n  \"subcategorias\": [\"Cambio de aceite\", \"Filtros\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/categorias",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categorias"]
+						}
+					}
+				},
+				{
+					"name": "Get Categoría by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/categorias/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categorias", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "CATEGORIA_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Categoría",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Motor Actualizado\",\n  \"descripcion\": \"Descripción actualizada\",\n  \"activa\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/categorias/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categorias", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "CATEGORIA_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Categoría",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/categorias/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categorias", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "CATEGORIA_ID"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Clientes",
+			"item": [
+				{
+					"name": "Get All Clientes",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/clientes",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "clientes"]
+						}
+					}
+				},
+				{
+					"name": "Create Cliente",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Pérez\",\n  \"dni\": \"12345678\",\n  \"telefono\": \"1234567890\",\n  \"email\": \"juan@example.com\",\n  \"direccion\": \"Calle Falsa 123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/clientes",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "clientes"]
+						}
+					}
+				},
+				{
+					"name": "Get Cliente by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/clientes/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "clientes", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "CLIENTE_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Cliente",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Pérez García\",\n  \"dni\": \"12345678\",\n  \"telefono\": \"1234567890\",\n  \"email\": \"juan.nuevo@example.com\",\n  \"direccion\": \"Calle Nueva 456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/clientes/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "clientes", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "CLIENTE_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Cliente",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/clientes/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "clientes", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "CLIENTE_ID"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Vehículos",
+			"item": [
+				{
+					"name": "Get All Vehículos",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/vehiculos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "vehiculos"]
+						}
+					}
+				},
+				{
+					"name": "Create Vehículo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"clienteId\": \"CLIENTE_ID\",\n  \"marca\": \"Toyota\",\n  \"modelo\": \"Corolla\",\n  \"año\": 2020,\n  \"patente\": \"ABC123\",\n  \"kilometraje\": 50000,\n  \"color\": \"Blanco\",\n  \"numeroChasis\": \"CHASIS123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/vehiculos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "vehiculos"]
+						}
+					}
+				},
+				{
+					"name": "Get Vehículo by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/vehiculos/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "vehiculos", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "VEHICULO_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Vehículo",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"kilometraje\": 55000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/vehiculos/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "vehiculos", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "VEHICULO_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Vehículo",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/vehiculos/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "vehiculos", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "VEHICULO_ID"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Órdenes",
+			"item": [
+				{
+					"name": "Get All Órdenes",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/ordenes",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "ordenes"]
+						}
+					}
+				},
+				{
+					"name": "Get Órdenes by Estado",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/ordenes?estado=Pendiente",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "ordenes"],
+							"query": [
+								{
+									"key": "estado",
+									"value": "Pendiente"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Orden",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"clienteId\": \"CLIENTE_ID\",\n  \"vehiculoId\": \"VEHICULO_ID\",\n  \"fechaIngreso\": \"2024-01-15\",\n  \"fechaEntrega\": \"2024-01-20\",\n  \"estado\": \"Pendiente\",\n  \"descripcion\": \"Reparación de frenos\",\n  \"servicios\": [\"Cambio de pastillas\", \"Revisión de discos\"],\n  \"manoObra\": 15000,\n  \"observaciones\": \"Cliente reporta ruido al frenar\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ordenes",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "ordenes"]
+						}
+					}
+				},
+				{
+					"name": "Get Orden by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/ordenes/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "ordenes", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "ORDEN_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Orden",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"estado\": \"En Proceso\",\n  \"checklist\": [\n    {\n      \"id\": \"1\",\n      \"tarea\": \"Revisar frenos\",\n      \"completado\": true,\n      \"notas\": \"Todo OK\"\n    }\n  ],\n  \"gastos\": [\n    {\n      \"id\": \"1\",\n      \"descripcion\": \"Pastillas de freno\",\n      \"monto\": 5000,\n      \"fecha\": \"2024-01-15\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ordenes/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "ordenes", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "ORDEN_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Orden",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/ordenes/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "ordenes", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "ORDEN_ID"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Gastos",
+			"item": [
+				{
+					"name": "Get All Gastos",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/gastos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gastos"]
+						}
+					}
+				},
+				{
+					"name": "Create Gasto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"categoria\": \"Repuestos\",\n  \"descripcion\": \"Pastillas de freno\",\n  \"monto\": 5000,\n  \"fecha\": \"2024-01-15\",\n  \"metodoPago\": \"Efectivo\",\n  \"proveedorId\": \"PROVEEDOR_ID\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/gastos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gastos"]
+						}
+					}
+				},
+				{
+					"name": "Get Gasto by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/gastos/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gastos", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "GASTO_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Gasto",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"monto\": 5500\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/gastos/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gastos", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "GASTO_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Gasto",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/gastos/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gastos", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "GASTO_ID"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cobros",
+			"item": [
+				{
+					"name": "Get All Cobros",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cobros",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cobros"]
+						}
+					}
+				},
+				{
+					"name": "Create Cobro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ordenId\": \"ORDEN_ID\",\n  \"monto\": 15000,\n  \"fecha\": \"2024-01-20\",\n  \"metodoPago\": \"Transferencia\",\n  \"estado\": \"Completado\",\n  \"numeroComprobante\": \"COMP-001\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cobros",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cobros"]
+						}
+					}
+				},
+				{
+					"name": "Get Cobro by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cobros/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cobros", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "COBRO_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Cobro",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"estado\": \"Completado\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cobros/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cobros", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "COBRO_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Cobro",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/cobros/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cobros", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "COBRO_ID"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Proveedores",
+			"item": [
+				{
+					"name": "Get All Proveedores",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/proveedores",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "proveedores"]
+						}
+					}
+				},
+				{
+					"name": "Create Proveedor",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Repuestos S.A.\",\n  \"telefono\": \"1234567890\",\n  \"email\": \"contacto@repuestos.com\",\n  \"direccion\": \"Av. Principal 123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/proveedores",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "proveedores"]
+						}
+					}
+				},
+				{
+					"name": "Get Proveedor by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/proveedores/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "proveedores", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "PROVEEDOR_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Proveedor",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"telefono\": \"9876543210\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/proveedores/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "proveedores", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "PROVEEDOR_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Proveedor",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/proveedores/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "proveedores", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "PROVEEDOR_ID"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Turnos",
+			"item": [
+				{
+					"name": "Get All Turnos",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/turnos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "turnos"]
+						}
+					}
+				},
+				{
+					"name": "Create Turno",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"clienteId\": \"CLIENTE_ID\",\n  \"vehiculoId\": \"VEHICULO_ID\",\n  \"fecha\": \"2024-01-25\",\n  \"hora\": \"10:00\",\n  \"descripcion\": \"Revisión general\",\n  \"estado\": \"Pendiente\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/turnos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "turnos"]
+						}
+					}
+				},
+				{
+					"name": "Get Turno by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/turnos/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "turnos", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "TURNO_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Turno",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"estado\": \"Confirmado\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/turnos/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "turnos", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "TURNO_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Turno",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/turnos/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "turnos", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "TURNO_ID"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Plantillas Tareas",
+			"item": [
+				{
+					"name": "Get All Plantillas",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/plantillas-tareas",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "plantillas-tareas"]
+						}
+					}
+				},
+				{
+					"name": "Create Plantilla",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Revisión de frenos\",\n  \"categoria\": \"Frenos\",\n  \"esTareaPadre\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/plantillas-tareas",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "plantillas-tareas"]
+						}
+					}
+				},
+				{
+					"name": "Get Plantilla by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/plantillas-tareas/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "plantillas-tareas", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "PLANTILLA_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Plantilla",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Revisión completa de frenos\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/plantillas-tareas/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "plantillas-tareas", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "PLANTILLA_ID"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Plantilla",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/plantillas-tareas/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "plantillas-tareas", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "PLANTILLA_ID"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Validaciones",
+			"item": [
+				{
+					"name": "Check DNI",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/validations/dni?dni=12345678",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "validations", "dni"],
+							"query": [
+								{
+									"key": "dni",
+									"value": "12345678"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Check Número Orden",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/validations/numero-orden?numeroOrden=OT-2024-001",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "validations", "numero-orden"],
+							"query": [
+								{
+									"key": "numeroOrden",
+									"value": "OT-2024-001"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Check Patente",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/validations/patente?patente=ABC123",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "validations", "patente"],
+							"query": [
+								{
+									"key": "patente",
+									"value": "ABC123"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}
+

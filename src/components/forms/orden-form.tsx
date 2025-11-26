@@ -27,6 +27,12 @@ import {
 } from "@/components/ui/dialog"
 import { ClienteForm } from "./cliente-form"
 import { VehiculoForm } from "./vehiculo-form"
+import { ChecklistManager } from "@/components/ordenes/checklist-manager"
+import { GastosManager } from "@/components/ordenes/gastos-manager"
+import { ImageUpload } from "@/components/ui/image-upload"
+import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
+import { TareaChecklist, GastoOrden, FotoOrden, FotoVehiculo } from "@/types"
 
 interface OrdenFormProps {
   orden?: OrdenTrabajo
@@ -46,6 +52,10 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
   const [vehiculosDelCliente, setVehiculosDelCliente] = useState<string[]>([])
   const [isClienteDialogOpen, setIsClienteDialogOpen] = useState(false)
   const [isVehiculoDialogOpen, setIsVehiculoDialogOpen] = useState(false)
+  const [checklist, setChecklist] = useState<TareaChecklist[]>(orden?.checklist || [])
+  const [gastos, setGastos] = useState<GastoOrden[]>(orden?.gastos || [])
+  const [fotosIniciales, setFotosIniciales] = useState<FotoOrden[]>([])
+  const [fotosFinales, setFotosFinales] = useState<FotoOrden[]>([])
 
   interface OrdenFormValues {
     clienteId: string
@@ -57,6 +67,13 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
     manoObra: number
     costoTotal: number
     observaciones?: string
+    fechaIngreso: string
+    fechaEntrega?: string
+    checklist?: TareaChecklist[]
+    gastos?: GastoOrden[]
+    fotos?: FotoOrden[]
+    esMantenimiento?: boolean
+    fechaRecordatorioMantenimiento?: string
   }
 
   const {
@@ -80,6 +97,13 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
           manoObra: orden.manoObra || orden.costoTotal || 0,
           costoTotal: orden.costoTotal || 0,
           observaciones: orden.observaciones || "",
+          fechaIngreso: orden.fechaIngreso ? new Date(orden.fechaIngreso).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          fechaEntrega: orden.fechaEntrega ? new Date(orden.fechaEntrega).toISOString().split('T')[0] : undefined,
+          checklist: orden.checklist || [],
+          gastos: orden.gastos || [],
+          fotos: orden.fotos || [],
+          esMantenimiento: orden.esMantenimiento || false,
+          fechaRecordatorioMantenimiento: orden.fechaRecordatorioMantenimiento ? new Date(orden.fechaRecordatorioMantenimiento).toISOString().split('T')[0] : undefined,
         }
       : {
           servicios: [""],
@@ -88,14 +112,26 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
           estado: "Pendiente",
           clienteId: "",
           vehiculoId: "",
-          numeroOrden: "", // Se generará automáticamente en el servidor
+          numeroOrden: "",
           descripcion: "",
+          fechaIngreso: new Date().toISOString().split('T')[0],
+          checklist: [],
+          gastos: [],
+          fotos: [],
+          esMantenimiento: false,
         },
   })
 
+  useEffect(() => {
+    if (orden) {
+      const fotos = orden.fotos || []
+      setFotosIniciales(fotos.filter(f => f.tipo === 'inicial'))
+      setFotosFinales(fotos.filter(f => f.tipo === 'final'))
+    }
+  }, [orden])
+
   const { fields, append, remove } = useFieldArray({
     control,
-    // @ts-ignore - React Hook Form type inference issue
     name: "servicios",
   })
 
@@ -126,27 +162,44 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
   }, [manoObraValue, setValue])
 
 
-  const onSubmit = async (data: Omit<OrdenTrabajo, 'id' | 'fechaIngreso' | 'fechaEntrega'>) => {
+  const onSubmit = async (data: OrdenFormValues) => {
     setLoading(true)
     try {
       const url = orden ? `/api/ordenes/${orden.id}` : "/api/ordenes"
       const method = orden ? "PUT" : "POST"
 
-      // Para nuevas órdenes, no enviar numeroOrden (se generará automáticamente)
-      // Asegurar que costoTotal = manoObra si no hay gastos
+      const todasLasFotos = [...fotosIniciales, ...fotosFinales]
+      const porcentajeCompletitud = checklist.length > 0
+        ? Math.round((checklist.filter(t => t.completado).length / checklist.length) * 100)
+        : 0
+
       const bodyData = orden 
         ? { 
-            ...data, 
+            ...data,
+            fechaIngreso: data.fechaIngreso ? new Date(data.fechaIngreso) : new Date(),
+            fechaEntrega: data.fechaEntrega ? new Date(data.fechaEntrega) : undefined,
+            fechaRecordatorioMantenimiento: data.fechaRecordatorioMantenimiento ? new Date(data.fechaRecordatorioMantenimiento) : undefined,
             servicios: data.servicios.filter((s) => s.trim()),
             costoTotal: data.manoObra || data.costoTotal || 0,
             manoObra: data.manoObra || data.costoTotal || 0,
+            checklist,
+            gastos,
+            fotos: todasLasFotos,
+            porcentajeCompletitud,
           }
         : { 
-            ...data, 
-            numeroOrden: undefined, // No enviar para que se genere automáticamente
+            ...data,
+            numeroOrden: undefined,
+            fechaIngreso: data.fechaIngreso ? new Date(data.fechaIngreso) : new Date(),
+            fechaEntrega: data.fechaEntrega ? new Date(data.fechaEntrega) : undefined,
+            fechaRecordatorioMantenimiento: data.fechaRecordatorioMantenimiento ? new Date(data.fechaRecordatorioMantenimiento) : undefined,
             servicios: data.servicios.filter((s) => s.trim()),
             costoTotal: data.manoObra || data.costoTotal || 0,
             manoObra: data.manoObra || data.costoTotal || 0,
+            checklist,
+            gastos,
+            fotos: todasLasFotos,
+            porcentajeCompletitud,
           }
 
       const response = await fetch(url, {
@@ -350,6 +403,84 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
+          <Label htmlFor="fechaIngreso">Fecha de Ingreso *</Label>
+          <Input
+            id="fechaIngreso"
+            type="date"
+            {...register("fechaIngreso", { required: "La fecha de ingreso es obligatoria" })}
+          />
+          {errors.fechaIngreso && (
+            <p className="text-sm text-destructive">{errors.fechaIngreso.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="fechaEntrega">Fecha Estimada de Entrega</Label>
+          <Input
+            id="fechaEntrega"
+            type="date"
+            {...register("fechaEntrega")}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Checklist de Trabajo</Label>
+        <ChecklistManager
+          checklist={checklist}
+          onChecklistChange={setChecklist}
+          ordenId={orden?.id}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Gastos de la Orden</Label>
+        <GastosManager
+          gastos={gastos}
+          onGastosChange={setGastos}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Fotos del Estado Inicial</Label>
+        <p className="text-sm text-muted-foreground">
+          Documenta el estado del vehículo al ingresar
+        </p>
+        <ImageUpload
+          fotos={fotosIniciales}
+          onFotosChange={(fotos) => {
+            const fotosOrden: FotoOrden[] = fotos.map(foto => ({
+              ...foto,
+              tipo: 'inicial' as const,
+            }))
+            setFotosIniciales(fotosOrden)
+          }}
+          maxFotos={10}
+          label=""
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Fotos del Estado Final</Label>
+        <p className="text-sm text-muted-foreground">
+          Documenta el estado del vehículo al finalizar
+        </p>
+        <ImageUpload
+          fotos={fotosFinales}
+          onFotosChange={(fotos) => {
+            const fotosOrden: FotoOrden[] = fotos.map(foto => ({
+              ...foto,
+              tipo: 'final' as const,
+            }))
+            setFotosFinales(fotosOrden)
+          }}
+          maxFotos={10}
+          label=""
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
           <Label htmlFor="manoObra">Mano de Obra (Ganancia) *</Label>
           <p className="text-xs text-muted-foreground">
             Lo que cobras por el trabajo
@@ -391,12 +522,39 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
         </div>
       </div>
 
+      <div className="space-y-4 p-4 border rounded-lg">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label htmlFor="esMantenimiento">Es Mantenimiento</Label>
+            <p className="text-xs text-muted-foreground">
+              Marca si esta orden es un mantenimiento programado
+            </p>
+          </div>
+          <Switch
+            id="esMantenimiento"
+            checked={watch("esMantenimiento") || false}
+            onCheckedChange={(checked) => setValue("esMantenimiento", checked)}
+          />
+        </div>
+        {watch("esMantenimiento") && (
+          <div className="space-y-2">
+            <Label htmlFor="fechaRecordatorioMantenimiento">Fecha Recordatorio Mantenimiento</Label>
+            <Input
+              id="fechaRecordatorioMantenimiento"
+              type="date"
+              {...register("fechaRecordatorioMantenimiento")}
+            />
+          </div>
+        )}
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="observaciones">Observaciones</Label>
-        <Input
+        <Textarea
           id="observaciones"
           {...register("observaciones")}
           placeholder="Notas adicionales..."
+          rows={4}
         />
       </div>
 
@@ -419,20 +577,19 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
           </DialogHeader>
           <ClienteForm
             onSuccess={async () => {
-              await refetchClientes()
               setIsClienteDialogOpen(false)
-              // Esperar un momento para que se actualice la lista
-              setTimeout(async () => {
+              try {
                 const response = await fetch("/api/clientes")
                 if (response.ok) {
                   const clientesData = await response.json()
                   if (clientesData.length > 0) {
-                    // Seleccionar el último cliente (asumiendo que es el más reciente)
                     const nuevoCliente = clientesData[clientesData.length - 1]
                     setClienteId(nuevoCliente.id)
                   }
                 }
-              }, 500)
+              } catch (error) {
+                await refetchClientes()
+              }
               toast({
                 title: "Cliente creado",
                 description: "El cliente ha sido seleccionado automáticamente.",
@@ -452,21 +609,20 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
           <VehiculoForm
             clienteId={clienteId}
             onSuccess={async () => {
-              await refetchVehiculos()
               setIsVehiculoDialogOpen(false)
-              // Esperar un momento para que se actualice la lista
-              setTimeout(async () => {
+              try {
                 const response = await fetch("/api/vehiculos")
                 if (response.ok) {
                   const vehiculosData = await response.json()
                   const vehiculosDelCliente = vehiculosData.filter((v: any) => v.clienteId === clienteId)
                   if (vehiculosDelCliente.length > 0) {
-                    // Seleccionar el último vehículo creado para este cliente
                     const nuevoVehiculo = vehiculosDelCliente[vehiculosDelCliente.length - 1]
                     setValue("vehiculoId", nuevoVehiculo.id)
                   }
                 }
-              }, 500)
+              } catch (error) {
+                await refetchVehiculos()
+              }
               toast({
                 title: "Vehículo creado",
                 description: "El vehículo ha sido seleccionado automáticamente.",

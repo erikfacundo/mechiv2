@@ -28,7 +28,7 @@ export default function EditarOrdenPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-4 sm:py-8 max-w-5xl">
+      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
         <div className="text-center py-8">Cargando orden...</div>
       </div>
     )
@@ -36,7 +36,7 @@ export default function EditarOrdenPage() {
 
   if (!orden) {
     return (
-      <div className="container mx-auto py-4 sm:py-8 max-w-5xl">
+      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-4">Orden no encontrada</p>
           <Button onClick={() => router.push("/ordenes")}>
@@ -48,7 +48,7 @@ export default function EditarOrdenPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-5xl">
+    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
       <div className="mb-6">
         <Button
           variant="ghost"

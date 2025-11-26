@@ -20,7 +20,7 @@ if (-not $vercelInstalled) {
 
 # Verificar que está logueado en Vercel
 Write-Host "Verificando autenticación en Vercel..." -ForegroundColor Gray
-$vercelWhoami = vercel whoami 2>&1
+vercel whoami 2>&1 | Out-Null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "⚠️  No estás logueado en Vercel." -ForegroundColor Yellow
     Write-Host "Ejecutando: vercel login" -ForegroundColor Yellow

@@ -17,7 +17,7 @@ export default function NuevaOrdenPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-5xl">
+    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
       <div className="mb-6">
         <Button
           variant="ghost"
