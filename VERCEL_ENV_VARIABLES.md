@@ -59,7 +59,7 @@ mechify
 
 ### R2_PUBLIC_URL
 ```
-https://pub-2bd7f6b6433d060f6ed0867ef99abe86.r2.dev
+https://pub-2f03108d45fb4eceb64b49fdf81b2291.r2.dev
 ```
 
 ## 📋 Pasos en Vercel

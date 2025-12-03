@@ -20,6 +20,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
+    console.log('POST /api/vehiculos - Body recibido:', {
+      patente: body.patente,
+      clienteId: body.clienteId,
+      marca: body.marca,
+      modelo: body.modelo,
+      fotosCount: body.fotos?.length || 0
+    })
+    
     // Validar campos requeridos
     if (!body.patente) {
       return NextResponse.json(
@@ -36,12 +44,17 @@ export async function POST(request: NextRequest) {
     }
     
     // Validar patente única
-    const patenteExists = await checkPatenteExists(body.patente)
-    if (patenteExists) {
-      return NextResponse.json(
-        { error: 'La patente ya está registrada' },
-        { status: 400 }
-      )
+    try {
+      const patenteExists = await checkPatenteExists(body.patente)
+      if (patenteExists) {
+        return NextResponse.json(
+          { error: 'La patente ya está registrada' },
+          { status: 400 }
+        )
+      }
+    } catch (validationError) {
+      console.error('Error validando patente:', validationError)
+      // Continuar si hay error en la validación (puede ser que Firebase no esté disponible)
     }
 
     const vehiculo: Omit<Vehiculo, 'id'> = {
@@ -60,7 +73,7 @@ export async function POST(request: NextRequest) {
     
     if (!id) {
       return NextResponse.json(
-        { error: 'Error al crear vehículo' },
+        { error: 'Error al crear vehículo en Firestore' },
         { status: 500 }
       )
     }
@@ -72,7 +85,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         error: 'Error al crear vehículo',
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        message: errorMessage
       },
       { status: 500 }
     )
