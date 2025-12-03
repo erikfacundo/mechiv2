@@ -11,6 +11,7 @@ import { useState, useEffect } from "react"
 import { OrdenTrabajo } from "@/types"
 import { ImageCarousel } from "@/components/ui/image-carousel"
 import Image from "next/image"
+import { isR2Url } from "@/lib/r2-storage"
 
 const getEstadoBadgeVariant = (estado: string) => {
   switch (estado) {
@@ -254,11 +255,12 @@ export default function VehiculoDetailPage() {
                         className="relative aspect-square rounded-lg overflow-hidden border border-border hover:border-primary transition-colors"
                       >
                         <Image
-                          src={foto.dataUrl}
+                          src={foto.url || foto.dataUrl || ''}
                           alt={`Foto ${index + 1}`}
                           fill
                           className="object-cover"
                           sizes="(max-width: 768px) 33vw, 150px"
+                          unoptimized={!!foto.url && isR2Url(foto.url)}
                         />
                         {index === 5 && vehiculo.fotos && vehiculo.fotos.length > 6 && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-xs font-medium">
