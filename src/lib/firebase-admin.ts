@@ -13,19 +13,38 @@ let dbInstance: ReturnType<typeof getFirestore> | null = null
 // Función para cargar credenciales de forma segura (sin que webpack lo detecte)
 function loadServiceAccount() {
   // Prioridad 1: Variables de entorno (producción - Vercel)
-  if (process.env.FIREBASE_PROJECT_ID) {
-    return {
-      type: 'service_account',
-      project_id: process.env.FIREBASE_PROJECT_ID,
-      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-      private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      client_email: process.env.FIREBASE_CLIENT_EMAIL,
-      client_id: process.env.FIREBASE_CLIENT_ID,
-      auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-      token_uri: 'https://oauth2.googleapis.com/token',
-      auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
-      client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+  const requiredVars = [
+    'FIREBASE_PROJECT_ID',
+    'FIREBASE_PRIVATE_KEY_ID',
+    'FIREBASE_PRIVATE_KEY',
+    'FIREBASE_CLIENT_EMAIL',
+    'FIREBASE_CLIENT_ID',
+    'FIREBASE_CLIENT_X509_CERT_URL'
+  ]
+  
+  // Verificar que todas las variables estén presentes
+  const missingVars = requiredVars.filter(varName => !process.env[varName])
+  
+  if (missingVars.length > 0) {
+    if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+      console.error('❌ Variables de Firebase faltantes en Vercel:', missingVars.join(', '))
+      console.error('   Verifica que todas las variables estén configuradas en el dashboard de Vercel')
     }
+    return null
+  }
+  
+  // Todas las variables están presentes
+  return {
+    type: 'service_account',
+    project_id: process.env.FIREBASE_PROJECT_ID!,
+    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID!,
+    private_key: process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, '\n'),
+    client_email: process.env.FIREBASE_CLIENT_EMAIL!,
+    client_id: process.env.FIREBASE_CLIENT_ID!,
+    auth_uri: 'https://accounts.google.com/o/oauth2/auth',
+    token_uri: 'https://oauth2.googleapis.com/token',
+    auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
+    client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL!,
   }
 
   // Prioridad 2: JSON local (solo en desarrollo, solo en servidor)
@@ -82,13 +101,26 @@ function getDbInstance() {
           credential: cert(serviceAccount),
         })
         dbInstance = getFirestore()
+        if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+          console.log('✅ Firebase Admin inicializado correctamente en producción')
+        }
         return dbInstance
       } catch (error) {
-        console.error('Error inicializando Firebase Admin:', error)
+        console.error('❌ Error inicializando Firebase Admin:', error)
+        if (error instanceof Error) {
+          console.error('   Detalles:', error.message)
+        }
+        // No lanzar error aquí, permitir que se intente más tarde
       }
-    } else if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
-      console.warn('⚠️  No se encontró configuración de Firebase Admin')
-      console.warn('   Configura las variables de entorno en Vercel o el archivo firebase-admin.json localmente')
+      } else {
+      const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production'
+      if (isProduction) {
+        console.error('❌ Firebase Admin no configurado en producción')
+        console.error('   Verifica las variables de entorno en Vercel')
+      } else {
+        console.warn('⚠️  No se encontró configuración de Firebase Admin')
+        console.warn('   Configura las variables de entorno en Vercel o el archivo firebase-admin.json localmente')
+      }
     }
   }
   
@@ -99,7 +131,10 @@ function getDbInstance() {
   } catch (error) {
     // En build sin credenciales, esto puede fallar
     // Pero permitirá que el build pase y fallará en runtime
-    throw new Error('Firebase Admin no está inicializado. Configura las variables de entorno en Vercel.')
+    const errorMsg = process.env.VERCEL 
+      ? 'Firebase Admin no está inicializado. Verifica que todas las variables de entorno estén configuradas en Vercel: FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, FIREBASE_CLIENT_ID, FIREBASE_CLIENT_X509_CERT_URL'
+      : 'Firebase Admin no está inicializado. Configura las variables de entorno en Vercel.'
+    throw new Error(errorMsg)
   }
 }
 

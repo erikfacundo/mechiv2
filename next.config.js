@@ -5,8 +5,27 @@ const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
-      // Agregar dominios remotos si es necesario
+      // Cloudflare R2 - Dominio público
+      {
+        protocol: 'https',
+        hostname: 'pub-*.r2.dev',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.r2.dev',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.r2.cloudflarestorage.com',
+      },
+      // Dominio personalizado de R2 (si se configura)
+      ...(process.env.R2_PUBLIC_URL ? [{
+        protocol: 'https',
+        hostname: new URL(process.env.R2_PUBLIC_URL).hostname,
+      }] : []),
     ],
+    // Permitir imágenes no optimizadas para R2 si es necesario
+    unoptimized: false,
   },
   // Configuración de compilación
   compiler: {

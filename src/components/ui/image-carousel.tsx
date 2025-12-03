@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, X } from "lucide-react"
 import Image from "next/image"
 import { FotoVehiculo, FotoOrden } from "@/types"
+import { isR2Url } from "@/lib/r2-storage"
 
 interface ImageCarouselProps {
   fotos: (FotoVehiculo | FotoOrden)[]
@@ -61,6 +62,7 @@ export function ImageCarousel({
               fill
               className="object-contain"
               priority
+              unoptimized={isR2Url(currentFoto.dataUrl)}
             />
           </div>
 

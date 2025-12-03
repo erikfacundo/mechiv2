@@ -20,6 +20,21 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
+    // Validar campos requeridos
+    if (!body.patente) {
+      return NextResponse.json(
+        { error: 'La patente es requerida' },
+        { status: 400 }
+      )
+    }
+    
+    if (!body.clienteId) {
+      return NextResponse.json(
+        { error: 'El cliente es requerido' },
+        { status: 400 }
+      )
+    }
+    
     // Validar patente única
     const patenteExists = await checkPatenteExists(body.patente)
     if (patenteExists) {
@@ -31,13 +46,13 @@ export async function POST(request: NextRequest) {
 
     const vehiculo: Omit<Vehiculo, 'id'> = {
       clienteId: body.clienteId,
-      marca: body.marca,
-      modelo: body.modelo,
-      año: body.año,
+      marca: body.marca || '',
+      modelo: body.modelo || '',
+      año: body.año || new Date().getFullYear(),
       patente: body.patente.toUpperCase(),
-      kilometraje: body.kilometraje,
-      color: body.color,
-      tipoCombustible: body.tipoCombustible,
+      kilometraje: body.kilometraje || 0,
+      color: body.color || '',
+      tipoCombustible: body.tipoCombustible || 'nafta',
       fotos: body.fotos || undefined, // Fotos opcionales
     }
     
@@ -53,8 +68,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ id, ...vehiculo }, { status: 201 })
   } catch (error) {
     console.error('Error en POST /api/vehiculos:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
     return NextResponse.json(
-      { error: 'Error al crear vehículo' },
+      { 
+        error: 'Error al crear vehículo',
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+      },
       { status: 500 }
     )
   }

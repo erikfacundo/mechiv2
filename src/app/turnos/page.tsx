@@ -3,11 +3,28 @@ import { getClientes } from "@/services/firebase/clientes"
 import { getVehiculos } from "@/services/firebase/vehiculos"
 import { TurnosClient } from "./turnos-client"
 
+// Forzar renderizado dinámico para evitar errores en build estático
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function TurnosPage() {
-  const [turnos, clientes, vehiculos] = await Promise.all([
-    getTurnos(),
-    getClientes(),
-    getVehiculos(),
-  ])
+  // Fetch en el servidor con manejo de errores
+  let turnos = []
+  let clientes = []
+  let vehiculos = []
+  
+  try {
+    const [turnosData, clientesData, vehiculosData] = await Promise.all([
+      getTurnos(),
+      getClientes(),
+      getVehiculos(),
+    ])
+    turnos = turnosData || []
+    clientes = clientesData || []
+    vehiculos = vehiculosData || []
+  } catch (error) {
+    console.error('Error obteniendo datos en TurnosPage:', error)
+  }
+  
   return <TurnosClient turnos={turnos} clientes={clientes} vehiculos={vehiculos} />
 }

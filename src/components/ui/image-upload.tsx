@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast"
 import { FotoVehiculo, FotoOrden } from "@/types"
 import NextImage from "next/image"
 import { resizeAndCompressImage } from "@/lib/image-utils"
+import { isR2Url } from "@/lib/r2-storage"
 
 interface ImageUploadProps {
   fotos: (FotoVehiculo | FotoOrden)[]
@@ -273,6 +274,7 @@ export function ImageUpload({
                 fill
                 className="object-cover"
                 sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                unoptimized={isR2Url(foto.dataUrl)}
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center">
                 <Button
