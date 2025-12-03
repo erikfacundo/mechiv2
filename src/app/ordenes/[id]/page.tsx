@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ImageCarousel } from "@/components/ui/image-carousel"
 import { ImageUpload } from "@/components/ui/image-upload"
 import Image from "next/image"
+import { isR2Url } from "@/lib/r2-storage"
 
 const getEstadoBadgeVariant = (estado: string) => {
   switch (estado) {
@@ -143,6 +144,7 @@ export default function OrdenDetailPage() {
       } else {
         return {
           id: foto.id,
+          url: foto.url,
           dataUrl: foto.dataUrl,
           fechaHora: foto.fechaHora,
           tipo: 'final' as const,
@@ -446,11 +448,12 @@ export default function OrdenDetailPage() {
                       className="relative aspect-square rounded-lg overflow-hidden border border-border hover:border-primary transition-colors"
                     >
                       <Image
-                        src={foto.dataUrl}
+                        src={foto.url || foto.dataUrl || ''}
                         alt={`Foto inicial ${index + 1}`}
                         fill
                         className="object-cover"
                         sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 150px"
+                        unoptimized={!!foto.url && isR2Url(foto.url)}
                       />
                     </button>
                   ))}
@@ -477,11 +480,12 @@ export default function OrdenDetailPage() {
                       className="relative aspect-square rounded-lg overflow-hidden border border-border hover:border-primary transition-colors"
                     >
                       <Image
-                        src={foto.dataUrl}
+                        src={foto.url || foto.dataUrl || ''}
                         alt={`Foto final ${index + 1}`}
                         fill
                         className="object-cover"
                         sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 150px"
+                        unoptimized={!!foto.url && isR2Url(foto.url)}
                       />
                     </button>
                   ))}
