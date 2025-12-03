@@ -2,8 +2,8 @@
 
 import { useRouter, useParams } from "next/navigation"
 import { OrdenForm } from "@/components/forms/orden-form"
+import { FormPageLayout } from "@/components/ui/form-page-layout"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
 import { useOrden } from "@/hooks/use-ordenes"
 import { useToast } from "@/hooks/use-toast"
 
@@ -28,17 +28,19 @@ export default function EditarOrdenPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-        <div className="text-center py-8">Cargando orden...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400">Cargando orden...</p>
+        </div>
       </div>
     )
   }
 
   if (!orden) {
     return (
-      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-        <div className="text-center py-8">
-          <p className="text-muted-foreground mb-4">Orden no encontrada</p>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400 mb-4">Orden no encontrada</p>
           <Button onClick={() => router.push("/ordenes")}>
             Volver a Órdenes
           </Button>
@@ -48,24 +50,14 @@ export default function EditarOrdenPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.push("/ordenes")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver a Órdenes
-        </Button>
-        <h1 className="text-2xl sm:text-3xl font-bold">Editar Orden de Trabajo</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Modifica los datos de la orden</p>
-      </div>
-
-      <div className="bg-card rounded-lg border p-4 sm:p-6">
-        <OrdenForm orden={orden} onSuccess={handleSuccess} onCancel={handleCancel} />
-      </div>
-    </div>
+    <FormPageLayout
+      title="Editar Orden de Trabajo"
+      description="Modifica los datos de la orden"
+      backUrl="/ordenes"
+      className="max-w-6xl"
+    >
+      <OrdenForm orden={orden} onSuccess={handleSuccess} onCancel={handleCancel} />
+    </FormPageLayout>
   )
 }
 

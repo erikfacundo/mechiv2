@@ -2,8 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { GastoForm } from "@/components/forms/gasto-form"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { FormPageLayout } from "@/components/ui/form-page-layout"
 import { useToast } from "@/hooks/use-toast"
 
 export default function NuevoGastoPage() {
@@ -23,24 +22,13 @@ export default function NuevoGastoPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.push("/gastos")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver a Gastos
-        </Button>
-        <h1 className="text-2xl sm:text-3xl font-bold">Nuevo Gasto</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Completa los datos del nuevo gasto</p>
-      </div>
-
-      <div className="bg-card rounded-lg border p-4 sm:p-6">
-        <GastoForm onSuccess={handleSuccess} onCancel={handleCancel} />
-      </div>
-    </div>
+    <FormPageLayout
+      title="Nuevo Gasto"
+      description="Completa los datos del nuevo gasto"
+      backUrl="/gastos"
+    >
+      <GastoForm onSuccess={handleSuccess} onCancel={handleCancel} />
+    </FormPageLayout>
   )
 }
 

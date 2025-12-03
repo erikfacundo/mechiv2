@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { useState, useMemo } from "react"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/ui/page-header"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { OrdenTrabajo, EstadoOrden, Cliente, Vehiculo } from "@/types"
@@ -139,23 +140,18 @@ export function OrdenesClient({ ordenes: initialOrdenes, clientes, vehiculos }: 
   ]
 
   return (
-    <div className="space-y-4 sm:space-y-8">
-      <div className="space-y-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Órdenes de Trabajo</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Gestión de órdenes de trabajo
-          </p>
-        </div>
-        <div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Órdenes de Trabajo"
+        description="Gestión de órdenes de trabajo"
+        action={
           <Button onClick={handleCreate} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Nueva Orden
           </Button>
-        </div>
-      </div>
-
-      <div className="flex items-center space-x-2">
+        }
+      />
+      <div className="flex items-center gap-4">
         <Select value={estadoFiltro} onValueChange={(value) => setEstadoFiltro(value as EstadoOrden | "Todos")}>
           <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filtrar por estado" />

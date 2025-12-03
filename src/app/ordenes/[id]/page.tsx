@@ -190,17 +190,19 @@ export default function OrdenDetailPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-        <div className="text-center py-8">Cargando orden...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400">Cargando orden...</p>
+        </div>
       </div>
     )
   }
 
   if (!orden) {
     return (
-      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-        <div className="text-center py-8">
-          <p className="text-muted-foreground mb-4">Orden no encontrada</p>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400 mb-4">Orden no encontrada</p>
           <Button onClick={() => router.push("/ordenes")}>
             Volver a Órdenes
           </Button>
@@ -215,100 +217,176 @@ export default function OrdenDetailPage() {
   const costoTotalConGastos = (orden.manoObra || orden.costoTotal || 0) + totalGastos
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-      <div className="mb-6">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header - Mobile First */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <Button
           variant="ghost"
           onClick={() => router.push("/ordenes")}
-          className="mb-4"
+          className="self-start sm:self-auto w-full sm:w-auto"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver a Órdenes
+          Volver
         </Button>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Orden #{orden.numeroOrden}</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">Detalle de la orden de trabajo</p>
+        <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white truncate">
+              Orden #{orden.numeroOrden}
+            </h1>
+            <p className="text-xs sm:text-sm md:text-base text-gray-500 dark:text-gray-400 mt-1">
+              Detalle de la orden de trabajo
+            </p>
           </div>
-          <Button onClick={() => router.push(`/ordenes/${orden.id}/editar`)}>
+          <Button 
+            onClick={() => router.push(`/ordenes/${orden.id}/editar`)} 
+            className="w-full sm:w-auto"
+          >
             <Edit className="h-4 w-4 mr-2" />
             Editar
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Columna principal */}
-        <div className="lg:col-span-2 space-y-6">
+      {/* Progreso y Resumen de Costos - 2 columnas en tablet/desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        {/* Progreso */}
+        <Card>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" />
+              Progreso
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6 space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs sm:text-sm font-medium">Completitud</span>
+                <span className="text-xs sm:text-sm font-semibold">{porcentajeCompletitud}%</span>
+              </div>
+              <Progress value={porcentajeCompletitud} className="h-2" />
+            </div>
+            <div className="pt-2 border-t">
+              <p className="text-xs text-muted-foreground mb-1">Tareas completadas</p>
+              <p className="text-base sm:text-lg font-semibold">
+                {checklist.filter(t => t.completado).length} / {checklist.length}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Resumen de Costos */}
+        <Card>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">Resumen de Costos</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6 space-y-3">
+            <div className="flex justify-between items-center text-xs sm:text-sm">
+              <span className="text-muted-foreground">Mano de Obra</span>
+              <span className="font-medium text-right">${(orden.manoObra || orden.costoTotal || 0).toLocaleString("es-AR")}</span>
+            </div>
+            {totalGastos > 0 && (
+              <div className="flex justify-between items-center text-xs sm:text-sm">
+                <span className="text-muted-foreground">Gastos Internos</span>
+                <span className="font-medium text-right">${totalGastos.toLocaleString("es-AR")}</span>
+              </div>
+            )}
+            <div className="pt-3 border-t">
+              <div className="flex justify-between items-center">
+                <span className="text-sm sm:text-base font-semibold">Total a Facturar</span>
+                <span className="text-base sm:text-lg font-bold text-green-600 dark:text-green-500">
+                  ${(orden.manoObra || orden.costoTotal || 0).toLocaleString("es-AR")}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Content - Mobile First Grid */}
+      <div className="space-y-4 sm:space-y-6">
           {/* Información básica */}
           <Card>
-            <CardHeader>
-              <CardTitle>Información General</CardTitle>
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="text-base sm:text-lg">Información General</CardTitle>
             </CardHeader>
-            <CardContent className="p-4 sm:p-6 space-y-3">
-              <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-                <div className="text-muted-foreground">N° Orden:</div>
-                <div className="font-semibold text-right break-words">{orden.numeroOrden}</div>
-                
-                <div className="text-muted-foreground">Estado:</div>
-                <div className="text-right">
-                  <Badge variant={getEstadoBadgeVariant(orden.estado)}>
-                    {orden.estado}
-                  </Badge>
+            <CardContent className="p-4 sm:p-6 space-y-4">
+              {/* Mobile: Stacked, Tablet+: Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
+                <div className="space-y-1">
+                  <div className="text-xs sm:text-sm text-muted-foreground">N° Orden</div>
+                  <div className="font-semibold text-sm sm:text-base break-words">{orden.numeroOrden}</div>
                 </div>
                 
-                <div className="text-muted-foreground">Cliente:</div>
-                <div className="text-right break-words">
-                  {cliente ? `${cliente.nombre} ${cliente.apellido}` : "N/A"}
+                <div className="space-y-1">
+                  <div className="text-xs sm:text-sm text-muted-foreground">Estado</div>
+                  <div>
+                    <Badge variant={getEstadoBadgeVariant(orden.estado)} className="text-xs">
+                      {orden.estado}
+                    </Badge>
+                  </div>
                 </div>
                 
-                <div className="text-muted-foreground">Vehículo:</div>
-                <div className="text-right break-words">
-                  {vehiculo ? `${vehiculo.marca} ${vehiculo.modelo} - ${vehiculo.patente}` : "N/A"}
+                <div className="space-y-1">
+                  <div className="text-xs sm:text-sm text-muted-foreground">Cliente</div>
+                  <div className="font-medium text-sm sm:text-base break-words">
+                    {cliente ? `${cliente.nombre} ${cliente.apellido}` : "N/A"}
+                  </div>
                 </div>
                 
-                <div className="text-muted-foreground">Fecha Ingreso:</div>
-                <div className="text-right">
-                  {new Date(orden.fechaIngreso).toLocaleDateString("es-AR")}
+                <div className="space-y-1">
+                  <div className="text-xs sm:text-sm text-muted-foreground">Vehículo</div>
+                  <div className="font-medium text-sm sm:text-base break-words">
+                    {vehiculo ? `${vehiculo.marca} ${vehiculo.modelo} - ${vehiculo.patente}` : "N/A"}
+                  </div>
+                </div>
+                
+                <div className="space-y-1">
+                  <div className="text-xs sm:text-sm text-muted-foreground">Fecha Ingreso</div>
+                  <div className="font-medium text-sm sm:text-base">
+                    {new Date(orden.fechaIngreso).toLocaleDateString("es-AR")}
+                  </div>
                 </div>
                 
                 {orden.fechaEntrega && (
-                  <>
-                    <div className="text-muted-foreground">Fecha Entrega:</div>
-                    <div className="text-right">
+                  <div className="space-y-1">
+                    <div className="text-xs sm:text-sm text-muted-foreground">Fecha Entrega</div>
+                    <div className="font-medium text-sm sm:text-base">
                       {new Date(orden.fechaEntrega).toLocaleDateString("es-AR")}
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
-              <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm pt-2 border-t">
-                <div className="text-muted-foreground">Descripción:</div>
-                <div className="text-right">{orden.descripcion}</div>
+              
+              <div className="pt-3 sm:pt-4 border-t space-y-2">
+                <div className="text-xs sm:text-sm text-muted-foreground mb-1">Descripción</div>
+                <div className="text-sm sm:text-base">{orden.descripcion || "Sin descripción"}</div>
               </div>
+              
               {orden.servicios && orden.servicios.length > 0 && (
-                <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm pt-2 border-t">
-                  <div className="text-muted-foreground">Servicios:</div>
-                  <div className="text-right">
-                    <ul className="list-disc list-inside text-sm">
-                      {orden.servicios.map((servicio, index) => (
-                        <li key={index}>{servicio}</li>
-                      ))}
-                    </ul>
-                  </div>
+                <div className="pt-3 sm:pt-4 border-t space-y-2">
+                  <div className="text-xs sm:text-sm text-muted-foreground mb-1">Servicios</div>
+                  <ul className="list-disc list-inside text-sm sm:text-base space-y-1">
+                    {orden.servicios.map((servicio, index) => (
+                      <li key={index}>{servicio}</li>
+                    ))}
+                  </ul>
                 </div>
               )}
+              
               {orden.observaciones && (
-                <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm pt-2 border-t">
-                  <div className="text-muted-foreground">Observaciones:</div>
-                  <div className="text-right">{orden.observaciones}</div>
+                <div className="pt-3 sm:pt-4 border-t space-y-2">
+                  <div className="text-xs sm:text-sm text-muted-foreground mb-1">Observaciones</div>
+                  <div className="text-sm sm:text-base">{orden.observaciones}</div>
                 </div>
               )}
               {orden.esMantenimiento && orden.fechaRecordatorioMantenimiento && (
-                <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
-                  <Calendar className="h-4 w-4 text-blue-600" />
-                  <div>
-                    <p className="text-sm font-medium">Recordatorio de Mantenimiento</p>
-                    <p className="text-xs text-muted-foreground">
+                <div className="flex items-start sm:items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                  <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5 sm:mt-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm font-medium text-blue-900 dark:text-blue-100">
+                      Recordatorio de Mantenimiento
+                    </p>
+                    <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">
                       {new Date(orden.fechaRecordatorioMantenimiento).toLocaleDateString("es-AR")}
                     </p>
                   </div>
@@ -319,9 +397,9 @@ export default function OrdenDetailPage() {
 
           {/* Checklist */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckSquare className="h-5 w-5" />
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <CheckSquare className="h-4 w-4 sm:h-5 sm:w-5" />
                 Checklist de Trabajo
               </CardTitle>
             </CardHeader>
@@ -336,9 +414,9 @@ export default function OrdenDetailPage() {
 
           {/* Gastos */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
                 Gastos de la Orden
               </CardTitle>
             </CardHeader>
@@ -353,14 +431,14 @@ export default function OrdenDetailPage() {
           {/* Fotos Estado Inicial */}
           {fotosIniciales.length > 0 && (
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Camera className="h-5 w-5" />
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
                   Fotos Estado Inicial
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 sm:p-6">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
                   {fotosIniciales.map((foto, index) => (
                     <button
                       key={foto.id}
@@ -372,7 +450,7 @@ export default function OrdenDetailPage() {
                         alt={`Foto inicial ${index + 1}`}
                         fill
                         className="object-cover"
-                        sizes="(max-width: 768px) 33vw, 150px"
+                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 150px"
                       />
                     </button>
                   ))}
@@ -383,15 +461,15 @@ export default function OrdenDetailPage() {
 
           {/* Fotos Estado Final */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Camera className="h-5 w-5" />
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
                 Fotos Estado Final
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
               {fotosFinales.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mb-4">
                   {fotosFinales.map((foto, index) => (
                     <button
                       key={foto.id}
@@ -403,14 +481,14 @@ export default function OrdenDetailPage() {
                         alt={`Foto final ${index + 1}`}
                         fill
                         className="object-cover"
-                        sizes="(max-width: 768px) 33vw, 150px"
+                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 150px"
                       />
                     </button>
                   ))}
                 </div>
               )}
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Documenta el estado del vehículo al finalizar el trabajo
                 </p>
                 <ImageUpload
@@ -422,62 +500,6 @@ export default function OrdenDetailPage() {
               </div>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Progreso */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Progreso
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6 space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Completitud</span>
-                  <span className="text-sm font-semibold">{porcentajeCompletitud}%</span>
-                </div>
-                <Progress value={porcentajeCompletitud} className="h-2" />
-              </div>
-              <div className="pt-2 border-t">
-                <p className="text-xs text-muted-foreground mb-1">Tareas completadas</p>
-                <p className="text-lg font-semibold">
-                  {checklist.filter(t => t.completado).length} / {checklist.length}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Resumen de Costos */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Resumen de Costos</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6 space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Mano de Obra</span>
-                <span className="font-medium">${(orden.manoObra || orden.costoTotal || 0).toLocaleString("es-AR")}</span>
-              </div>
-              {totalGastos > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Gastos Internos</span>
-                  <span className="font-medium">${totalGastos.toLocaleString("es-AR")}</span>
-                </div>
-              )}
-              <div className="pt-3 border-t">
-                <div className="flex justify-between">
-                  <span className="font-semibold">Total a Facturar</span>
-                  <span className="text-lg font-bold text-green-600">
-                    ${(orden.manoObra || orden.costoTotal || 0).toLocaleString("es-AR")}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
 
       {/* Modal carrusel de fotos */}

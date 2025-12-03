@@ -2,8 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { PlantillaTareaForm } from "@/components/forms/plantilla-tarea-form"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { FormPageLayout } from "@/components/ui/form-page-layout"
 import { useToast } from "@/hooks/use-toast"
 
 export default function NuevaPlantillaTareaPage() {
@@ -23,24 +22,13 @@ export default function NuevaPlantillaTareaPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.push("/plantillas-tareas")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver a Plantillas
-        </Button>
-        <h1 className="text-2xl sm:text-3xl font-bold">Nueva Plantilla de Tarea</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Completa los datos de la nueva plantilla</p>
-      </div>
-
-      <div className="bg-card rounded-lg border p-4 sm:p-6">
-        <PlantillaTareaForm onSuccess={handleSuccess} onCancel={handleCancel} />
-      </div>
-    </div>
+    <FormPageLayout
+      title="Nueva Plantilla de Tarea"
+      description="Completa los datos de la nueva plantilla"
+      backUrl="/plantillas-tareas"
+    >
+      <PlantillaTareaForm onSuccess={handleSuccess} onCancel={handleCancel} />
+    </FormPageLayout>
   )
 }
 

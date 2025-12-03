@@ -69,10 +69,10 @@ export function DashboardClient({ ordenes, clientes, vehiculos }: DashboardClien
   ]
 
   return (
-    <div className="space-y-4 sm:space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Dashboard</h1>
+        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">
           Resumen general del taller automotriz
         </p>
       </div>
@@ -160,48 +160,48 @@ export function DashboardClient({ ordenes, clientes, vehiculos }: DashboardClien
 
       {/* Accesos Rápidos */}
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-        <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => router.push("/clientes")}>
+        <Card className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all" onClick={() => router.push("/clientes")}>
           <CardContent className="p-6 flex flex-col items-center justify-center text-center">
             <Users className="h-8 w-8 mb-2 text-primary" />
-            <h3 className="font-semibold mb-1">Clientes</h3>
-            <p className="text-xs text-muted-foreground mb-2">{totalClientes} registrados</p>
-            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Clientes</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{totalClientes} registrados</p>
+            <ArrowRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => router.push("/vehiculos")}>
+        <Card className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all" onClick={() => router.push("/vehiculos")}>
           <CardContent className="p-6 flex flex-col items-center justify-center text-center">
             <Car className="h-8 w-8 mb-2 text-primary" />
-            <h3 className="font-semibold mb-1">Vehículos</h3>
-            <p className="text-xs text-muted-foreground mb-2">{totalVehiculos} registrados</p>
-            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Vehículos</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{totalVehiculos} registrados</p>
+            <ArrowRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => router.push("/ordenes")}>
+        <Card className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all" onClick={() => router.push("/ordenes")}>
           <CardContent className="p-6 flex flex-col items-center justify-center text-center">
             <Wrench className="h-8 w-8 mb-2 text-primary" />
-            <h3 className="font-semibold mb-1">Órdenes</h3>
-            <p className="text-xs text-muted-foreground mb-2">{ordenes.length} total</p>
-            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Órdenes</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{ordenes.length} total</p>
+            <ArrowRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => router.push("/categorias")}>
+        <Card className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all" onClick={() => router.push("/categorias")}>
           <CardContent className="p-6 flex flex-col items-center justify-center text-center">
             <FolderTree className="h-8 w-8 mb-2 text-primary" />
-            <h3 className="font-semibold mb-1">Categorías</h3>
-            <p className="text-xs text-muted-foreground mb-2">Tareas</p>
-            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Categorías</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Tareas</p>
+            <ArrowRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => router.push("/turnos")}>
+        <Card className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all" onClick={() => router.push("/turnos")}>
           <CardContent className="p-6 flex flex-col items-center justify-center text-center">
             <Calendar className="h-8 w-8 mb-2 text-primary" />
-            <h3 className="font-semibold mb-1">Turnos</h3>
-            <p className="text-xs text-muted-foreground mb-2">Agenda</p>
-            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Turnos</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Agenda</p>
+            <ArrowRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />
           </CardContent>
         </Card>
       </div>

@@ -108,8 +108,8 @@ export function GastosManager({ gastos, onGastosChange }: GastosManagerProps) {
 
   return (
     <div className="space-y-4 w-full max-w-full overflow-hidden">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <Label className="text-base font-semibold">Gastos de la Orden</Label>
+      {/* Botón de acción */}
+      <div className="flex justify-end">
         <Button
           type="button"
           variant="outline"

@@ -166,3 +166,15 @@ export interface Mantenimiento {
   fechaCreacion: Date;
 }
 
+export interface Usuario {
+  id: string;
+  username: string;
+  passwordHash: string;
+  nombre?: string;
+  apellido?: string;
+  email?: string;
+  activo: boolean;
+  fechaCreacion: Date;
+  fechaUltimoAcceso?: Date;
+}
+

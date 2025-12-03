@@ -61,7 +61,7 @@ export function DataTable<T extends { id: string }>({
           </div>
         </div>
       )}
-      <div className="rounded-md border overflow-hidden">
+      <div className="rounded-lg border border-gray-200 dark:border-gray-900 overflow-hidden bg-white dark:bg-black">
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
           <Table>

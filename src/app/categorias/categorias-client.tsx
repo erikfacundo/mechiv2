@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/ui/page-header"
 import { Categoria } from "@/types"
 import { Plus, Edit, Trash2, ChevronRight, ChevronDown, ListTree } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -67,19 +68,17 @@ export function CategoriasClient({ categorias: initialCategorias }: CategoriasCl
   })
 
   return (
-    <div className="space-y-4 sm:space-y-8">
-      <div className="space-y-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Tareas Principales y Subtareas</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Gestiona las categorías (tareas principales) y sus subcategorías (subtareas)
-          </p>
-        </div>
-        <Button onClick={() => router.push("/categorias/nuevo")} className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          Nueva Tarea Principal
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Tareas Principales y Subtareas"
+        description="Gestiona las categorías (tareas principales) y sus subcategorías (subtareas)"
+        action={
+          <Button onClick={() => router.push("/categorias/nuevo")} className="w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Tarea Principal
+          </Button>
+        }
+      />
 
       {/* Barra de búsqueda */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">

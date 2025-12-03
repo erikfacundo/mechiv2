@@ -2,8 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { VehiculoForm } from "@/components/forms/vehiculo-form"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { FormPageLayout } from "@/components/ui/form-page-layout"
 import { useToast } from "@/hooks/use-toast"
 
 export default function NuevoVehiculoPage() {
@@ -23,24 +22,13 @@ export default function NuevoVehiculoPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.push("/vehiculos")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver a Vehículos
-        </Button>
-        <h1 className="text-2xl sm:text-3xl font-bold">Nuevo Vehículo</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Completa los datos del nuevo vehículo</p>
-      </div>
-
-      <div className="bg-card rounded-lg border p-4 sm:p-6">
-        <VehiculoForm onSuccess={handleSuccess} onCancel={handleCancel} />
-      </div>
-    </div>
+    <FormPageLayout
+      title="Nuevo Vehículo"
+      description="Completa los datos del nuevo vehículo"
+      backUrl="/vehiculos"
+    >
+      <VehiculoForm onSuccess={handleSuccess} onCancel={handleCancel} />
+    </FormPageLayout>
   )
 }
 

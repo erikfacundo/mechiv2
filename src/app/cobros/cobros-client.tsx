@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/ui/page-header"
 import { Cobro } from "@/types"
 import { Plus, Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -107,19 +108,17 @@ export function CobrosClient({ cobros: initialCobros }: CobrosClientProps) {
   ]
 
   return (
-    <div className="space-y-4 sm:space-y-8">
-      <div className="space-y-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Cobros</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Gestiona los cobros realizados
-          </p>
-        </div>
-        <Button onClick={() => router.push("/cobros/nuevo")} className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          Nuevo Cobro
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Cobros"
+        description="Gestiona los cobros realizados"
+        action={
+          <Button onClick={() => router.push("/cobros/nuevo")} className="w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />
+            Nuevo Cobro
+          </Button>
+        }
+      />
 
       <DataTable
         columns={columns}

@@ -71,17 +71,19 @@ export default function ClienteDetailPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-        <div className="text-center py-8">Cargando cliente...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400">Cargando cliente...</p>
+        </div>
       </div>
     )
   }
 
   if (!cliente) {
     return (
-      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-        <div className="text-center py-8">
-          <p className="text-muted-foreground mb-4">Cliente no encontrado</p>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400 mb-4">Cliente no encontrado</p>
           <Button onClick={() => router.push("/clientes")}>
             Volver a Clientes
           </Button>
@@ -91,22 +93,22 @@ export default function ClienteDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-6xl">
-      <div className="mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
         <Button
           variant="ghost"
           onClick={() => router.push("/clientes")}
-          className="mb-4"
+          className="flex-shrink-0"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver a Clientes
+          Volver
         </Button>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               {cliente.nombre} {cliente.apellido}
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">Detalle del cliente</p>
+            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">Detalle del cliente</p>
           </div>
           <Button onClick={() => router.push(`/clientes/${cliente.id}/editar`)} className="w-full sm:w-auto">
             <Edit className="h-4 w-4 mr-2" />

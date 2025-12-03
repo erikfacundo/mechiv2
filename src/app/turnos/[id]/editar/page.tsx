@@ -2,8 +2,8 @@
 
 import { useRouter, useParams } from "next/navigation"
 import { TurnoForm } from "@/components/forms/turno-form"
+import { FormPageLayout } from "@/components/ui/form-page-layout"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useState, useEffect } from "react"
 import { Turno } from "@/types"
@@ -50,17 +50,19 @@ export default function EditarTurnoPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-        <div className="text-center py-8">Cargando turno...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400">Cargando turno...</p>
+        </div>
       </div>
     )
   }
 
   if (!turno) {
     return (
-      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-        <div className="text-center py-8">
-          <p className="text-muted-foreground mb-4">Turno no encontrado</p>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400 mb-4">Turno no encontrado</p>
           <Button onClick={() => router.push("/turnos")}>
             Volver a Turnos
           </Button>
@@ -70,24 +72,13 @@ export default function EditarTurnoPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.push("/turnos")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver a Turnos
-        </Button>
-        <h1 className="text-2xl sm:text-3xl font-bold">Editar Turno</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Modifica los datos del turno</p>
-      </div>
-
-      <div className="bg-card rounded-lg border p-4 sm:p-6">
-        <TurnoForm turno={turno} onSuccess={handleSuccess} onCancel={handleCancel} />
-      </div>
-    </div>
+    <FormPageLayout
+      title="Editar Turno"
+      description="Modifica los datos del turno"
+      backUrl="/turnos"
+    >
+      <TurnoForm turno={turno} onSuccess={handleSuccess} onCancel={handleCancel} />
+    </FormPageLayout>
   )
 }
 

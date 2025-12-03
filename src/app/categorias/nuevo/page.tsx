@@ -2,8 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { CategoriaForm } from "@/components/forms/categoria-form"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { FormPageLayout } from "@/components/ui/form-page-layout"
 import { useToast } from "@/hooks/use-toast"
 
 export default function NuevaCategoriaPage() {
@@ -23,26 +22,13 @@ export default function NuevaCategoriaPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.push("/categorias")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver a Categorías
-        </Button>
-        <h1 className="text-2xl sm:text-3xl font-bold">Nueva Tarea Principal</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
-          Crea una nueva tarea principal (categoría) y define sus subtareas (subcategorías)
-        </p>
-      </div>
-
-      <div className="bg-card rounded-lg border p-4 sm:p-6">
-        <CategoriaForm onSuccess={handleSuccess} onCancel={handleCancel} />
-      </div>
-    </div>
+    <FormPageLayout
+      title="Nueva Tarea Principal"
+      description="Crea una nueva tarea principal (categoría) y define sus subtareas (subcategorías)"
+      backUrl="/categorias"
+    >
+      <CategoriaForm onSuccess={handleSuccess} onCancel={handleCancel} />
+    </FormPageLayout>
   )
 }
 

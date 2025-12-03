@@ -2,8 +2,8 @@
 
 import { useRouter, useParams } from "next/navigation"
 import { ProveedorForm } from "@/components/forms/proveedor-form"
+import { FormPageLayout } from "@/components/ui/form-page-layout"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useState, useEffect } from "react"
 import { Proveedor } from "@/types"
@@ -50,17 +50,19 @@ export default function EditarProveedorPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-        <div className="text-center py-8">Cargando proveedor...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400">Cargando proveedor...</p>
+        </div>
       </div>
     )
   }
 
   if (!proveedor) {
     return (
-      <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-        <div className="text-center py-8">
-          <p className="text-muted-foreground mb-4">Proveedor no encontrado</p>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400 mb-4">Proveedor no encontrado</p>
           <Button onClick={() => router.push("/proveedores")}>
             Volver a Proveedores
           </Button>
@@ -70,24 +72,13 @@ export default function EditarProveedorPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.push("/proveedores")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver a Proveedores
-        </Button>
-        <h1 className="text-2xl sm:text-3xl font-bold">Editar Proveedor</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Modifica los datos del proveedor</p>
-      </div>
-
-      <div className="bg-card rounded-lg border p-4 sm:p-6">
-        <ProveedorForm proveedor={proveedor} onSuccess={handleSuccess} onCancel={handleCancel} />
-      </div>
-    </div>
+    <FormPageLayout
+      title="Editar Proveedor"
+      description="Modifica los datos del proveedor"
+      backUrl="/proveedores"
+    >
+      <ProveedorForm proveedor={proveedor} onSuccess={handleSuccess} onCancel={handleCancel} />
+    </FormPageLayout>
   )
 }
 

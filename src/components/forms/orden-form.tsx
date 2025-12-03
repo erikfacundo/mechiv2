@@ -132,6 +132,8 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
 
   const { fields, append, remove } = useFieldArray({
     control,
+    // @ts-expect-error - useFieldArray type inference doesn't support string arrays, only object arrays
+    // This is a known limitation, but servicios is correctly typed as string[] in OrdenFormValues
     name: "servicios",
   })
 
@@ -394,7 +396,7 @@ export function OrdenForm({ orden, onSuccess, onCancel }: OrdenFormProps) {
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append("")}
+          onClick={() => append("" as any)}
         >
           <Plus className="h-4 w-4 mr-2" />
           Agregar Servicio

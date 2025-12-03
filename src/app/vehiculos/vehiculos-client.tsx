@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/ui/page-header"
 import { Vehiculo, Cliente } from "@/types"
 import { Plus, Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -84,19 +85,17 @@ export function VehiculosClient({ vehiculos: initialVehiculos, clientes }: Vehic
   ]
 
   return (
-    <div className="space-y-4 sm:space-y-8">
-      <div className="space-y-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Vehículos</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Gestión de vehículos registrados
-          </p>
-        </div>
-        <Button onClick={handleCreate} className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          Nuevo Vehículo
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Vehículos"
+        description="Gestión de vehículos registrados"
+        action={
+          <Button onClick={handleCreate} className="w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />
+            Nuevo Vehículo
+          </Button>
+        }
+      />
 
       <DataTable
         data={vehiculos}

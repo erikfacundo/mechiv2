@@ -75,17 +75,19 @@ export default function VehiculoDetailPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 max-w-6xl">
-        <div className="text-center py-8">Cargando vehículo...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400">Cargando vehículo...</p>
+        </div>
       </div>
     )
   }
 
   if (!vehiculo) {
     return (
-      <div className="container mx-auto py-8 max-w-6xl">
-        <div className="text-center py-8">
-          <p className="text-muted-foreground mb-4">Vehículo no encontrado</p>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400 mb-4">Vehículo no encontrado</p>
           <Button onClick={() => router.push("/vehiculos")}>
             Volver a Vehículos
           </Button>
@@ -95,22 +97,22 @@ export default function VehiculoDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-6xl">
-      <div className="mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
         <Button
           variant="ghost"
           onClick={() => router.push("/vehiculos")}
-          className="mb-4"
+          className="flex-shrink-0"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver a Vehículos
         </Button>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               {vehiculo.marca} {vehiculo.modelo}
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
+            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">
               {vehiculo.patente} • {vehiculo.año}
             </p>
           </div>

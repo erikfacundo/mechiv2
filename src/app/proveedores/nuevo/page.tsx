@@ -2,8 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { ProveedorForm } from "@/components/forms/proveedor-form"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { FormPageLayout } from "@/components/ui/form-page-layout"
 import { useToast } from "@/hooks/use-toast"
 
 export default function NuevoProveedorPage() {
@@ -23,24 +22,13 @@ export default function NuevoProveedorPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-4xl">
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.push("/proveedores")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver a Proveedores
-        </Button>
-        <h1 className="text-2xl sm:text-3xl font-bold">Nuevo Proveedor</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Completa los datos del nuevo proveedor</p>
-      </div>
-
-      <div className="bg-card rounded-lg border p-4 sm:p-6">
-        <ProveedorForm onSuccess={handleSuccess} onCancel={handleCancel} />
-      </div>
-    </div>
+    <FormPageLayout
+      title="Nuevo Proveedor"
+      description="Completa los datos del nuevo proveedor"
+      backUrl="/proveedores"
+    >
+      <ProveedorForm onSuccess={handleSuccess} onCancel={handleCancel} />
+    </FormPageLayout>
   )
 }
 

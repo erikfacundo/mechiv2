@@ -14,7 +14,8 @@ import {
   Receipt,
   FileText,
   Building2,
-  Calendar
+  Calendar,
+  UserCog
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -31,6 +32,7 @@ const navigation = [
   { name: "Proveedores", href: "/proveedores", icon: Building2 },
   { name: "Categorías", href: "/categorias", icon: Folder },
   { name: "Plantillas", href: "/plantillas-tareas", icon: FileText },
+  { name: "Usuarios", href: "/usuarios", icon: UserCog },
 ]
 
 export function Sidebar() {

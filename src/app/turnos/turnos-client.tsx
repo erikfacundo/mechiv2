@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/ui/page-header"
 import { Turno, Cliente, Vehiculo } from "@/types"
 import { Plus, Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -125,19 +126,17 @@ export function TurnosClient({ turnos: initialTurnos, clientes, vehiculos }: Tur
   ]
 
   return (
-    <div className="space-y-4 sm:space-y-8">
-      <div className="space-y-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Turnos</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Gestiona los turnos de los clientes
-          </p>
-        </div>
-        <Button onClick={() => router.push("/turnos/nuevo")} className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          Nuevo Turno
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Turnos"
+        description="Gestiona los turnos de los clientes"
+        action={
+          <Button onClick={() => router.push("/turnos/nuevo")} className="w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />
+            Nuevo Turno
+          </Button>
+        }
+      />
 
       <DataTable
         columns={columns}

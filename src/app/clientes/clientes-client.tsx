@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/ui/page-header"
 import { Cliente } from "@/types"
 import { Eye, Plus, Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -67,21 +68,17 @@ export function ClientesClient({ clientes: initialClientes }: ClientesClientProp
   ]
 
   return (
-    <div className="space-y-4 sm:space-y-8">
-      <div className="space-y-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Clientes</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Gestión de clientes del taller
-          </p>
-        </div>
-        <div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Clientes"
+        description="Gestión de clientes del taller"
+        action={
           <Button onClick={handleCreate} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Cliente
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <DataTable
         data={clientes}
