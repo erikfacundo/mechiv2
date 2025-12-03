@@ -27,6 +27,12 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# Credenciales y archivos sensibles
+r2.md
+*.md.backup
+*credentials*.md
+*secrets*.md
+
 # Firebase credentials
 **/firebase-adminsdk-*.json
 src/lib/firebase-admin.json

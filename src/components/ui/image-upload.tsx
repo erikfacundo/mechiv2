@@ -67,31 +67,75 @@ export function ImageUpload({
 
         let dataUrl: string
         try {
+          // Procesar imagen (redimensionar y comprimir)
           const result = await resizeAndCompressImage(file)
-          dataUrl = result.dataUrl
           const processedSize = result.size
           
-          if (processedSize > 200 * 1024) {
-            toast({
-              title: "Imagen aún muy grande",
-              description: `${file.name} sigue siendo muy grande después de procesar (${(processedSize / 1024).toFixed(0)}KB). Máximo 200KB por foto. Intenta con una imagen de menor resolución.`,
-              variant: "destructive",
+          // Intentar subir a R2 primero
+          try {
+            const uploadResponse = await fetch('/api/upload', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                image: result.dataUrl,
+                fileName: file.name,
+              }),
             })
-            continue
-          }
-          
-          const currentTotalSize = fotos.reduce((sum, foto) => {
-            return sum + (foto.dataUrl.length * 0.75)
-          }, 0)
-          const newTotalSize = currentTotalSize + processedSize
-          
-          if (newTotalSize > 600 * 1024) {
-            toast({
-              title: "Demasiadas fotos",
-              description: `El tamaño total de las fotos (${(newTotalSize / 1024).toFixed(0)}KB) excede el límite de 600KB. Firestore tiene un límite de 1MB por documento. Elimina algunas fotos o reduce su tamaño.`,
-              variant: "destructive",
-            })
-            continue
+
+            if (uploadResponse.ok) {
+              const uploadData = await uploadResponse.json()
+              // Usar URL de R2
+              dataUrl = uploadData.url
+            } else {
+              // Si falla R2, usar base64 como fallback
+              console.warn('R2 upload failed, using base64 fallback')
+              dataUrl = result.dataUrl
+              
+              // Validar tamaño solo si usamos base64
+              if (processedSize > 200 * 1024) {
+                toast({
+                  title: "Imagen aún muy grande",
+                  description: `${file.name} sigue siendo muy grande después de procesar (${(processedSize / 1024).toFixed(0)}KB). Máximo 200KB por foto. Intenta con una imagen de menor resolución.`,
+                  variant: "destructive",
+                })
+                continue
+              }
+              
+              // Validar tamaño total solo para base64
+              const currentTotalSize = fotos.reduce((sum, foto) => {
+                // Solo contar fotos base64 (las URLs no cuentan)
+                if (foto.dataUrl.startsWith('data:')) {
+                  return sum + (foto.dataUrl.length * 0.75)
+                }
+                return sum
+              }, 0)
+              const newTotalSize = currentTotalSize + processedSize
+              
+              if (newTotalSize > 600 * 1024) {
+                toast({
+                  title: "Demasiadas fotos",
+                  description: `El tamaño total de las fotos (${(newTotalSize / 1024).toFixed(0)}KB) excede el límite de 600KB. Firestore tiene un límite de 1MB por documento. Elimina algunas fotos o reduce su tamaño.`,
+                  variant: "destructive",
+                })
+                continue
+              }
+            }
+          } catch (uploadError) {
+            // Error al subir a R2, usar base64 como fallback
+            console.warn('R2 upload error, using base64 fallback:', uploadError)
+            dataUrl = result.dataUrl
+            
+            // Validar tamaño solo si usamos base64
+            if (processedSize > 200 * 1024) {
+              toast({
+                title: "Imagen aún muy grande",
+                description: `${file.name} sigue siendo muy grande después de procesar (${(processedSize / 1024).toFixed(0)}KB). Máximo 200KB por foto. Intenta con una imagen de menor resolución.`,
+                variant: "destructive",
+              })
+              continue
+            }
           }
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
@@ -133,7 +177,21 @@ export function ImageUpload({
   }, [fotos, maxFotos, toast, onFotosChange])
 
 
-  const handleRemoveFoto = useCallback((fotoId: string) => {
+  const handleRemoveFoto = useCallback(async (fotoId: string) => {
+    const foto = fotos.find(f => f.id === fotoId)
+    
+    // Si la foto está en R2 (es una URL), eliminarla también
+    if (foto && (foto.dataUrl.startsWith('http://') || foto.dataUrl.startsWith('https://'))) {
+      try {
+        await fetch(`/api/upload?url=${encodeURIComponent(foto.dataUrl)}`, {
+          method: 'DELETE',
+        })
+      } catch (error) {
+        console.error('Error deleting image from R2:', error)
+        // Continuar aunque falle la eliminación en R2
+      }
+    }
+    
     onFotosChange(fotos.filter(f => f.id !== fotoId))
     toast({
       title: "Foto eliminada",

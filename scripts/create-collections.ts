@@ -70,11 +70,12 @@ async function createCollections() {
       'clientes',
       'cobros',
       'gastos',
-      'mantenimientos', // Nueva colección
+      'mantenimientos',
       'ordenes',
       'plantillas_tareas',
       'proveedores',
       'turnos',
+      'usuarios', // Colección de usuarios para autenticación
       'vehiculos'
     ]
 

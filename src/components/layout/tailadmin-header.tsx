@@ -43,22 +43,37 @@ function getBreadcrumbs(pathname: string) {
   }
   
   let currentPath = ''
+  let lastValidPath = '/dashboard'
+  
   paths.forEach((path, index) => {
-    currentPath += `/${path}`
     const isLast = index === paths.length - 1
     
-    // Si es un ID, usar el nombre de la página anterior o "Detalle"
-    if (isId(path) && index > 0) {
-      const parentPath = paths[index - 1]
-      const parentName = routeNames[parentPath] || parentPath
-      breadcrumbs.push({ name: parentName, href: currentPath, current: isLast })
-    } else if (routeNames[path]) {
-      // Si está en routeNames, usar ese nombre
-      breadcrumbs.push({ name: routeNames[path], href: currentPath, current: isLast })
+    // Si es un ID, omitirlo de los breadcrumbs pero mantener el path para el siguiente
+    if (isId(path)) {
+      currentPath += `/${path}`
+      // No agregamos nada al breadcrumb, solo actualizamos el path
+      return
+    }
+    
+    currentPath += `/${path}`
+    
+    // Si es una ruta conocida, agregarla
+    if (routeNames[path]) {
+      breadcrumbs.push({ 
+        name: routeNames[path], 
+        href: currentPath, 
+        current: isLast 
+      })
+      lastValidPath = currentPath
     } else {
       // Para otros casos, capitalizar la primera letra
       const name = path.charAt(0).toUpperCase() + path.slice(1)
-      breadcrumbs.push({ name, href: currentPath, current: isLast })
+      breadcrumbs.push({ 
+        name, 
+        href: currentPath, 
+        current: isLast 
+      })
+      lastValidPath = currentPath
     }
   })
   

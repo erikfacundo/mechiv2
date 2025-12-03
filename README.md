@@ -163,11 +163,32 @@ Para crear las colecciones y poblar datos iniciales:
 npm run firestore:init
 ```
 
+Para crear solo las colecciones vacías:
+
+```bash
+npm run firestore:create
+```
+
+Para crear el usuario inicial (admteam / gandara3368):
+
+```bash
+npm run firestore:create-user
+```
+
 Para verificar el estado de las colecciones:
 
 ```bash
 npm run firestore:check
 ```
+
+### Usuario Inicial
+
+El sistema requiere crear el usuario inicial antes de poder iniciar sesión:
+
+- **Usuario**: `admteam`
+- **Contraseña**: `gandara3368`
+
+Ejecuta `npm run firestore:create-user` para crear este usuario en Firestore.
 
 ## 🚢 Despliegue
 
@@ -175,8 +196,26 @@ npm run firestore:check
 
 1. Conecta tu repositorio de GitHub a Vercel
 2. Vercel detectará automáticamente Next.js
-3. Configura las variables de entorno de Firebase (ver sección de Firebase)
+3. Configura las variables de entorno:
+   - **Firebase**: Ver sección de Firebase
+   - **Cloudflare R2**: Ver `CLOUDFLARE_R2_SETUP.md`
 4. El despliegue se realizará automáticamente en cada push
+
+### Variables de Entorno Requeridas en Vercel
+
+**Firebase:**
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_PRIVATE_KEY_ID`
+- `FIREBASE_PRIVATE_KEY`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_CLIENT_ID`
+- `FIREBASE_CLIENT_X509_CERT_URL`
+
+**Cloudflare R2:**
+- `R2_ACCOUNT_ID`
+- `R2_ACCESS_KEY_ID`
+- `R2_SECRET_ACCESS_KEY`
+- `R2_BUCKET_NAME`
 
 ### Build de Producción
 
@@ -192,18 +231,21 @@ npm start
 
 ### Funcionalidades Implementadas
 - ✅ Integración completa con Firebase Firestore
-- ✅ Autenticación de usuarios (usuario: `admteam`, pass: `gandara 3368`)
+- ✅ Autenticación de usuarios (usuario: `admteam`, pass: `gandara3368`)
 - ✅ Formularios CRUD completos para todas las entidades:
   - Clientes, Vehículos, Órdenes
   - Categorías, Cobros, Gastos
-  - Proveedores, Turnos, Plantillas de Tareas
+  - Proveedores, Turnos, Plantillas de Tareas, Usuarios
 - ✅ Validaciones únicas en tiempo real (DNI, patente, número de orden)
 - ✅ Sistema de notificaciones Toast
 - ✅ Dashboard con métricas
 - ✅ Filtros y búsqueda en todas las tablas
 - ✅ Vista de detalle completa
 - ✅ Modo oscuro/claro
-- ✅ Diseño responsive
+- ✅ Diseño responsive estilo Cloudflare
+- ✅ Sistema de fotos con Cloudflare R2 (10 GB gratis)
+- ✅ Checklist completo para órdenes (tareas simples, padre/hijo, desde categorías/plantillas)
+- ✅ Gestión de gastos en órdenes
 
 ### Documentación
 - 📖 `CHANGELOG.md` - Historial de cambios
