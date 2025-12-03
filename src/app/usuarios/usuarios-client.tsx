@@ -90,19 +90,28 @@ export function UsuariosClient() {
       <DataTable
         data={usuarios}
         columns={columns}
-        actions={[
-          {
-            icon: Edit,
-            label: "Editar",
-            onClick: handleEdit,
-          },
-          {
-            icon: Trash2,
-            label: "Eliminar",
-            onClick: handleDelete,
-            variant: "destructive" as const,
-          },
-        ]}
+        actions={(usuario) => (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleEdit(usuario)}
+              className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3 flex-shrink-0"
+            >
+              <Edit className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2">Editar</span>
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => handleDelete(usuario)}
+              className="h-8 w-8 sm:h-9 sm:w-auto sm:px-3 flex-shrink-0"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2">Eliminar</span>
+            </Button>
+          </>
+        )}
       />
     </div>
   )

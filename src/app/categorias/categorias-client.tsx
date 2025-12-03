@@ -128,8 +128,8 @@ export function CategoriasClient({ categorias: initialCategorias }: CategoriasCl
                       {/* Botón expandir */}
                       {hasSubtareas ? (
                         <Button
-                          variant="ghost"
-                          size="sm"
+                          variant={"ghost" as const}
+                          size={"sm" as const}
                           className="h-8 w-8 p-0 flex-shrink-0"
                           onClick={() => toggleExpand(categoria.id)}
                         >

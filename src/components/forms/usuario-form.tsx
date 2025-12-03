@@ -8,8 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { useState, useEffect } from "react"
-
-type UsuarioSinPassword = Omit<Usuario, 'id' | 'passwordHash'>
+import { UsuarioSinPassword } from "@/hooks/use-usuarios"
 
 interface UsuarioFormProps {
   usuario?: UsuarioSinPassword
