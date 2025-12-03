@@ -72,11 +72,26 @@ export function VehiculoForm({ vehiculo, clienteId: propClienteId, onSuccess, on
       const url = vehiculo ? `/api/vehiculos/${vehiculo.id}` : "/api/vehiculos"
       const method = vehiculo ? "PUT" : "POST"
 
-      // Incluir fotos en el body
+      // Normalizar tipoCombustible a minúscula
+      const tipoCombustibleNormalizado = data.tipoCombustible?.toLowerCase() || 'nafta'
+
+      // Incluir fotos en el body y asegurar que clienteId esté presente
       const bodyData = {
         ...data,
+        clienteId: clienteId || data.clienteId,
+        tipoCombustible: tipoCombustibleNormalizado,
+        patente: data.patente?.toUpperCase() || data.patente,
         fotos: fotos.length > 0 ? fotos : undefined,
       }
+
+      console.log('Enviando datos del vehículo:', {
+        patente: bodyData.patente,
+        clienteId: bodyData.clienteId,
+        marca: bodyData.marca,
+        modelo: bodyData.modelo,
+        tipoCombustible: bodyData.tipoCombustible,
+        fotosCount: bodyData.fotos?.length || 0
+      })
 
       const response = await fetch(url, {
         method,
@@ -87,7 +102,16 @@ export function VehiculoForm({ vehiculo, clienteId: propClienteId, onSuccess, on
       })
 
       if (!response.ok) {
-        throw new Error("Error al guardar vehículo")
+        // Intentar leer el mensaje de error del servidor
+        let errorMessage = "Error al guardar vehículo"
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorData.message || errorMessage
+        } catch (e) {
+          // Si no se puede parsear el JSON, usar el mensaje por defecto
+          console.error('Error parseando respuesta de error:', e)
+        }
+        throw new Error(errorMessage)
       }
 
       toast({
@@ -100,9 +124,11 @@ export function VehiculoForm({ vehiculo, clienteId: propClienteId, onSuccess, on
 
       onSuccess?.()
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "No se pudo guardar el vehículo. Intenta nuevamente."
+      console.error('Error guardando vehículo:', error)
       toast({
         title: "Error",
-        description: "No se pudo guardar el vehículo. Intenta nuevamente.",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
