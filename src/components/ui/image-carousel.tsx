@@ -57,12 +57,12 @@ export function ImageCarousel({
           {/* Imagen principal */}
           <div className="relative aspect-video w-full">
             <Image
-              src={currentFoto.dataUrl}
+              src={currentFoto.url || currentFoto.dataUrl || ''}
               alt={`Foto ${currentIndex + 1}`}
               fill
               className="object-contain"
               priority
-              unoptimized={isR2Url(currentFoto.dataUrl)}
+              unoptimized={!!currentFoto.url && isR2Url(currentFoto.url)}
             />
           </div>
 
@@ -140,10 +140,11 @@ export function ImageCarousel({
                   }`}
                 >
                   <Image
-                    src={foto.dataUrl}
+                    src={foto.url || foto.dataUrl || ''}
                     alt={`Miniatura ${index + 1}`}
                     fill
                     className="object-cover"
+                    unoptimized={!!foto.url && isR2Url(foto.url)}
                   />
                 </button>
               ))}

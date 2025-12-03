@@ -75,13 +75,37 @@ export function VehiculoForm({ vehiculo, clienteId: propClienteId, onSuccess, on
       // Normalizar tipoCombustible a minúscula
       const tipoCombustibleNormalizado = data.tipoCombustible?.toLowerCase() || 'nafta'
 
+      // Optimizar fotos: si tiene url (R2), no enviar dataUrl para reducir el payload
+      const fotosOptimizadas = fotos.length > 0 ? fotos.map(foto => {
+        if (foto.url) {
+          // Si tiene URL de R2, solo enviar url y metadata, no dataUrl
+          const { dataUrl, ...fotoSinDataUrl } = foto
+          return fotoSinDataUrl
+        }
+        // Si solo tiene dataUrl (base64), enviarlo
+        return foto
+      }) : undefined
+
       // Incluir fotos en el body y asegurar que clienteId esté presente
       const bodyData = {
         ...data,
         clienteId: clienteId || data.clienteId,
         tipoCombustible: tipoCombustibleNormalizado,
         patente: data.patente?.toUpperCase() || data.patente,
-        fotos: fotos.length > 0 ? fotos : undefined,
+        fotos: fotosOptimizadas,
+      }
+
+      // Validar tamaño del payload antes de enviar
+      const payloadSize = JSON.stringify(bodyData).length
+      const payloadSizeMB = payloadSize / (1024 * 1024)
+      
+      if (payloadSizeMB > 4) {
+        toast({
+          title: "Payload demasiado grande",
+          description: `El tamaño de los datos (${payloadSizeMB.toFixed(2)}MB) excede el límite de 4MB. Intenta subir menos fotos o asegúrate de que las fotos se suban a R2 correctamente.`,
+          variant: "destructive",
+        })
+        return
       }
 
       console.log('Enviando datos del vehículo:', {

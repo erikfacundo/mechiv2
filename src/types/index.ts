@@ -11,11 +11,12 @@ export interface Cliente {
 
 export interface FotoVehiculo {
   id: string; // ID único de la foto
-  dataUrl: string; // Imagen en base64 O URL de R2 (https://...)
+  dataUrl?: string; // Imagen en base64 (solo si no está en R2)
+  url?: string; // URL de R2 (si está almacenada en R2)
   fechaHora: Date; // Fecha y hora exacta de cuando se tomó/subió la foto
   descripcion?: string; // Opcional: descripción de la foto (ej: "Vista frontal", "Daño en paragolpes")
-  // Si dataUrl es una URL (empieza con http:// o https://), es una foto almacenada en R2
-  // Si dataUrl es base64 (empieza con data:), es una foto almacenada en Firestore
+  // Si url está presente, es una foto almacenada en R2
+  // Si dataUrl está presente, es una foto almacenada en Firestore como base64
 }
 
 export interface Vehiculo {
@@ -52,12 +53,13 @@ export interface GastoOrden {
 
 export interface FotoOrden {
   id: string; // ID único de la foto
-  dataUrl: string; // Imagen en base64 O URL de R2 (https://...)
+  dataUrl?: string; // Imagen en base64 (solo si no está en R2)
+  url?: string; // URL de R2 (si está almacenada en R2)
   fechaHora: Date; // Fecha y hora exacta de cuando se tomó/subió la foto
   tipo: 'inicial' | 'final'; // Estado inicial o final del vehículo
   descripcion?: string; // Opcional: descripción de la foto
-  // Si dataUrl es una URL (empieza con http:// o https://), es una foto almacenada en R2
-  // Si dataUrl es base64 (empieza con data:), es una foto almacenada en Firestore
+  // Si url está presente, es una foto almacenada en R2
+  // Si dataUrl está presente, es una foto almacenada en Firestore como base64
 }
 
 export interface OrdenTrabajo {

@@ -19,6 +19,16 @@ export function VehiculosClient({ vehiculos: initialVehiculos, clientes }: Vehic
   const { toast } = useToast()
   const [vehiculos, setVehiculos] = useState(initialVehiculos)
 
+  // Log para debugging
+  console.log('VehiculosClient - Vehículos recibidos:', initialVehiculos.length)
+  console.log('VehiculosClient - Datos:', initialVehiculos.map(v => ({
+    id: v.id,
+    patente: v.patente,
+    marca: v.marca,
+    modelo: v.modelo,
+    clienteId: v.clienteId
+  })))
+
   const clientesMap = useMemo(() => {
     const map: Record<string, { nombre: string; apellido: string }> = {}
     clientes.forEach(c => {

@@ -66,13 +66,15 @@ export function ImageUpload({
           continue
         }
 
-        let dataUrl: string
+        let r2Url: string | undefined
+        let dataUrl: string | undefined
         try {
           // Procesar imagen (redimensionar y comprimir)
           const result = await resizeAndCompressImage(file)
           const processedSize = result.size
           
           // Intentar subir a R2 primero
+          // Nota: La patente se pasará cuando esté disponible en el formulario
           try {
             const uploadResponse = await fetch('/api/upload', {
               method: 'POST',
@@ -82,16 +84,30 @@ export function ImageUpload({
               body: JSON.stringify({
                 image: result.dataUrl,
                 fileName: file.name,
+                // patente se agregará cuando el vehículo se guarde (en el endpoint)
               }),
             })
 
             if (uploadResponse.ok) {
               const uploadData = await uploadResponse.json()
               // Usar URL de R2
-              dataUrl = uploadData.url
+              r2Url = uploadData.url
+              console.log('Imagen subida exitosamente a R2:', r2Url)
             } else {
               // Si falla R2, usar base64 como fallback
-              console.warn('R2 upload failed, using base64 fallback')
+              const errorData = await uploadResponse.json().catch(() => ({}))
+              console.warn('R2 upload failed, using base64 fallback:', {
+                status: uploadResponse.status,
+                error: errorData.error || errorData.message || 'Unknown error'
+              })
+              
+              // Mostrar advertencia al usuario
+              toast({
+                title: "Advertencia",
+                description: "No se pudo subir la imagen a R2. Se guardará localmente (puede ser lento).",
+                variant: "default",
+              })
+              
               dataUrl = result.dataUrl
               
               // Validar tamaño solo si usamos base64
@@ -107,7 +123,7 @@ export function ImageUpload({
               // Validar tamaño total solo para base64
               const currentTotalSize = fotos.reduce((sum, foto) => {
                 // Solo contar fotos base64 (las URLs no cuentan)
-                if (foto.dataUrl.startsWith('data:')) {
+                if (foto.dataUrl && foto.dataUrl.startsWith('data:')) {
                   return sum + (foto.dataUrl.length * 0.75)
                 }
                 return sum
@@ -125,7 +141,15 @@ export function ImageUpload({
             }
           } catch (uploadError) {
             // Error al subir a R2, usar base64 como fallback
-            console.warn('R2 upload error, using base64 fallback:', uploadError)
+            console.error('R2 upload error, using base64 fallback:', uploadError)
+            
+            // Mostrar advertencia al usuario
+            toast({
+              title: "Advertencia",
+              description: "No se pudo subir la imagen a R2. Se guardará localmente (puede ser lento).",
+              variant: "default",
+            })
+            
             dataUrl = result.dataUrl
             
             // Validar tamaño solo si usamos base64
@@ -150,7 +174,7 @@ export function ImageUpload({
         
         const nuevaFoto: FotoVehiculo = {
           id: `foto-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          dataUrl,
+          ...(r2Url ? { url: r2Url } : { dataUrl }),
           fechaHora: new Date(), // Fecha y hora exacta de cuando se subió
         }
 
@@ -181,10 +205,10 @@ export function ImageUpload({
   const handleRemoveFoto = useCallback(async (fotoId: string) => {
     const foto = fotos.find(f => f.id === fotoId)
     
-    // Si la foto está en R2 (es una URL), eliminarla también
-    if (foto && (foto.dataUrl.startsWith('http://') || foto.dataUrl.startsWith('https://'))) {
+    // Si la foto está en R2 (tiene url), eliminarla también
+    if (foto && foto.url) {
       try {
-        await fetch(`/api/upload?url=${encodeURIComponent(foto.dataUrl)}`, {
+        await fetch(`/api/upload?url=${encodeURIComponent(foto.url)}`, {
           method: 'DELETE',
         })
       } catch (error) {
@@ -269,12 +293,12 @@ export function ImageUpload({
               className="relative group aspect-square rounded-lg overflow-hidden border border-border bg-muted"
             >
               <NextImage
-                src={foto.dataUrl}
+                src={foto.url || foto.dataUrl || ''}
                 alt="Foto del vehículo"
                 fill
                 className="object-cover"
                 sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                unoptimized={isR2Url(foto.dataUrl)}
+                unoptimized={!!foto.url && isR2Url(foto.url)}
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center">
                 <Button

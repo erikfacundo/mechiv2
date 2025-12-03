@@ -32,14 +32,26 @@ const BUCKET_NAME = process.env.R2_BUCKET_NAME || 'mechify-fotos'
 
 /**
  * Sube una imagen a R2 y retorna la URL pública
+ * @param file - Buffer o Uint8Array de la imagen
+ * @param fileName - Nombre del archivo
+ * @param contentType - Tipo MIME de la imagen (default: 'image/jpeg')
+ * @param patente - Patente del vehículo (opcional, se usa para organizar las fotos)
  */
 export async function uploadImageToR2(
   file: Buffer | Uint8Array,
   fileName: string,
-  contentType: string = 'image/jpeg'
+  contentType: string = 'image/jpeg',
+  patente?: string
 ): Promise<string> {
   const r2Client = getR2Client()
-  const key = `fotos/${Date.now()}-${fileName}`
+  
+  // Limpiar patente para usar como parte del path (solo alfanuméricos)
+  const patenteLimpia = patente ? patente.replace(/[^A-Z0-9]/g, '').toUpperCase() : 'sin-patente'
+  
+  // Usar patente en el path: fotos/PATENTE/timestamp-filename
+  const key = patente 
+    ? `fotos/${patenteLimpia}/${Date.now()}-${fileName}`
+    : `fotos/${Date.now()}-${fileName}`
 
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,

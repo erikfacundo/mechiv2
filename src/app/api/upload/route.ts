@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { image, fileName } = body
+    const { image, fileName, patente } = body
 
     if (!image || typeof image !== 'string') {
       return NextResponse.json(
@@ -52,8 +52,8 @@ export async function POST(request: NextRequest) {
     const extension = contentType.includes('png') ? 'png' : 'jpg'
     const finalFileName = fileName || `image-${timestamp}-${randomStr}.${extension}`
 
-    // Subir a R2
-    const publicUrl = await uploadImageToR2(imageBuffer, finalFileName, contentType)
+    // Subir a R2 con patente si está disponible
+    const publicUrl = await uploadImageToR2(imageBuffer, finalFileName, contentType, patente)
 
     return NextResponse.json({
       success: true,
