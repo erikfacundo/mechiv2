@@ -1,5 +1,6 @@
 import { getGastos } from "@/services/firebase/gastos"
 import { GastosClient } from "./gastos-client"
+import { Gasto } from "@/types"
 
 // Forzar renderizado dinámico para evitar errores en build estático
 export const dynamic = 'force-dynamic'
@@ -7,7 +8,7 @@ export const revalidate = 0
 
 export default async function GastosPage() {
   // Fetch en el servidor con manejo de errores
-  let gastos = []
+  let gastos: Gasto[] = []
   
   try {
     gastos = await getGastos() || []
